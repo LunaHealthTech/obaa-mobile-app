@@ -6,6 +6,10 @@ import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { signIn } from "@/lib/auth";
+import { useMutation } from "@tanstack/react-query";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useRouter } from "expo-router";
 
 const appLogo = require("@/assets/icons/ObaaLogoCircularC1.png");
 const messageIcon = require("@/assets/icons/message.png");
@@ -34,6 +38,7 @@ const loginSchema = z.object({
 });
 
 export default function SignInScreen() {
+  const router = useRouter();
   const [hidePassword, setHidePassword] = useState<boolean>(true);
   const {
     control,
@@ -47,9 +52,19 @@ export default function SignInScreen() {
     },
   });
 
-  const handleLogin = async () => {
-    console.log("login pressed");
-  };
+  const login = useAuthStore((s) => s.login);
+
+  const mutation = useMutation({
+    mutationFn: signIn,
+    onSuccess: async (data) => {
+      console.log({ dataFromSignIn: data });
+      await login(data.user, data.tokens.access, data.tokens.refresh);
+      router.navigate("/(tabs)");
+    },
+    onError: (err) => {
+      console.log({ err: err.message, setni: err.response.data });
+    },
+  });
 
   return (
     <View className={"flex-1 justify-between w-full bg-white text-mainText"}>
@@ -159,7 +174,7 @@ export default function SignInScreen() {
       {/*Action section*/}
       <View className={"flex justify-center items-center "}>
         <Pressable
-          onPress={handleSubmit(handleLogin)}
+          onPress={handleSubmit((data) => mutation.mutate(data))}
           className={
             "bg-primaryColor text-white w-[360px] h-[62px] rounded-full flex items-center justify-center active:opacity-80"
           }

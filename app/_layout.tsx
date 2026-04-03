@@ -16,6 +16,8 @@ import {
 
 import "@/global.css";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { AppProviders } from "@/providers/AppProviders";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export const unstable_settings = {
   initialRouteName: "intro",
@@ -34,7 +36,8 @@ export default function RootLayout() {
     Inter_600SemiBold,
     Inter_700Bold,
   });
-
+  const isAuthenticated = useAuthStore((s) => s.status);
+  console.log(isAuthenticated);
   useEffect(() => {
     if (loaded || error) SplashScreen.hideAsync();
   }, [loaded, error]);
@@ -43,18 +46,20 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <Stack>
-        <Stack.Protected guard={false}>
-          <Stack.Screen name={"(tabs)"} options={{ title: "Home" }} />
-        </Stack.Protected>
-        <Stack.Protected guard={true}>
-          <Stack.Screen
-            name={"intro"}
-            options={{ title: "Choose wisely", headerShown: false }}
-          />
-          <Stack.Screen name={"signin"} options={{ title: "Log in joor" }} />
-        </Stack.Protected>
-      </Stack>
+      <AppProviders>
+        <Stack>
+          <Stack.Protected guard={isAuthenticated === "authenticated"}>
+            <Stack.Screen name={"(tabs)"} options={{ title: "Home" }} />
+          </Stack.Protected>
+          <Stack.Protected guard={!(isAuthenticated === "authenticated")}>
+            <Stack.Screen
+              name={"intro"}
+              options={{ title: "Choose wisely", headerShown: false }}
+            />
+            <Stack.Screen name={"signin"} options={{ title: "Log in joor" }} />
+          </Stack.Protected>
+        </Stack>
+      </AppProviders>
     </SafeAreaProvider>
   );
 }
