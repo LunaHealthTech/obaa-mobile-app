@@ -57,6 +57,7 @@ export default function RootLayout() {
               options={{ title: "Choose wisely", headerShown: false }}
             />
             <Stack.Screen name={"signin"} options={{ title: "Log in joor" }} />
+            <Stack.Screen name={"signup"} options={{ title: "Sign up joor" }} />
           </Stack.Protected>
         </Stack>
       </AppProviders>

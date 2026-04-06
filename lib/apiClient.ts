@@ -1,5 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { TokenStorage } from "@/lib/tokenStorage";
+import { TokenStorage } from "@/store/tokenStorage";
 import { useAuthStore } from "@/store/useAuthStore";
 
 const BASE_URL = "http://10.0.2.2:8000/api/v1";

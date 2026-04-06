@@ -5,11 +5,11 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { signIn } from "@/lib/auth";
 import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "expo-router";
+import { loginSchema } from "@/lib/FormSchemas";
 
 const appLogo = require("@/assets/icons/ObaaLogoCircularC1.png");
 const messageIcon = require("@/assets/icons/message.png");
@@ -17,25 +17,6 @@ const eyeIcon = require("@/assets/icons/eye.png");
 const facebookIcon = require("@/assets/icons/facebook.png");
 const googleIcon = require("@/assets/icons/google.png");
 const appleIcon = require("@/assets/icons/apple.png");
-
-const loginSchema = z.object({
-  email: z
-    .email({ message: "Not a valid email" })
-    .min(1, "too short for an email"),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters long" })
-    .regex(/[a-z]/, {
-      message: "Password must contain at least one lowercase letter",
-    })
-    .regex(/[A-Z]/, {
-      message: "Password must contain at least one uppercase letter",
-    })
-    .regex(/\d/, { message: "Password must contain at least one number" })
-    .regex(/[^a-zA-Z0-9]/, {
-      message: "Password must contain at least one special character",
-    }),
-});
 
 export default function SignInScreen() {
   const router = useRouter();
@@ -62,6 +43,7 @@ export default function SignInScreen() {
       router.navigate("/(tabs)");
     },
     onError: (err) => {
+      // TODO: log this error with a logger
       console.log({ err: err.message, setni: err.response.data });
     },
   });
@@ -183,7 +165,7 @@ export default function SignInScreen() {
         </Pressable>
 
         <View className={"my-5 flex gap-5 items-center"}>
-          <Text>Or Sign up with</Text>
+          <Text>Or Sign in with</Text>
           <View className={"flex flex-row gap-5"}>
             <Image source={facebookIcon} width={40} height={40} />
             <Image source={googleIcon} width={40} height={40} />
@@ -191,7 +173,11 @@ export default function SignInScreen() {
           </View>
           <Text>
             Don't have an account yet?{" "}
-            <Text className={"text-primaryColor font-bold"}>Sign up</Text>{" "}
+            <Link href={"/signup"}>
+              <Text className={"text-primaryColor font-bold"}>
+                Sign up
+              </Text>{" "}
+            </Link>
           </Text>
           <Text>
             Need help? Visit our{" "}
