@@ -49,7 +49,10 @@ export default function RootLayout() {
       <AppProviders>
         <Stack>
           <Stack.Protected guard={isAuthenticated === "authenticated"}>
-            <Stack.Screen name={"(tabs)"} options={{ title: "Home" }} />
+            <Stack.Screen
+              name={"(tabs)"}
+              options={{ title: "Home", headerShown: false }}
+            />
           </Stack.Protected>
           <Stack.Protected guard={!(isAuthenticated === "authenticated")}>
             <Stack.Screen

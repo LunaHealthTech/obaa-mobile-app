@@ -16,13 +16,13 @@ interface SignUpPayload {
 
 export async function signIn(payload: SignInPayload) {
   const res = await apiClient.post("/auth/login/", payload);
-  console.log(res.data);
+  console.log(res.data); // TODO: remove these
   return res.data;
 }
 
 export async function signUp(payload: SignUpPayload) {
   console.log({ payload });
   const res = await apiClient.post("/auth/register/", payload);
-  console.log(res.data);
+  console.log(res.data); // TODO: remove console log statements
   return res.data;
 }
