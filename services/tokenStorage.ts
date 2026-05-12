@@ -5,6 +5,7 @@ export const TokenStorage = {
     await SecureStore.setItemAsync("ACCESS_TOKEN", access);
     await SecureStore.setItemAsync("REFRESH_TOKEN", refresh);
   },
+  saveInfo: async (userInfo) => {},
   getAccessToken: () => SecureStore.getItemAsync("ACCESS_TOKEN"),
   getRefreshToken: () => SecureStore.getItemAsync("REFRESH_TOKEN"),
   clearTokens: async () => {

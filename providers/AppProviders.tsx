@@ -1,6 +1,6 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore } from "@/repositories/useAuthStore";
 import { useEffect } from "react";
 
 function AuthBootstrap({ children }: { children: React.ReactNode }) {

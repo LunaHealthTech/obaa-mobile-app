@@ -3,9 +3,9 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore } from "@/repositories/useAuthStore";
 import { useMutation } from "@tanstack/react-query";
-import { signIn } from "@/lib/auth";
+import { signIn } from "@/services/authService";
 import { isValidNumber } from "react-native-phone-entry";
 
 export const SignUpSchema = z.object({

@@ -1,18 +1,18 @@
 import { View, Text, Image, TextInput, Pressable } from "react-native";
-import { Stack, Link, useRouter } from "expo-router";
+import { Stack, Link } from "expo-router";
 import { appLogo, eyeIcon, messageIcon, ProfileIcon } from "@/constants/assets";
 import { useForm, Controller, Control, FieldErrors } from "react-hook-form";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { toast } from "sonner-native";
 import { PhoneInput } from "@/components/PhoneInput";
 import { SignUpSchema } from "@/lib/FormSchemas";
-import { AuthState, useAuthStore } from "@/store/useAuthStore";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { DateInput } from "@/components/DateInput";
-import { useMutation } from "@tanstack/react-query";
-import { signUp } from "@/lib/auth";
+import { useAuth } from "@/viewmodel/useAuth";
+import { AuthState } from "@/types/auth.types";
 
 type FormValues = {
   first_name: string;
@@ -32,11 +32,8 @@ type StepProps = {
 
 export default function SignUp() {
   const maxSteps = 2;
-  const router = useRouter();
+  const { register, registerPending, signUpSteps, setSignUpItem } = useAuth();
   const [step, setStep] = useState<number>(0);
-  const signUpSteps = useAuthStore((state) => state.signUpItems);
-  const setSignUpItem = useAuthStore((s) => s.setSignUpItem);
-  const login = useAuthStore((s) => s.login);
   const {
     control,
     handleSubmit,
@@ -52,7 +49,6 @@ export default function SignUp() {
       date_of_birth: new Date(),
     },
   });
-  console.log({ errors, handleSubmit });
   // @ts-ignore
   const steps = [
     <Step1
@@ -65,6 +61,7 @@ export default function SignUp() {
       control={control}
       signUpSteps={signUpSteps}
       setSignUpItem={setSignUpItem}
+      errors={errors}
     />,
     <Step3
       control={control}
@@ -74,19 +71,6 @@ export default function SignUp() {
       errors={errors}
     />,
   ];
-
-  const mutation = useMutation({
-    mutationFn: signUp,
-    onSuccess: async (data) => {
-      console.log({ dataFromSignUp: data });
-      await login(data.user, data.tokens.access, data.tokens.refresh);
-      router.navigate("/(tabs)");
-    },
-    onError: (err) => {
-      // TODO: log this error with a logger
-      console.log({ err: err.message, setni: err.response.data });
-    },
-  });
 
   return (
     <View className={"flex-1 w-full bg-white text-mainText"}>
@@ -127,13 +111,22 @@ export default function SignUp() {
         <View className={"flex gap-4"}>
           <Pressable
             onPress={() => {
-              handleSubmit((data) => {
-                console.log({ maxSteps, step, errors });
-                if (step === maxSteps) {
-                  return mutation.mutate(data);
-                }
-                if (step < maxSteps) setStep((s) => s + 1);
-              });
+              if (step < maxSteps) {
+                setStep((s) => s + 1);
+              } else {
+                handleSubmit(
+                  (data) => register(data),
+                  (errs) => {
+                    console.log({ errs });
+                    if (step >= 2) {
+                      for (const err in errs) {
+                        console.log(errs[err].message);
+                        toast.error(errs[err].message);
+                      }
+                    }
+                  },
+                )();
+              }
             }}
             className={
               "bg-primaryColor text-white w-[360px] h-[62px] rounded-full flex items-center justify-center active:opacity-80"
@@ -250,10 +243,13 @@ function Step2({ control, signUpSteps, setSignUpItem }: StepProps) {
             <>
               <DateInput
                 value={value}
-                onChange={onChange}
+                onChange={(val: string) => {
+                  console.log({ signUpSteps });
+                  setSignUpItem({ ...signUpSteps, date_of_birth: val });
+                  onChange(val);
+                }}
                 error={error?.message}
               />
-              <Text>{error?.message}</Text>
             </>
           )}
         />
@@ -294,7 +290,7 @@ function Step2({ control, signUpSteps, setSignUpItem }: StepProps) {
   );
 }
 
-function Step3({ control, signUpSteps, setSignUpItem }: StepProps) {
+function Step3({ control, signUpSteps, setSignUpItem, errors }: StepProps) {
   const [hidePassword, setHidePassword] = useState<boolean>(true);
   return (
     <>
@@ -314,11 +310,6 @@ function Step3({ control, signUpSteps, setSignUpItem }: StepProps) {
                   }}
                   error={error?.message}
                 />
-                {error?.message && (
-                  <Text className={"text-red-500 text-sm"}>
-                    {error?.message}
-                  </Text>
-                )}
               </>
             )}
             name={"phone_number"}
@@ -344,12 +335,6 @@ function Step3({ control, signUpSteps, setSignUpItem }: StepProps) {
                   secureTextEntry={hidePassword}
                   placeholder={"••••••••••••••••"}
                 />
-                {/* Password error message */}
-                {error?.password && (
-                  <Text className="text-red-500 text-sm mt-1">
-                    {error.password.message}
-                  </Text>
-                )}
               </>
             )}
             name={"password"}
@@ -364,6 +349,11 @@ function Step3({ control, signUpSteps, setSignUpItem }: StepProps) {
             <Image source={eyeIcon} height={20} width={20} />
           </Pressable>
         </View>
+        {errors?.password?.message && (
+          <Text className="text-red-500 text-sm mt-6">
+            {errors?.password.message}
+          </Text>
+        )}
       </View>
     </>
   );

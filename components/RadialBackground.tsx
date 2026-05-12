@@ -16,7 +16,7 @@ export function RadialBackground({ colors }: RadialBackgroundProps) {
       width={"100%"}
     >
       <Defs>
-        <RadialGradient id={"grad"} cx={"50%"} cy={"100%"} rx={"40%"}>
+        <RadialGradient id={"grad"} cx={"50%"} cy={"90%"} rx={"80%"}>
           {colors.map((color, i) => (
             <Stop
               key={i}

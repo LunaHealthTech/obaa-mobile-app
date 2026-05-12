@@ -1,5 +1,5 @@
 import { View, Text, Pressable, Image } from "react-native";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore } from "@/repositories/useAuthStore";
 import { Stack } from "expo-router";
 import CalendarIcon from "@/assets/icons/topCalendarIcon.svg";
 import NotificationsIcon from "@/assets/icons/notificationIcon.svg";
@@ -13,12 +13,25 @@ import { flowers } from "@/constants/assets";
 import { StatusBar } from "expo-status-bar";
 import { MenstrualInfoCard } from "@/components/MenstrualInfoCard";
 import { ShareCard } from "@/components/ShareCard";
+import { useMenstrualProfileViewModel } from "@/viewmodel/useMenstrualProfile";
+import { EmotionCard } from "@/components/EmotionCard";
 
-export default function HomeScreen() {
+export default function HomePage() {
   const logout = useAuthStore((state) => state.logout);
+  const { data, isLoading } = useMenstrualProfileViewModel();
+  console.log({ data, isLoading });
+
   const handleShareClick = () => {
     // do nothing
   };
+
+  if (isLoading) {
+    return (
+      <View>
+        <Text>Loading</Text>
+      </View>
+    );
+  }
   return (
     <View className={"bg-white px-8"}>
       <StatusBar style={"dark"} />
@@ -58,29 +71,46 @@ export default function HomeScreen() {
         </View>
         {/*    Cards go here */}
         <MenstrualInfoCard
-          text={"You are currently in: Menstrual Phase"}
+          text={`You are currently ${data?.status}`}
           subText={"Period started 2 days ago"}
         >
-          <DrippingBloodIcon width={35} height={35} />
+          <DrippingBloodIcon width={25} height={25} />
         </MenstrualInfoCard>
-        <MenstrualInfoCard text={"Period Length: 5 days"} subText={"Normal"}>
-          <ClockIcon width={35} height={35} />
+        <MenstrualInfoCard
+          text={`Period Length:${data?.periodLength}`}
+          subText={"Normal"}
+        >
+          <ClockIcon width={25} height={25} />
         </MenstrualInfoCard>
 
-        <MenstrualInfoCard text={"Cycle Length: 28 days"} subText={"Normal"}>
-          <SyncIcon width={35} height={35} />
+        <MenstrualInfoCard
+          text={`Cycle Length: ${data?.cycleLength}`}
+          subText={"Normal"}
+        >
+          <SyncIcon width={25} height={25} />
         </MenstrualInfoCard>
-        <MenstrualInfoCard text={"Pregnancy"} subText={"Low"}>
-          <PregnancyIcon width={35} height={35} />
+        <MenstrualInfoCard
+          text={"Pregnancy"}
+          subText={`${data?.pregnancyProbability}`}
+        >
+          <PregnancyIcon width={25} height={25} />
         </MenstrualInfoCard>
       </View>
 
-      <View>
+      <View className={"mt-5"}>
         <ShareCard handleClick={handleShareClick} />
       </View>
 
       {/*How do you feel today*/}
-      <View></View>
+      <View className={"mt-5"}>
+        <Text className={"font-semibold mb-3"}>How do you feel today?</Text>
+        <View className={"flex flex-row"}>
+          {/* Something*/}
+          <EmotionCard />
+          <EmotionCard />
+          <EmotionCard />
+        </View>
+      </View>
       <Pressable onPress={() => logout()}>
         <Text>Logout</Text>
       </Pressable>
