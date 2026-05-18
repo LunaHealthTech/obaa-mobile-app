@@ -115,12 +115,13 @@ export default function SignUp() {
                 setStep((s) => s + 1);
               } else {
                 handleSubmit(
-                  (data) => register(data),
+                  (data) => {
+                    register(data);
+                  },
                   (errs) => {
-                    console.log({ errs });
+                    // Client side error display
                     if (step >= 2) {
                       for (const err in errs) {
-                        console.log(errs[err].message);
                         toast.error(errs[err].message);
                       }
                     }

@@ -1,5 +1,4 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { userRepository } from "@/repositories/userRepository";
 import { queryClient } from "@/lib/queryClient";
 import {
   getMenstrualInfo,
@@ -7,8 +6,8 @@ import {
 } from "@/services/menstrualService";
 
 export function useMenstrualProfileViewModel() {
-  const queryKey = ["/menstrual/profile"];
-  const { data, isLoading } = useQuery({
+  const queryKey = ["/menstrual/profile/"];
+  const { data, isLoading, error, isError } = useQuery({
     queryKey,
     queryFn: getMenstrualInfo,
     staleTime: 5 * 60 * 1000,
@@ -17,6 +16,7 @@ export function useMenstrualProfileViewModel() {
   const createMutation = useMutation({
     mutationFn: updateMenstrualInfo,
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+    // TODO: work on the error
   });
 
   return {
@@ -24,5 +24,7 @@ export function useMenstrualProfileViewModel() {
     isLoading,
     updateUserMenstrualInfo: createMutation.mutate,
     isUpdating: createMutation.isPending,
+    error,
+    isError,
   };
 }

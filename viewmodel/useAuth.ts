@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import { useAuthStore } from "@/repositories/useAuthStore";
 import { useMutation } from "@tanstack/react-query";
 import { signIn, signUp } from "@/services/authService";
+import { toast } from "sonner-native";
 
 export function useAuth() {
   // Constants
@@ -28,17 +29,24 @@ export function useAuth() {
   const registerMutation = useMutation({
     mutationFn: signUp,
     onSuccess: async (data) => {
+      toast.dismiss();
       console.log({ dataFromSignUp: data });
+      toast.success("Your account was created successfully");
       router.navigate("/signin");
     },
     onError: async (err) => {
-      console.log({ status: err.response.status });
+      toast.dismiss();
       const errorData = err.response.data;
       const errors = {};
       for (const e in errorData) {
         errors[e] = errorData[e][0];
       }
-      return errors;
+      console.log({ status: err.response.status, errorData, errors });
+      if (err?.response.status !== 200) {
+        for (const errr in errors) {
+          toast.error(errors[errr]);
+        }
+      }
     },
   });
 

@@ -1,6 +1,6 @@
 import { View, Text, Pressable, Image } from "react-native";
 import { useAuthStore } from "@/repositories/useAuthStore";
-import { Stack } from "expo-router";
+import { Stack, Link } from "expo-router";
 import CalendarIcon from "@/assets/icons/topCalendarIcon.svg";
 import NotificationsIcon from "@/assets/icons/notificationIcon.svg";
 import PinkFlowerIcon from "@/assets/icons/flowers-1.svg";
@@ -18,8 +18,8 @@ import { EmotionCard } from "@/components/EmotionCard";
 
 export default function HomePage() {
   const logout = useAuthStore((state) => state.logout);
-  const { data, isLoading } = useMenstrualProfileViewModel();
-  console.log({ data, isLoading });
+  const { data, isLoading, error, isError } = useMenstrualProfileViewModel();
+  console.log({ data, isLoading, error, isError });
 
   const handleShareClick = () => {
     // do nothing
@@ -114,6 +114,7 @@ export default function HomePage() {
       <Pressable onPress={() => logout()}>
         <Text>Logout</Text>
       </Pressable>
+      <Link href={"/onboarding/persona"}>Onboarding</Link>
     </View>
   );
 }

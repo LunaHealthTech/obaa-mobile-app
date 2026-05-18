@@ -14,13 +14,13 @@ interface MenstrualStorage {
 }
 
 export async function getMenstrualInfo() {
-  const res = await apiClient.get("/menstrual/profile");
-  console.log(res.data);
+  const res = await apiClient.get("/menstrual/profile/");
+  console.log({ res });
   return res.data;
 }
 
 export async function updateMenstrualInfo(payload) {
-  const res = await apiClient.put("/menstrual/profile", payload);
+  const res = await apiClient.put("/menstrual/profile/", payload);
   console.log({ res });
   return res.data;
 }
