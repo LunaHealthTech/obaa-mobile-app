@@ -1,1 +1,0 @@
-# ttym-mobile-app
