@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Stack, Tabs, SplashScreen } from "expo-router";
+import { Stack, SplashScreen } from "expo-router";
 import { useFonts } from "expo-font";
 import {
   Inter_400Regular,
@@ -17,8 +17,9 @@ import {
 import "@/global.css";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AppProviders } from "@/providers/AppProviders";
-import { useAuthStore } from "@/store/useAuthStore";
-
+import { Toaster } from "sonner-native";
+import { useAuthStore } from "@/repositories/useAuthStore";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 export const unstable_settings = {
   initialRouteName: "intro",
 };
@@ -46,21 +47,37 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <AppProviders>
-        <Stack>
-          <Stack.Protected guard={isAuthenticated === "authenticated"}>
-            <Stack.Screen name={"(tabs)"} options={{ title: "Home" }} />
-          </Stack.Protected>
-          <Stack.Protected guard={!(isAuthenticated === "authenticated")}>
-            <Stack.Screen
-              name={"intro"}
-              options={{ title: "Choose wisely", headerShown: false }}
-            />
-            <Stack.Screen name={"signin"} options={{ title: "Log in joor" }} />
-            <Stack.Screen name={"signup"} options={{ title: "Sign up joor" }} />
-          </Stack.Protected>
-        </Stack>
-      </AppProviders>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <AppProviders>
+          <Stack>
+            <Stack.Protected guard={isAuthenticated === "authenticated"}>
+              <Stack.Screen
+                name={"(tabs)"}
+                options={{ title: "Home", headerShown: false }}
+              />
+              <Stack.Screen
+                name={"onboarding"}
+                options={{ title: "onboarding", headerShown: false }}
+              />
+            </Stack.Protected>
+            <Stack.Protected guard={!(isAuthenticated === "authenticated")}>
+              <Stack.Screen
+                name={"intro"}
+                options={{ title: "Choose wisely", headerShown: false }}
+              />
+              <Stack.Screen
+                name={"signin"}
+                options={{ title: "Log in joor" }}
+              />
+              <Stack.Screen
+                name={"signup"}
+                options={{ title: "Sign up joor" }}
+              />
+            </Stack.Protected>
+          </Stack>
+          <Toaster position={"top-center"} />
+        </AppProviders>
+      </GestureHandlerRootView>
     </SafeAreaProvider>
   );
 }

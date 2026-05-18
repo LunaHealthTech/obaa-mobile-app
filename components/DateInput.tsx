@@ -1,9 +1,11 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
+import { format, parseISO } from "date-fns";
 
 export function DateInput({ value, onChange, error }) {
   const [show, setShow] = useState(false);
+  console.log({ value });
   return (
     <View>
       {/* Trigger */}
@@ -13,7 +15,7 @@ export function DateInput({ value, onChange, error }) {
           "bg-white border border-[#999999] mt-2 rounded-md flex flex-row gap-2 items-center p-3"
         }
       >
-        <Text>{value ? value.toLocaleDateString() : "Select date"}</Text>
+        <Text>{value ? format(value, "yyyy-MM-dd") : "Select date"}</Text>
       </Pressable>
 
       {/* Picker */}
@@ -30,7 +32,7 @@ export function DateInput({ value, onChange, error }) {
         />
       )}
 
-      {error && <Text style={"text-sm text-red-500"}>{error}</Text>}
+      {error && <Text className={"text-sm text-red-500"}>{error}</Text>}
     </View>
   );
 }

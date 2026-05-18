@@ -3,13 +3,13 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore } from "@/repositories/useAuthStore";
 import { useMutation } from "@tanstack/react-query";
-import { signIn } from "@/lib/auth";
+import { signIn } from "@/services/authService";
 import { isValidNumber } from "react-native-phone-entry";
 
 export const SignUpSchema = z.object({
-  email: z.email(),
+  email: z.email({ message: "Invalid email" }),
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters long" })
@@ -23,24 +23,8 @@ export const SignUpSchema = z.object({
     .regex(/[^a-zA-Z0-9]/, {
       message: "Password must contain at least one special character",
     }),
-  // confirm_password: z
-  //   .string()
-  //   .min(8, { message: "Password must be at least 8 characters long" })
-  //   .regex(/[a-z]/, {
-  //     message: "Password must contain at least one lowercase letter",
-  //   })
-  //   .regex(/[A-Z]/, {
-  //     message: "Password must contain at least one uppercase letter",
-  //   })
-  //   .regex(/\d/, { message: "Password must contain at least one number" })
-  //   .regex(/[^a-zA-Z0-9]/, {
-  //     message: "Password must contain at least one special character",
-  //   }),
   first_name: z.string().min(2, { message: "Invalid first name." }).trim(),
   last_name: z.string().min(2, { message: "Invalid last name." }).trim(),
-  // phone_number: z.string().regex(/^\+\d{1,3}\d{7,14}$/, {
-  //   message: "Please enter a valid phone number.",
-  // }),
   date_of_birth: z.date().max(new Date(), "Date cannot be in the future"),
   phone_number: z
     .string()
@@ -49,12 +33,6 @@ export const SignUpSchema = z.object({
       (val) => /^\+233[^0]\d{8}$/.test(val),
       "Enter a valid Ghanaian number",
     ),
-  // phone_number: z
-  //   .string()
-  //   .refine(
-  //     (val) => isValidNumber(val, "GH"),
-  //     "Sorry, we are not available in your region yet",
-  //   ),
 });
 
 export const loginSchema = z.object({
@@ -63,15 +41,12 @@ export const loginSchema = z.object({
     .min(1, "too short for an email"),
   password: z
     .string()
-    .min(8, { message: "Password must be at least 8 characters long" })
-    .regex(/[a-z]/, {
-      message: "Password must contain at least one lowercase letter",
-    })
-    .regex(/[A-Z]/, {
-      message: "Password must contain at least one uppercase letter",
-    })
-    .regex(/\d/, { message: "Password must contain at least one number" })
-    .regex(/[^a-zA-Z0-9]/, {
-      message: "Password must contain at least one special character",
-    }),
+    .min(8, { message: "Password must be at least 8 characters long" }),
+});
+
+export const MenstrualProfileSchema = z.object({
+  cycle_length: z.number().min(5),
+  period_length: z.number(),
+  last_period_start: z.date(),
+  notification_pref: z.number().min(0),
 });

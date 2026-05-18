@@ -1,8 +1,8 @@
-import { MMKV } from "react-native-mmkv";
+import { createMMKV } from "react-native-mmkv";
 import { StateStorage } from "zustand/middleware";
 
 // @ts-ignore
-export const storage = new MMKV({ id: "obaa-store" });
+export const storage = new createMMKV({ id: "obaa-store" });
 
 export const zustandMMKVStorage: StateStorage = {
   getItem: (key) => storage.getString(key) ?? null,

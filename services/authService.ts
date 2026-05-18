@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/apiClient";
+import { format } from "date-fns";
 
 interface SignInPayload {
   email: string;
@@ -16,13 +17,17 @@ interface SignUpPayload {
 
 export async function signIn(payload: SignInPayload) {
   const res = await apiClient.post("/auth/login/", payload);
-  console.log(res.data);
+  console.log(res.data); // TODO: remove these
   return res.data;
 }
 
 export async function signUp(payload: SignUpPayload) {
-  console.log({ payload });
-  const res = await apiClient.post("/auth/register/", payload);
-  console.log(res.data);
+  const updatedPayload = {
+    ...payload,
+    date_of_birth: format(payload.date_of_birth, "yyyy-MM-dd"),
+  };
+  console.log({ updatedPayload });
+  const res = await apiClient.post("/auth/register/", updatedPayload);
+  // console.log(res.data, { res }); // TODO: remove console log statements
   return res.data;
 }

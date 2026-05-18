@@ -1,8 +1,8 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { TokenStorage } from "@/store/tokenStorage";
-import { useAuthStore } from "@/store/useAuthStore";
+import { TokenStorage } from "@/services/tokenStorage";
+import { useAuthStore } from "@/repositories/useAuthStore";
 
-const BASE_URL = "http://10.0.2.2:8000/api/v1";
+const BASE_URL = "http://10.0.2.2:8000/api/v1"; // TODO: find a replacement for this
 export const apiClient = axios.create({
   baseURL: BASE_URL,
   timeout: 10000,

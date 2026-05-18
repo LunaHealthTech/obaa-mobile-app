@@ -5,11 +5,8 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from "@/lib/auth";
-import { useMutation } from "@tanstack/react-query";
-import { useAuthStore } from "@/store/useAuthStore";
-import { useRouter } from "expo-router";
 import { loginSchema } from "@/lib/FormSchemas";
+import { useAuth } from "@/viewmodel/useAuth";
 
 const appLogo = require("@/assets/icons/ObaaLogoCircularC1.png");
 const messageIcon = require("@/assets/icons/message.png");
@@ -19,8 +16,8 @@ const googleIcon = require("@/assets/icons/google.png");
 const appleIcon = require("@/assets/icons/apple.png");
 
 export default function SignInScreen() {
-  const router = useRouter();
   const [hidePassword, setHidePassword] = useState<boolean>(true);
+  const { signIn, signInPending } = useAuth();
   const {
     control,
     handleSubmit,
@@ -30,21 +27,6 @@ export default function SignInScreen() {
     defaultValues: {
       email: "",
       password: "",
-    },
-  });
-
-  const login = useAuthStore((s) => s.login);
-
-  const mutation = useMutation({
-    mutationFn: signIn,
-    onSuccess: async (data) => {
-      console.log({ dataFromSignIn: data });
-      await login(data.user, data.tokens.access, data.tokens.refresh);
-      router.navigate("/(tabs)");
-    },
-    onError: (err) => {
-      // TODO: log this error with a logger
-      console.log({ err: err.message, setni: err.response.data });
     },
   });
 
@@ -156,7 +138,7 @@ export default function SignInScreen() {
       {/*Action section*/}
       <View className={"flex justify-center items-center "}>
         <Pressable
-          onPress={handleSubmit((data) => mutation.mutate(data))}
+          onPress={handleSubmit((data) => signIn(data))}
           className={
             "bg-primaryColor text-white w-[360px] h-[62px] rounded-full flex items-center justify-center active:opacity-80"
           }
