@@ -59,7 +59,6 @@ export default function MenstrualProfileSetup() {
     defaultValues: {
       cycle_length: 28,
       period_length: 5,
-      // cycle_pattern: true,
       last_period_start: new Date(),
     },
   });
@@ -70,14 +69,15 @@ export default function MenstrualProfileSetup() {
     } else {
       handleSubmit(
         (data) => {
-          // register(data); Use the right ds
           toast.loading("Creating profile");
           console.log("Profile data", { data });
           return createMenstrualProfile(data);
         },
         (errs) => {
-          // Client side error display
+          // Client side error display: more like input error handling
+          toast.dismiss();
           if (step >= 2) {
+            // console.log({ errs });
             for (const err in errs) {
               toast.error(errs[err].message);
             }
@@ -94,17 +94,12 @@ export default function MenstrualProfileSetup() {
   const onboardingFlow = [
     <CycleLengthQuestion control={control} errors={errors} />,
     <PeriodLengthQuestion control={control} errors={errors} />,
-    // <CycleRegularityQuestion control={control} errors={errors} />,
     <LastPeriodStart control={control} errors={errors} />,
     <NotificationPrefQuestion control={control} errors={errors} />,
   ];
 
   return (
-    <View
-      className={
-        "px-8 flex-1 justify-center. border-2 border-solid border-amber-600"
-      }
-    >
+    <View className={"px-8 flex-1"}>
       <View className={"flex-1 my-10 justify-between"}>
         <QuestionHeader
           mainText={QuestionData[step]["main"]}

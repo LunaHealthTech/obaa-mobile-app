@@ -5,7 +5,7 @@ import { format, parseISO } from "date-fns";
 
 export function DateInput({ value, onChange, error }) {
   const [show, setShow] = useState(false);
-  console.log({ value });
+  console.log("Date input" ,{ value });
   return (
     <View>
       {/* Trigger */}

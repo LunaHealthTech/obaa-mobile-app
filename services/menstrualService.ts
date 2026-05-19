@@ -2,6 +2,7 @@ import { apiClient } from "@/lib/apiClient";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { zustandMMKVStorage } from "@/services/mmkvStorage";
+import { format } from "date-fns";
 import type { MenstrualProfileInfo } from "@/types/menstrual.types";
 
 interface MenstrualStorage {
@@ -20,17 +21,22 @@ export async function getMenstrualInfo() {
 }
 
 export async function updateMenstrualInfo(payload) {
-  const res = await apiClient.put("/menstrual/profile/", payload);
+  const res = await apiClient.put("/menstrual/profile/", payload); // TODO : remove this
   console.log({ res });
   return res.data;
 }
 
 export async function createMenstrualProfile(payload) {
-  const res = await apiClient.post("/menstrual/profile", payload);
-  console.log({ res });
+  console.log("Menstrual profile information", { payload });
+  const updatedPayload = {
+    ...payload,
+    last_period_start: format(payload.last_period_start, "yyyy-MM-dd"),
+  };
+  const res = await apiClient.post("/menstrual/profile/", updatedPayload);
   return res.data;
 }
 
+// ============ LocalStorage =======================
 export const useMenstrualStore = create<MenstrualStorage>()(
   persist(
     (set) => ({

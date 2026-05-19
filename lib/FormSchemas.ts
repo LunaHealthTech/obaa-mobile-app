@@ -9,7 +9,7 @@ import { signIn } from "@/services/authService";
 import { isValidNumber } from "react-native-phone-entry";
 
 export const SignUpSchema = z.object({
-  email: z.email({ message: "Invalid email" }),
+  email: z.email({ message: "Email is invalid" }),
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters long" })
@@ -47,8 +47,6 @@ export const loginSchema = z.object({
 export const MenstrualProfileSchema = z.object({
   cycle_length: z.number().min(5, "Invalid cycle length"),
   period_length: z.number().min(1, "Invalid period length"),
-  last_period_start: z.date({ message: "Invalid last period start date" }),
-  notification_pref: z
-    .number()
-    .min(0, { message: "Invalid notification pref" }),
+  last_period_start: z.date().max(new Date(), "Date cannot be in the future"),
+  // notification_pref: z.number().min(0, "Invalid notification pref"),
 });

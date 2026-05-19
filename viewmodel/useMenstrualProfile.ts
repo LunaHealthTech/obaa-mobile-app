@@ -6,12 +6,26 @@ import {
   updateMenstrualInfo,
 } from "@/services/menstrualService";
 import { toast } from "sonner-native";
+import { router } from "expo-router";
 
 export function useMenstrualProfileViewModel() {
   const queryKey = ["/menstrual/profile/"];
   const { data, isLoading, error, isError } = useQuery({
     queryKey,
     queryFn: getMenstrualInfo,
+    select: (data) => {
+      console.log("in select", { data });
+      let res = {
+        general: {
+          cycleLength: data.cycle_length,
+          periodLength: data.period_length,
+          status: data.status,
+          yourPeriodStarted: "2 days ago",
+          pregnancyProbability: data.current_cycle.pregnancy_probability,
+        },
+      };
+      return res;
+    },
     staleTime: 5 * 60 * 1000,
   });
 
@@ -23,16 +37,28 @@ export function useMenstrualProfileViewModel() {
       toast.success("Successfully created profile");
     },
     onError: (error) => {
+      toast.dismiss();
       toast.error("Error !");
     },
   });
 
   const createMutation = useMutation({
     mutationFn: createMenstrualProfile,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+    onSuccess: () => {
+      toast.dismiss();
+      queryClient.invalidateQueries({ queryKey });
+      toast.success("Successfully created profile");
+      router.replace("/(tabs)/home");
+    },
     onError: (error) => {
-      console.log(`Error in createMutation: Profile creation`, error);
-      toast.error("Error !");
+      toast.dismiss();
+      // console.log(
+      //   `Error in createMutation: Profile creation`,
+      //   error.response.data,
+      // );
+      toast.error(
+        "Something went wrong creating profile.\n Kindly restart app and try again.",
+      );
     },
   });
 
