@@ -45,8 +45,10 @@ export const loginSchema = z.object({
 });
 
 export const MenstrualProfileSchema = z.object({
-  cycle_length: z.number().min(5),
-  period_length: z.number(),
-  last_period_start: z.date(),
-  notification_pref: z.number().min(0),
+  cycle_length: z.number().min(5, "Invalid cycle length"),
+  period_length: z.number().min(1, "Invalid period length"),
+  last_period_start: z.date({ message: "Invalid last period start date" }),
+  notification_pref: z
+    .number()
+    .min(0, { message: "Invalid notification pref" }),
 });

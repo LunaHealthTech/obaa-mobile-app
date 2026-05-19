@@ -1,13 +1,20 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text } from "react-native";
 import { useState } from "react";
 import { useForm, Controller, Control, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MenstrualProfileSchema } from "@/lib/FormSchemas";
 import WheelPicker from "@quidone/react-native-wheel-picker";
+import { MultiStepButton } from "@/components/MultiStepButton";
+import { toast } from "sonner-native";
+import { DateInput } from "@/components/DateInput";
+import { useMenstrualProfileViewModel } from "@/viewmodel/useMenstrualProfile";
 
 interface FormValues {
   cycle_length: number;
   period_length: number;
+  cycle_pattern?: boolean;
+  last_period_start: Date;
+  notification_pref?: number;
 }
 
 interface QuestionProps {
@@ -15,29 +22,112 @@ interface QuestionProps {
   errors?: FieldErrors<FormValues>;
 }
 
+interface QuestionHeaderProps {
+  mainText: string;
+  subText: string;
+}
+
+const QuestionData = [
+  {
+    main: "How long does your cycle usually last",
+    desc: "Most women’s cycles last between 26–32 days, with 28 being the average",
+  },
+  {
+    main: "How many days does your period usually last",
+    desc: "Most periods last 3–7 days. If yours is sometimes shorter or longer, just choose the number that feels most typical for you.",
+  },
+  // {
+  //   main: "Tell us about your cycle pattern",
+  //   desc: "Cycles can be regular or irregular, and both are completely normal.",
+  // },
+  {
+    main: "When did your last period start?",
+    desc: "Think back to the first day of bleeding. If you don’t remember exactly, it’s okay. Just give your best estimate.",
+  },
+];
+
 export default function MenstrualProfileSetup() {
   const [step, setStep] = useState(0);
-
+  const { createMenstrualProfile, isCreating } = useMenstrualProfileViewModel();
+  const maxSteps = QuestionData.length - 1;
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(MenstrualProfileSchema),
-    defaultValues: {},
+    defaultValues: {
+      cycle_length: 28,
+      period_length: 5,
+      // cycle_pattern: true,
+      last_period_start: new Date(),
+    },
   });
+
+  const forwardPress = () => {
+    if (step < maxSteps) {
+      setStep((s) => s + 1);
+    } else {
+      handleSubmit(
+        (data) => {
+          // register(data); Use the right ds
+          toast.loading("Creating profile");
+          console.log("Profile data", { data });
+          return createMenstrualProfile(data);
+        },
+        (errs) => {
+          // Client side error display
+          if (step >= 2) {
+            for (const err in errs) {
+              toast.error(errs[err].message);
+            }
+          }
+        },
+      )();
+    }
+  };
+
+  const backPress = () => {
+    if (step >= 1) setStep((s) => s - 1);
+  };
+
   const onboardingFlow = [
     <CycleLengthQuestion control={control} errors={errors} />,
     <PeriodLengthQuestion control={control} errors={errors} />,
-    <CycleRegularityQuestion control={control} errors={errors} />,
-    <UsualSymptomsQuestion control={control} errors={errors} />,
+    // <CycleRegularityQuestion control={control} errors={errors} />,
+    <LastPeriodStart control={control} errors={errors} />,
     <NotificationPrefQuestion control={control} errors={errors} />,
   ];
 
-  return <View className={"px-8"}>{onboardingFlow[step]}</View>;
+  return (
+    <View
+      className={
+        "px-8 flex-1 justify-center. border-2 border-solid border-amber-600"
+      }
+    >
+      <View className={"flex-1 my-10 justify-between"}>
+        <QuestionHeader
+          mainText={QuestionData[step]["main"]}
+          subText={QuestionData[step]["desc"]}
+        />
+
+        <View className={"justify-between h-[70%]"}>
+          {onboardingFlow[step]}
+
+          <MultiStepButton
+            maxSteps={maxSteps}
+            step={step}
+            forwardPress={forwardPress}
+            backPress={backPress}
+            completionMsg={"Create your profile"}
+          />
+        </View>
+      </View>
+    </View>
+  );
 }
 
-function QuestionHeader({ mainText, subText }) {
+function QuestionHeader({ mainText, subText }: QuestionHeaderProps) {
   return (
     <View className={"items-center justify-center my-10"}>
       <Text className={"text-2xl font-bold flex items-center text-center "}>
@@ -54,46 +144,23 @@ function CycleLengthQuestion({ control, errors }: QuestionProps) {
     label: index.toString(),
   }));
   return (
-    <View className={"my-10 justify-center"}>
-      <View className={"items-center justify-center my-10"}>
-        <Text className={"text-2xl font-bold flex items-center text-center "}>
-          How long does your cycle usually last
-        </Text>
-        <Text className={"flex text-center"}>
-          Most women’s cycles last between 26–32 days, with 28 being the average
-        </Text>
-      </View>
-
-      <View>
-        <Controller
-          control={control}
-          render={({ field: { onChange, value } }) => {
-            return (
-              <WheelPicker
-                data={data}
-                value={value}
-                onValueChanged={({ item: { value } }) => onChange(value)}
-                enableScrollByTapOnItem={true}
-              />
-            );
-          }}
-          name={"cycle_length"}
-        />
-        {errors?.cycle_length && <Text>{errors?.cycle_length.message}</Text>}
-        <View className={"flex"}>
-          <Pressable
-            onPress={() => {
-              // router.navigate("/onboarding/menstrual-profile-setup");
-            }}
-            className={
-              "bg-primaryColor text-white w-[360px] h-[62px] rounded-full flex items-center justify-center active:opacity-80"
-            }
-          >
-            <Text className={"text-white text-lg font-semibold"}>Continue</Text>
-          </Pressable>
-        </View>
-      </View>
-    </View>
+    <>
+      <Controller
+        control={control}
+        render={({ field: { onChange, value } }) => {
+          return (
+            <WheelPicker
+              data={data}
+              value={value}
+              onValueChanged={({ item: { value } }) => onChange(value)}
+              enableScrollByTapOnItem={true}
+            />
+          );
+        }}
+        name={"cycle_length"}
+      />
+      {errors?.cycle_length && <Text>{errors?.cycle_length.message}</Text>}
+    </>
   );
 }
 
@@ -104,36 +171,26 @@ function PeriodLengthQuestion({ control, errors }: QuestionProps) {
   }));
   return (
     <View>
-      <View>
-        <QuestionHeader
-          mainText={"How many days does your period usually last"}
-          subText={
-            "Most periods last 3–7 days. If yours is sometimes shorter or longer, just choose the number that feels most typical for you."
-          }
-        />
-      </View>
-      <View>
-        <Controller
-          name={"period_length"}
-          control={control}
-          render={({ field: { value, onChange } }) => {
-            return (
-              <WheelPicker
-                data={data}
-                value={value}
-                onValueChanged={({ item: { value } }) => onChange(value)}
-                enableScrollByTapOnItem={true}
-              />
-            );
-          }}
-        />
-        {errors?.period_length && <Text>{errors?.period_length.message}</Text>}
-      </View>
+      <Controller
+        name={"period_length"}
+        control={control}
+        render={({ field: { value, onChange } }) => {
+          return (
+            <WheelPicker
+              data={data}
+              value={value}
+              onValueChanged={({ item: { value } }) => onChange(value)}
+              enableScrollByTapOnItem={true}
+            />
+          );
+        }}
+      />
+      {errors?.period_length && <Text>{errors?.period_length.message}</Text>}
     </View>
   );
 }
 
-function CycleRegularityQuestion({ control }) {
+function CycleRegularityQuestion({ control }: QuestionProps) {
   return (
     <View>
       <View>
@@ -144,13 +201,27 @@ function CycleRegularityQuestion({ control }) {
   );
 }
 
-function UsualSymptomsQuestion() {
+function LastPeriodStart({ control }: QuestionProps) {
   return (
     <View>
-      <View>
-        <Text>Something</Text>
-        <Text>Something</Text>
-      </View>
+      <Text>Last Menstrual Period Date</Text>
+      <Controller
+        name="last_period_start"
+        control={control}
+        render={({ field: { value, onChange }, fieldState: { error } }) => (
+          <>
+            <DateInput
+              value={value}
+              onChange={(val: string) => {
+                // console.log({ signUpSteps });
+                // setSignUpItem({ ...signUpSteps, date_of_birth: val });
+                onChange(val);
+              }}
+              error={error?.message}
+            />
+          </>
+        )}
+      />
     </View>
   );
 }
