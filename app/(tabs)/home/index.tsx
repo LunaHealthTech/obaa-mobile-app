@@ -71,27 +71,27 @@ export default function HomePage() {
         </View>
         {/*    Cards go here */}
         <MenstrualInfoCard
-          text={`You are currently ${data?.status}`}
-          subText={"Period started 2 days ago"}
+          text={`You are currently ${data?.general?.status}`}
+          subText={`Period started ${data?.general?.yourPeriodStarted}`}
         >
           <DrippingBloodIcon width={25} height={25} />
         </MenstrualInfoCard>
         <MenstrualInfoCard
-          text={`Period Length:${data?.periodLength}`}
+          text={`Period Length: ${data?.general?.periodLength} ${data?.general?.periodLength > 1 ? "days" : "day"}`}
           subText={"Normal"}
         >
           <ClockIcon width={25} height={25} />
         </MenstrualInfoCard>
 
         <MenstrualInfoCard
-          text={`Cycle Length: ${data?.cycleLength}`}
+          text={`Cycle Length: ${data?.general?.cycleLength} ${data?.general?.cycleLength > 1 ? "days" : "day"}`}
           subText={"Normal"}
         >
           <SyncIcon width={25} height={25} />
         </MenstrualInfoCard>
         <MenstrualInfoCard
           text={"Pregnancy"}
-          subText={`${data?.pregnancyProbability}`}
+          subText={`${data?.general?.pregnancyProbability}`}
         >
           <PregnancyIcon width={25} height={25} />
         </MenstrualInfoCard>

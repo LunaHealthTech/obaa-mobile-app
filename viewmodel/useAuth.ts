@@ -17,7 +17,12 @@ export function useAuth() {
     onSuccess: async (data) => {
       console.log({ dataFromSignIn: data });
       await login(data.user, data.tokens.access, data.tokens.refresh);
-      router.navigate("/(tabs)");
+      const userHasMenstrualProfile = !!data?.user.menstrual_profile_created;
+      if (userHasMenstrualProfile) {
+        router.navigate("/(tabs)");
+      } else {
+        router.navigate("/onboarding/persona");
+      }
     },
     onError: (err) => {
       // TODO: log this error with a logger
@@ -25,7 +30,6 @@ export function useAuth() {
     },
   });
 
-  // const register = useAuthStore()
   const registerMutation = useMutation({
     mutationFn: signUp,
     onSuccess: async (data) => {
