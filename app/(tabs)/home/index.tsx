@@ -2,12 +2,12 @@ import {
   View,
   Text,
   Pressable,
-  Image,
   FlatList,
   Animated,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { Image } from "expo-image";
 import { useAuthStore } from "@/repositories/useAuthStore";
 import { Stack, Link } from "expo-router";
 import CalendarIcon from "@/assets/icons/topCalendarIcon.svg";
@@ -27,6 +27,7 @@ import ScrollView = Animated.ScrollView;
 import { EmoticonData } from "@/types/emotion.types";
 import { useState } from "react";
 import { SentimentCard } from "@/components/SentimentCard";
+import { ArticleCardSM } from "@/components/ArticleCardSM";
 
 const emoticonData: EmoticonData[] = [
   { emoji: "😊", name: "happy" },
@@ -39,8 +40,8 @@ const emoticonData: EmoticonData[] = [
 export default function HomePage() {
   const logout = useAuthStore((state) => state.logout);
   const [showShareSentiment, setShowShareSentiment] = useState<boolean>(false);
-  const [currentSentiment, setCurrentSentiment] = useState<EmoticonData | null>(
-    null,
+  const [currentSentiment, setCurrentSentiment] = useState<EmoticonData>(
+    emoticonData[0],
   );
   const { data, isLoading, error, isError } = useMenstrualProfileViewModel();
   console.log({ data, isLoading, error, isError });
@@ -145,7 +146,6 @@ export default function HomePage() {
                   horizontal={true}
                   keyExtractor={(item) => item.name}
                   contentContainerStyle={{
-                    flex: 1,
                     gap: 10,
                   }}
                   renderItem={({ item }) => (
@@ -158,6 +158,22 @@ export default function HomePage() {
               ) : (
                 <SentimentCard sentiment={currentSentiment} />
               )}
+            </View>
+          </View>
+
+          {/* Article */}
+          <View className={"mt-5"}>
+            <Text className={"font-semibold mb-3"}>How do you feel today?</Text>
+            <View className={"flex flex-1"}>
+              <FlatList
+                horizontal={true}
+                contentContainerStyle={{
+                  gap: 10,
+                }}
+                data={["som", "an", "tow", "son"]}
+                keyExtractor={(item) => item}
+                renderItem={(article) => <ArticleCardSM />}
+              />
             </View>
           </View>
           <Pressable onPress={() => logout()}>
