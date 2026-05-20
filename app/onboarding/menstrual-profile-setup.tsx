@@ -1,6 +1,6 @@
-import { View, Text } from "react-native";
+import { Text, View } from "react-native";
 import { useState } from "react";
-import { useForm, Controller, Control, FieldErrors } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MenstrualProfileSchema } from "@/lib/FormSchemas";
 import WheelPicker from "@quidone/react-native-wheel-picker";
@@ -8,24 +8,7 @@ import { MultiStepButton } from "@/components/MultiStepButton";
 import { toast } from "sonner-native";
 import { DateInput } from "@/components/DateInput";
 import { useMenstrualProfileViewModel } from "@/viewmodel/useMenstrualProfile";
-
-interface FormValues {
-  cycle_length: number;
-  period_length: number;
-  cycle_pattern?: boolean;
-  last_period_start: Date;
-  notification_pref?: number;
-}
-
-interface QuestionProps {
-  control: Control<FormValues>;
-  errors?: FieldErrors<FormValues>;
-}
-
-interface QuestionHeaderProps {
-  mainText: string;
-  subText: string;
-}
+import { QuestionHeaderProps, QuestionProps } from "@/types/onboarding.types";
 
 const QuestionData = [
   {
@@ -36,10 +19,6 @@ const QuestionData = [
     main: "How many days does your period usually last",
     desc: "Most periods last 3–7 days. If yours is sometimes shorter or longer, just choose the number that feels most typical for you.",
   },
-  // {
-  //   main: "Tell us about your cycle pattern",
-  //   desc: "Cycles can be regular or irregular, and both are completely normal.",
-  // },
   {
     main: "When did your last period start?",
     desc: "Think back to the first day of bleeding. If you don’t remember exactly, it’s okay. Just give your best estimate.",
@@ -77,7 +56,6 @@ export default function MenstrualProfileSetup() {
           // Client side error display: more like input error handling
           toast.dismiss();
           if (step >= 2) {
-            // console.log({ errs });
             for (const err in errs) {
               toast.error(errs[err].message);
             }
@@ -95,7 +73,6 @@ export default function MenstrualProfileSetup() {
     <CycleLengthQuestion control={control} errors={errors} />,
     <PeriodLengthQuestion control={control} errors={errors} />,
     <LastPeriodStart control={control} errors={errors} />,
-    <NotificationPrefQuestion control={control} errors={errors} />,
   ];
 
   return (
@@ -185,17 +162,6 @@ function PeriodLengthQuestion({ control, errors }: QuestionProps) {
   );
 }
 
-function CycleRegularityQuestion({ control }: QuestionProps) {
-  return (
-    <View>
-      <View>
-        <Text>Something</Text>
-        <Text>Something</Text>
-      </View>
-    </View>
-  );
-}
-
 function LastPeriodStart({ control }: QuestionProps) {
   return (
     <View>
@@ -208,8 +174,6 @@ function LastPeriodStart({ control }: QuestionProps) {
             <DateInput
               value={value}
               onChange={(val: string) => {
-                // console.log({ signUpSteps });
-                // setSignUpItem({ ...signUpSteps, date_of_birth: val });
                 onChange(val);
               }}
               error={error?.message}
@@ -217,17 +181,6 @@ function LastPeriodStart({ control }: QuestionProps) {
           </>
         )}
       />
-    </View>
-  );
-}
-
-function NotificationPrefQuestion() {
-  return (
-    <View>
-      <View>
-        <Text>Something</Text>
-        <Text>Something</Text>
-      </View>
     </View>
   );
 }
