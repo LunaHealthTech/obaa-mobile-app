@@ -15,6 +15,7 @@ module.exports = {
         mainText: "#17252A",
         subText: "#455A64",
         primaryColor: "#0F969C",
+        darkPrimaryColor: "#015364",
         borderGreyColor: "#DADADA",
         greyColor: "#72777A",
       },

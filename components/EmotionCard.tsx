@@ -1,14 +1,28 @@
-import { View, Text } from "react-native";
+import { View, Text, Pressable } from "react-native";
+import { EmoticonData } from "@/types/emotion.types";
 
-export function EmotionCard() {
+interface EmotionCardProps {
+  emotion: EmoticonData;
+  onPress: (capturedEmotion: EmoticonData) => void;
+}
+
+export function EmotionCard({ emotion, onPress }: EmotionCardProps) {
   return (
-    <View
-      className={
-        "flex items-center justify-center p-2 gap-3 border border-borderGreyColor rounded-md"
-      }
+    <Pressable
+      style={({ pressed }) => ({ opacity: pressed ? 0 : 1 })}
+      onPress={() => {
+        onPress(emotion);
+      }}
     >
-      <Text className={"text-2xl"}>😊</Text>
-      <Text>Happy</Text>
-    </View>
+      {({ pressed }) => (
+        <View
+          className={`flex items-center justify-center p-2 gap-3 border border-borderGreyColor rounded-xl w-[70px] h-[90px]`}
+          style={{ opacity: pressed ? 0.5 : 1 }}
+        >
+          <Text className={"text-2xl"}>{emotion.emoji}</Text>
+          <Text className={"capitalize"}>{emotion.name}</Text>
+        </View>
+      )}
+    </Pressable>
   );
 }

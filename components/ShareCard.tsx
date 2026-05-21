@@ -30,7 +30,7 @@ export function ShareCard({ handleClick }: ShareCardPropTypes) {
             "bg-[rgba(255,255,255,0.5)] text-white border-2 border-white rounded-full w-[100px] py-2 px-2 text-[13px] flex flex-row items-center justify-center"
           }
         >
-          <Text className={"text-white"}>Share</Text>
+          <Text className={"text-white"}>Share App</Text>
         </Pressable>
       </View>
     </View>
