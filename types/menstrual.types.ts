@@ -33,3 +33,25 @@ export interface MenstrualProfileInfo {
   };
   status: string;
 }
+export interface GenerateDaysProps {
+  startDate: Date | string;
+  endDate: Date | string;
+  colorCode: string;
+  category: "MENSTRUAL" | "NORMAL" | "OVULATION";
+  customProps?: {};
+  // status: "PREDICTED" | "ACTUAL";
+}
+
+export type UserCycleData = {
+  id: null | number;
+  start_date: string;
+  bleed_end_date: string;
+  end_date: string;
+  safe_days: {
+    start_date: string;
+    end_date: string;
+  }[];
+  ovulation_day: string;
+  cycle_length: number;
+  predicted: boolean;
+};

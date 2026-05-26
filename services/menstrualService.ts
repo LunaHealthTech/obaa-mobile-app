@@ -36,6 +36,11 @@ export async function createMenstrualProfile(payload) {
   return res.data;
 }
 
+export async function getMenstrualCycles() {
+  const res = await apiClient.get("/menstrual/cycles");
+  return res.data;
+}
+
 // ============ LocalStorage =======================
 export const useMenstrualStore = create<MenstrualStorage>()(
   persist(
