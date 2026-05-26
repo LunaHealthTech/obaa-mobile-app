@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStore } from "@/repositories/useAuthStore";
 import { useMutation } from "@tanstack/react-query";
 import { signIn } from "@/services/authService";
-import { isValidNumber } from "react-native-phone-entry";
 
 export const SignUpSchema = z.object({
   email: z.email({ message: "Email is invalid" }),

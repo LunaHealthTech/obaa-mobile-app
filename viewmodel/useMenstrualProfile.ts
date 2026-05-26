@@ -7,6 +7,7 @@ import {
 } from "@/services/menstrualService";
 import { toast } from "sonner-native";
 import { router } from "expo-router";
+import { generateDays } from "@/lib/CalendarHelpers";
 
 export function useMenstrualProfileViewModel() {
   const queryKey = ["/menstrual/profile/"];
@@ -14,13 +15,12 @@ export function useMenstrualProfileViewModel() {
     queryKey,
     queryFn: getMenstrualInfo,
     select: (data) => {
-      console.log("in select", { data });
       let res = {
         general: {
           cycleLength: data.cycle_length,
           periodLength: data.period_length,
           status: data.status,
-          yourPeriodStarted: "2 days ago",
+          yourPeriodStarted: "2 days ago", // TODO: fix this
           pregnancyProbability: data.current_cycle.pregnancy_probability,
         },
       };
@@ -52,10 +52,6 @@ export function useMenstrualProfileViewModel() {
     },
     onError: (error) => {
       toast.dismiss();
-      // console.log(
-      //   `Error in createMutation: Profile creation`,
-      //   error.response.data,
-      // );
       toast.error(
         "Something went wrong creating profile.\n Kindly restart app and try again.",
       );

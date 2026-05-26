@@ -28,6 +28,7 @@ import { EmoticonData } from "@/types/emotion.types";
 import { useState } from "react";
 import { SentimentCard } from "@/components/SentimentCard";
 import { ArticleCardSM } from "@/components/ArticleCardSM";
+import { SharedNav } from "@/components/SharedNav";
 
 const emoticonData: EmoticonData[] = [
   { emoji: "😊", name: "happy" },
@@ -70,28 +71,7 @@ export default function HomePage() {
       <ScrollView>
         <View className={"bg-white px-8"}>
           <StatusBar style={"dark"} />
-          <Stack.Screen
-            options={{
-              headerRight: () => (
-                <View className={"flex flex-row gap-2"}>
-                  <View
-                    className={
-                      "border-2 border-[#DADADA] w-[50px] h-[50px] rounded-full flex items-center justify-center"
-                    }
-                  >
-                    <CalendarIcon width={20} height={20} color={"#3A3A3A"} />
-                  </View>
-                  <View
-                    className={
-                      "border-2 border-[#DADADA] w-[50px] h-[50px] rounded-full flex items-center justify-center"
-                    }
-                  >
-                    <NotificationsIcon width={20} height={20} />
-                  </View>
-                </View>
-              ),
-            }}
-          />
+          <SharedNav name={"index"} />
           <View className={"flex flex-row gap-3 items-center my-5"}>
             <CalendarIcon width={25} height={25} color={"#3A3A3A"} />
             <Text className={"font-bold"}>September 2026</Text>
