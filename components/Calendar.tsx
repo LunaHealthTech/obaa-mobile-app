@@ -32,9 +32,6 @@ export function Calendar() {
       >
         <ExpandableCalendar
           theme={{
-            textDayStyle: {
-              borderWidth: 1,
-            },
             stylesheet: {
               expandable: {
                 main: {
@@ -46,8 +43,7 @@ export function Calendar() {
           markingType={"custom"}
           style={{
             shadowColor: "transparent",
-            paddingBottom: 50,
-            height: 350,
+            paddingBottom: 10,
           }}
           markedDates={menstrualCycles}
           hideArrows={true}

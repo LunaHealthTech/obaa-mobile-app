@@ -85,7 +85,7 @@ export function extractDates(dates: UserCycleData[]) {
             alignItems: "center",
             justifyContent: "center",
             borderRadius: 40,
-            position: "relative",
+            // position: "relative",
             bottom: 0,
           },
           text: { color: "black", fontSize: 14, textAlign: "center" },
