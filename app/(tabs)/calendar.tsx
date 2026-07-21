@@ -1,18 +1,31 @@
 import { View, Text, ScrollView, KeyboardAvoidingView } from "react-native";
 import { SharedNav } from "@/components/SharedNav";
 import { Calendar } from "@/components/Calendar";
+import { CircularProgress } from "@/components/CircularProgress";
+import { useMenstrualProfileViewModel } from "@/viewmodel/useMenstrualProfile";
+import BlueOvulation from "@/assets/ovulation_blue.svg";
+import PregnancyWhite from "@/assets/pregnancy_white.svg";
 
 export default function CalendarPage() {
+  const { data, isLoading, isError } = useMenstrualProfileViewModel();
+
+  if (isLoading) {
+    return "Loading...";
+  }
+
+  if (isError) {
+    console.error(isError);
+  }
   return (
-    <ScrollView>
-      <View className={"bg-white .px-4 flex-1 w-full"}>
-        <View className={"px-4"}>
-          <SharedNav />
-        </View>
+    <ScrollView className="bg-white">
+      <View className={"px-4"}>
+        <SharedNav />
+      </View>
+      <View className={"bg-white flex-1 w-full"}>
         <Calendar />
         <View
           className={
-            "flex flex-row flex-wrap text-[#72777A]. text-mainText text-[10px] px-4 w-full h-[50px] gap-2 .border-2"
+            "flex flex-row flex-wrap text-mainText text-[10px] px-4 w-full h-[25px] gap-2 .border-2"
           }
         >
           <View className={`flex-row items-center gap-1 w-fit .border-2`}>
@@ -21,16 +34,14 @@ export default function CalendarPage() {
                 "w-4 h-4 border border-dashed border-[#E82A73] rounded-full"
               }
             ></View>
-            <Text className="w-fit">Predicted Blood Flow</Text>
+            <Text className="w-fit">Predicted Period</Text>
           </View>
           <View className={`flex-row items-center gap-2 w-fit`}>
             <View className={"w-4 h-4 bg-[#E82A73] rounded-full"}></View>
-            <Text className="w-fit line-clamp-2 wrap">
-              Confirmed Blood Flow
-            </Text>
+            <Text className="w-fit line-clamp-2 wrap">Confirmed Period</Text>
           </View>
         </View>
-        <View className={"flex-row items-center gap-5 w-fit px-4 .border-2"}>
+        <View className={"flex-row gap-4 w-fit px-4 .border-2"}>
           <View className={`flex-row gap-2 items-center `}>
             <View
               className={"w-4 h-4 flex-row bg-[#DEE4F5] rounded-full"}
@@ -44,6 +55,49 @@ export default function CalendarPage() {
           <View className={`flex-row gap-2 items-center `}>
             <View className={"w-4 h-4 bg-[#3CB9FB50] rounded-full"}></View>
             <Text>Safe days</Text>
+          </View>
+        </View>
+      </View>
+      <View className={"px-4 items-center mt-20"}>
+        <CircularProgress
+          phase={data?.calendarPage.phase}
+          day={data?.calendarPage.numberOfDaysIn}
+          totalDays={data?.calendarPage.totalDays}
+        />
+      </View>
+      <View
+        className={"flex-1 flex-row items-start justify-between mt-10 px-4"}
+      >
+        <View
+          className={
+            "border-2 border-[#07226B] flex-row rounded-xl p-4 w-[188px] items-center gap-5"
+          }
+        >
+          <View
+            className={
+              "bg-[#07226B30] rounded-full w-[50px] h-[50px] items-center justify-center"
+            }
+          >
+            <BlueOvulation />
+          </View>
+          <View>
+            <Text className={"text-greyColor"}>Next Ovulation</Text>
+            <Text className={"text-2xl font-semibold"}>15 Days</Text>
+          </View>
+        </View>
+        <View
+          className={
+            "border-2 border-[#AF52DE] flex-row items-center rounded-xl p-4 gap-4"
+          }
+        >
+          <View className={"bg-[#AF52DE] w-[50px] h-[50px] p-2 rounded-full"}>
+            <PregnancyWhite />
+          </View>
+          <View>
+            <Text className={"text-greyColor"}>Pregnancy</Text>
+            <Text className={"text-2xl font-semibold text-mainText"}>
+              {data?.calendarPage?.pregnancyProbability}
+            </Text>
           </View>
         </View>
       </View>

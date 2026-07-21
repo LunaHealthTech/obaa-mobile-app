@@ -8,6 +8,7 @@ import {
 import { toast } from "sonner-native";
 import { router } from "expo-router";
 import { generateDays } from "@/lib/CalendarHelpers";
+import { addDays, differenceInDays, isFuture } from "date-fns";
 
 export function useMenstrualProfileViewModel() {
   const queryKey = ["/menstrual/profile/"];
@@ -15,12 +16,29 @@ export function useMenstrualProfileViewModel() {
     queryKey,
     queryFn: getMenstrualInfo,
     select: (data) => {
+      const yourPeriodStartedCount = differenceInDays(
+        new Date(),
+        data.current_cycle.start_date,
+      );
       let res = {
         general: {
           cycleLength: data.cycle_length,
           periodLength: data.period_length,
           status: data.status,
-          yourPeriodStarted: "2 days ago", // TODO: fix this
+          yourPeriodStarted: `${yourPeriodStartedCount} day${yourPeriodStartedCount > 1 && "s"} ago`,
+          pregnancyProbability: data.current_cycle.pregnancy_probability,
+        },
+        calendarPage: {
+          totalDays: data.current_cycle.cycle_length,
+          phase: data.status,
+          numberOfDaysIn: differenceInDays(
+            new Date(),
+            data.current_cycle.start_date,
+          ),
+          nextOvulationIn: isFuture(data.current_cycle.ovulation_day)
+            ? differenceInDays(new Date(), data.current_cycle.ovulation_day)
+            : Math.floor(data.cycle_length / 2) +
+              differenceInDays(new Date(), data.current_cycle.end_date),
           pregnancyProbability: data.current_cycle.pregnancy_probability,
         },
       };
