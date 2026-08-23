@@ -3,6 +3,7 @@ import HomeIconSvg from "@/assets/icons/HomeIcon.svg";
 import LogIcon from "@/assets/icons/logIcon.svg";
 import CalendarIcon from "@/assets/icons/CalendarIcon.svg";
 import ChatIcon from "@/assets/icons/ChatIcon.svg";
+import ConsultIcon from "@/assets/icons/ChatIcon.svg";
 import CommunityIcon from "@/assets/icons/CommunityIcon.svg";
 import { theme } from "@/constants/theme";
 
@@ -44,6 +45,16 @@ export default function HomeLayout() {
         }}
       />
       <Tabs.Screen
+        name={"consult"}
+        options={{
+          title: "Consult",
+          headerShown: false,
+          tabBarIcon: ({ size, color }) => (
+            <ConsultIcon width={size} color={color} />
+          ),
+        }}
+      />
+      {/* <Tabs.Screen
         name={"chat"}
         options={{
           title: "Chat",
@@ -51,7 +62,7 @@ export default function HomeLayout() {
             <ChatIcon width={size} color={color} />
           ),
         }}
-      />
+      /> */}
       <Tabs.Screen
         name={"community"}
         options={{
