@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { View, Text } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -9,6 +10,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { midwives } from "@/constants/midwives";
 
 type StepStatus = "done" | "active" | "pending";
 
@@ -19,6 +21,13 @@ const steps: { key: string; label: string; status: StepStatus }[] = [
 ];
 
 export default function FindingMidwifePage() {
+  const router = useRouter();
+  const params = useLocalSearchParams<{
+    topic: string;
+    consultationType: string;
+    date: string;
+    time: string;
+  }>();
   const outerScale = useSharedValue(1);
   const middleScale = useSharedValue(1);
   const dotOpacity = useSharedValue(1);
@@ -43,6 +52,21 @@ export default function FindingMidwifePage() {
       -1,
     );
   }, [outerScale, middleScale, dotOpacity]);
+
+  useEffect(() => {
+    // Simulated matching delay — replace with real matching-status polling
+    // once the backend endpoint exists.
+    const timeout = setTimeout(() => {
+      const matched = midwives[Math.floor(Math.random() * midwives.length)];
+      router.replace({
+        pathname: "/consult/midwife-match",
+        params: { ...params, midwifeId: matched.id },
+      });
+    }, 2500);
+
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
 
   const outerStyle = useAnimatedStyle(() => ({
     transform: [{ scale: outerScale.value }],

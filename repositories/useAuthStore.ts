@@ -11,7 +11,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     date_of_birth: "",
     email: "",
   },
-  status: "unauthenticated",
+  status: "loading",
 
   login: async (user, access, refresh) => {
     await TokenStorage.saveTokens(access, refresh);

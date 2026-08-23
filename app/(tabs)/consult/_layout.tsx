@@ -17,6 +17,22 @@ export default function ConsultLayout() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name={"midwife-match"}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name={"checkout"}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name={"booking-confirmation"}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name={"appointment"}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
         name={"choose-midwife"}
         options={{ headerShown: false }}
       />
