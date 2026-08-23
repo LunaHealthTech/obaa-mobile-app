@@ -38,7 +38,6 @@ export default function RootLayout() {
     Inter_700Bold,
   });
   const isAuthenticated = useAuthStore((s) => s.status);
-  console.log(isAuthenticated);
   useEffect(() => {
     if (loaded || error) SplashScreen.hideAsync();
   }, [loaded, error]);
@@ -63,7 +62,7 @@ export default function RootLayout() {
             <Stack.Protected guard={!(isAuthenticated === "authenticated")}>
               <Stack.Screen
                 name={"intro"}
-                options={{ title: "Choose wisely", headerShown: false }}
+                options={{ title: "Welcome", headerShown: false }}
               />
               <Stack.Screen
                 name={"signin"}

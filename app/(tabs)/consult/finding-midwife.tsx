@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { View, Text } from "react-native";
+import { useRouter } from "expo-router";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -19,6 +20,7 @@ const steps: { key: string; label: string; status: StepStatus }[] = [
 ];
 
 export default function FindingMidwifePage() {
+  const router = useRouter();
   const outerScale = useSharedValue(1);
   const middleScale = useSharedValue(1);
   const dotOpacity = useSharedValue(1);
@@ -43,6 +45,16 @@ export default function FindingMidwifePage() {
       -1,
     );
   }, [outerScale, middleScale, dotOpacity]);
+
+  useEffect(() => {
+    // Simulated matching delay — replace with real matching-status polling
+    // once the backend endpoint exists.
+    const timeout = setTimeout(() => {
+      router.replace("/consult/choose-midwife");
+    }, 2500);
+
+    return () => clearTimeout(timeout);
+  }, [router]);
 
   const outerStyle = useAnimatedStyle(() => ({
     transform: [{ scale: outerScale.value }],
