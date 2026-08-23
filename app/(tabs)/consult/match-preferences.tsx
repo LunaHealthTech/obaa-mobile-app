@@ -52,7 +52,15 @@ export default function MatchPreferencesPage() {
   const [notes, setNotes] = useState("");
 
   const handleFindMidwife = () => {
-    router.push("/consult/finding-midwife");
+    router.push({
+      pathname: "/consult/finding-midwife",
+      params: {
+        topic: selectedTopic,
+        consultationType,
+        date: selectedDay,
+        time: selectedTime,
+      },
+    });
   };
 
   return (
