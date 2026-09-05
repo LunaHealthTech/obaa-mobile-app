@@ -7,8 +7,13 @@ import { flowers } from "@/constants/assets";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useMenstrualCycles } from "@/viewmodel/useCycles";
 import { format } from "date-fns";
+import { DayMarking } from "@/types/menstrual.types";
 
-export function Calendar() {
+interface CalendarProps {
+  onDayPress?: (dateString: string, marking?: DayMarking) => void;
+}
+
+export function Calendar({ onDayPress }: CalendarProps) {
   const { menstrualCycles, isLoadingMenstrualCycles } = useMenstrualCycles();
   const [currentDate, setCurrentDate] = useState(
     format(new Date(), "yyyy-MM-dd"),
@@ -21,9 +26,8 @@ export function Calendar() {
   };
 
   if (isLoadingMenstrualCycles) {
-    return "loading...";
+    return <Text>Loading...</Text>;
   }
-  console.log({ menstrualCycles });
   return (
     <>
       <CalendarProvider
@@ -47,6 +51,9 @@ export function Calendar() {
           }}
           markedDates={menstrualCycles}
           hideArrows={true}
+          onDayPress={(day) => {
+            onDayPress?.(day.dateString, menstrualCycles?.[day.dateString]);
+          }}
           renderHeader={(date) => {
             return (
               <View

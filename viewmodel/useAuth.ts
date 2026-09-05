@@ -3,6 +3,7 @@ import { useAuthStore } from "@/repositories/useAuthStore";
 import { useMutation } from "@tanstack/react-query";
 import { signIn, signUp } from "@/services/authService";
 import { toast } from "sonner-native";
+import { AxiosError } from "axios";
 
 export function useAuth() {
   // Constants
@@ -24,9 +25,13 @@ export function useAuth() {
         router.navigate("/onboarding/persona");
       }
     },
-    onError: (err) => {
+    onError: (err: AxiosError<{ detail?: string }>) => {
       // TODO: log this error with a logger
-      console.log({ err: err.message, setni: err.response.data });
+      console.log({ err: err.message, data: err.response?.data });
+      toast.error(
+        err.response?.data?.detail ??
+          "Something went wrong, please try again",
+      );
     },
   });
 
@@ -38,18 +43,21 @@ export function useAuth() {
       toast.success("Your account was created successfully");
       router.navigate("/signin");
     },
-    onError: async (err) => {
+    onError: async (err: AxiosError<Record<string, string[]>>) => {
       toast.dismiss();
+      if (!err.response) {
+        toast.error("Something went wrong, please try again");
+        console.log({ err: err.message });
+        return;
+      }
       const errorData = err.response.data;
-      const errors = {};
+      const errors: Record<string, string> = {};
       for (const e in errorData) {
         errors[e] = errorData[e][0];
       }
       console.log({ status: err.response.status, errorData, errors });
-      if (err?.response.status !== 200) {
-        for (const errr in errors) {
-          toast.error(errors[errr]);
-        }
+      for (const errr in errors) {
+        toast.error(errors[errr]);
       }
     },
   });

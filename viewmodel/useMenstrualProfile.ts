@@ -21,6 +21,7 @@ export function useMenstrualProfileViewModel() {
         data.current_cycle.start_date,
       );
       let res = {
+        currentCycleId: data.current_cycle.id,
         general: {
           cycleLength: data.cycle_length,
           periodLength: data.period_length,

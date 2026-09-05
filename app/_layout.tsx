@@ -58,6 +58,17 @@ export default function RootLayout() {
                 name={"onboarding"}
                 options={{ title: "onboarding", headerShown: false }}
               />
+              <Stack.Screen
+                name={"period-checkin"}
+                options={{
+                  title: "period-checkin",
+                  headerShown: false,
+                  presentation: "formSheet",
+                  sheetAllowedDetents: "fitToContents",
+                  sheetCornerRadius: 24,
+                  sheetGrabberVisible: true,
+                }}
+              />
             </Stack.Protected>
             <Stack.Protected guard={!(isAuthenticated === "authenticated")}>
               <Stack.Screen

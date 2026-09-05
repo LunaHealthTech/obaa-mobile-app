@@ -1,28 +1,71 @@
-import { View, Text, ScrollView, KeyboardAvoidingView } from "react-native";
+import { View, Text, ScrollView } from "react-native";
+import { useState } from "react";
+import { useRouter } from "expo-router";
 import { SharedNav } from "@/components/SharedNav";
 import { Calendar } from "@/components/Calendar";
 import { CircularProgress } from "@/components/CircularProgress";
+import { DayDetailCard } from "@/components/DayDetailCard";
 import { useMenstrualProfileViewModel } from "@/viewmodel/useMenstrualProfile";
+import { usePeriodCheckInStore } from "@/repositories/usePeriodCheckInStore";
+import type { DayMarking } from "@/types/menstrual.types";
 import BlueOvulation from "@/assets/ovulation_blue.svg";
 import PregnancyWhite from "@/assets/pregnancy_white.svg";
 
 export default function CalendarPage() {
+  const router = useRouter();
   const { data, isLoading, isError } = useMenstrualProfileViewModel();
+  const startCheckIn = usePeriodCheckInStore((s) => s.start);
+  const [selectedDay, setSelectedDay] = useState<{
+    date: string;
+    marking?: DayMarking;
+  } | null>(null);
+
+  const handleDayPress = (date: string, marking?: DayMarking) => {
+    if (marking?.category === "MENSTRUAL" && marking?.predicted) {
+      router.push({
+        pathname: "/period-checkin/quick-check-in",
+        params: {
+          date,
+          cycleId: marking.cycleId ? String(marking.cycleId) : undefined,
+        },
+      });
+      return;
+    }
+    setSelectedDay({ date, marking });
+  };
+
+  const handleEditCurrentCycle = () => {
+    if (!selectedDay) return;
+    startCheckIn({
+      mode: "edit",
+      date: selectedDay.date,
+      cycleId: selectedDay.marking?.cycleId ?? null,
+    });
+    setSelectedDay(null);
+    router.push("/period-checkin/date");
+  };
+
+  const canEditSelectedDay =
+    !!selectedDay &&
+    selectedDay.marking?.category === "MENSTRUAL" &&
+    !selectedDay.marking?.predicted &&
+    selectedDay.marking?.cycleId === data?.currentCycleId;
 
   if (isLoading) {
-    return "Loading...";
+    return <Text>Loading...</Text>;
   }
 
   if (isError) {
     console.error(isError);
   }
   return (
-    <ScrollView className="bg-white">
+    <View className="flex-1 bg-white">
+      <ScrollView className="bg-white">
       <View className={"px-4"}>
         <SharedNav />
       </View>
       <View className={"bg-white flex-1 w-full"}>
-        <Calendar />
+        <Calendar onDayPress={handleDayPress} />
         <View
           className={
             "flex flex-row flex-wrap text-mainText text-[10px] px-4 w-full h-[25px] gap-2 .border-2"
@@ -101,6 +144,15 @@ export default function CalendarPage() {
           </View>
         </View>
       </View>
-    </ScrollView>
+      </ScrollView>
+      {selectedDay && (
+        <DayDetailCard
+          date={selectedDay.date}
+          marking={selectedDay.marking}
+          onClose={() => setSelectedDay(null)}
+          onEdit={canEditSelectedDay ? handleEditCurrentCycle : undefined}
+        />
+      )}
+    </View>
   );
 }

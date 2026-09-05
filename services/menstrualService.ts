@@ -37,7 +37,28 @@ export async function createMenstrualProfile(payload) {
 }
 
 export async function getMenstrualCycles() {
-  const res = await apiClient.get("/menstrual/cycles");
+  const res = await apiClient.get("/menstrual/cycles/");
+  return res.data;
+}
+
+export async function startCycle(payload: { start_date: string }) {
+  const res = await apiClient.post("/menstrual/cycles/start/", payload);
+  return res.data;
+}
+
+export async function updateCycle(
+  id: number,
+  payload: { start_date: string },
+) {
+  const res = await apiClient.put(`/menstrual/cycles/${id}/`, payload);
+  return res.data;
+}
+
+export async function endPeriod(payload: { end_date: string }) {
+  const res = await apiClient.post(
+    "/menstrual/cycles/end-period/",
+    payload,
+  );
   return res.data;
 }
 

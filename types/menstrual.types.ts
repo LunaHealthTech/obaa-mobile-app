@@ -33,12 +33,15 @@ export interface MenstrualProfileInfo {
   };
   status: string;
 }
+export type CyclePhase = "Menstrual" | "Follicular" | "Ovulation" | "Luteal";
+
 export interface GenerateDaysProps {
   startDate: Date | string;
   endDate: Date | string;
   colorCode: string;
   category: "MENSTRUAL" | "NORMAL" | "OVULATION";
   customProps?: {};
+  cycle?: UserCycleData;
   // status: "PREDICTED" | "ACTUAL";
 }
 
@@ -55,3 +58,49 @@ export type UserCycleData = {
   cycle_length: number;
   predicted: boolean;
 };
+
+export interface DayMarking {
+  selected: boolean;
+  selectedColor: string;
+  category: "MENSTRUAL" | "NORMAL" | "OVULATION";
+  cycleId?: number | null;
+  predicted?: boolean;
+  cycleDay?: number;
+  phase?: CyclePhase;
+  customStyles?: { container: object; text: object };
+}
+
+export interface LogEntry {
+  id: number;
+  kindred: number;
+  date: string;
+  symptoms: string[];
+  mood: string;
+}
+
+export interface CreateLogPayload {
+  date: string;
+  mood: string;
+  symptoms: string[];
+}
+
+export interface GetLogsParams {
+  date?: string;
+  "range-start"?: string;
+  "range-end"?: string;
+}
+
+export type PeriodCheckInMode = "confirm" | "edit";
+
+export interface PeriodCheckInState {
+  mode: PeriodCheckInMode;
+  date: string;
+  cycleId: number | null;
+  flowIntensity: string | null;
+  symptoms: string[];
+  start: (params: { mode: PeriodCheckInMode; date: string; cycleId: number | null }) => void;
+  setDate: (date: string) => void;
+  setFlowIntensity: (flowIntensity: string) => void;
+  toggleSymptom: (symptom: string) => void;
+  reset: () => void;
+}
