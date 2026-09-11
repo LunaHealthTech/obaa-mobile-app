@@ -1,5 +1,4 @@
 import { View, Text, Pressable } from "react-native";
-import { useRouter } from "expo-router";
 import { toast } from "sonner-native";
 import { usePeriodCheckInStore } from "@/repositories/usePeriodCheckInStore";
 import { usePeriodCheckIn } from "@/viewmodel/usePeriodCheckIn";
@@ -16,14 +15,13 @@ const SYMPTOMS = [
   "None / I feel okay",
 ];
 
-export default function PeriodSymptoms() {
-  const router = useRouter();
-  const { symptoms, toggleSymptom } = usePeriodCheckInStore();
+export function SymptomsStep() {
+  const { symptoms, toggleSymptom, setStep } = usePeriodCheckInStore();
   const { save, isSaving } = usePeriodCheckIn();
 
   const onSave = () => {
     save(undefined, {
-      onSuccess: () => router.push("/period-checkin/confirmation"),
+      onSuccess: () => setStep("confirmation"),
       onError: () => toast.error("Something went wrong saving your check-in"),
     });
   };

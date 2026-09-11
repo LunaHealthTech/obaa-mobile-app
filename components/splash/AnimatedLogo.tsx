@@ -70,18 +70,15 @@ function PulseLogo({ size, onEntranceComplete }: VariantProps) {
   const scale = useSharedValue(0.85);
 
   useEffect(() => {
-    opacity.value = withTiming(1, {
-      duration: 700,
-      easing: Easing.out(Easing.cubic),
-    });
+    opacity.value = withTiming(
+      1,
+      { duration: 700, easing: Easing.out(Easing.cubic) },
+      (finished) => {
+        if (finished && onEntranceComplete) runOnJS(onEntranceComplete)();
+      },
+    );
     scale.value = withSequence(
-      withTiming(
-        1,
-        { duration: 700, easing: Easing.out(Easing.cubic) },
-        (finished) => {
-          if (finished && onEntranceComplete) runOnJS(onEntranceComplete)();
-        },
-      ),
+      withTiming(1, { duration: 700, easing: Easing.out(Easing.cubic) }),
       withRepeat(
         withSequence(
           withTiming(1.05, { duration: 900, easing: Easing.inOut(Easing.ease) }),

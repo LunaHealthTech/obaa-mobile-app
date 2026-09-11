@@ -1,10 +1,10 @@
 import { View, Text, ScrollView } from "react-native";
 import { useState } from "react";
-import { useRouter } from "expo-router";
 import { SharedNav } from "@/components/SharedNav";
 import { Calendar } from "@/components/Calendar";
 import { CircularProgress } from "@/components/CircularProgress";
 import { DayDetailCard } from "@/components/DayDetailCard";
+import { PeriodCheckInSheet } from "@/components/period-checkin/PeriodCheckInSheet";
 import { useMenstrualProfileViewModel } from "@/viewmodel/useMenstrualProfile";
 import { usePeriodCheckInStore } from "@/repositories/usePeriodCheckInStore";
 import type { DayMarking } from "@/types/menstrual.types";
@@ -12,7 +12,6 @@ import BlueOvulation from "@/assets/ovulation_blue.svg";
 import PregnancyWhite from "@/assets/pregnancy_white.svg";
 
 export default function CalendarPage() {
-  const router = useRouter();
   const { data, isLoading, isError } = useMenstrualProfileViewModel();
   const startCheckIn = usePeriodCheckInStore((s) => s.start);
   const [selectedDay, setSelectedDay] = useState<{
@@ -22,12 +21,11 @@ export default function CalendarPage() {
 
   const handleDayPress = (date: string, marking?: DayMarking) => {
     if (marking?.category === "MENSTRUAL" && marking?.predicted) {
-      router.push({
-        pathname: "/period-checkin/quick-check-in",
-        params: {
-          date,
-          cycleId: marking.cycleId ? String(marking.cycleId) : undefined,
-        },
+      startCheckIn({
+        mode: "confirm",
+        date,
+        cycleId: marking.cycleId ?? null,
+        step: "quick-check-in",
       });
       return;
     }
@@ -40,9 +38,9 @@ export default function CalendarPage() {
       mode: "edit",
       date: selectedDay.date,
       cycleId: selectedDay.marking?.cycleId ?? null,
+      step: "date",
     });
     setSelectedDay(null);
-    router.push("/period-checkin/date");
   };
 
   const canEditSelectedDay =
@@ -145,14 +143,13 @@ export default function CalendarPage() {
         </View>
       </View>
       </ScrollView>
-      {selectedDay && (
-        <DayDetailCard
-          date={selectedDay.date}
-          marking={selectedDay.marking}
-          onClose={() => setSelectedDay(null)}
-          onEdit={canEditSelectedDay ? handleEditCurrentCycle : undefined}
-        />
-      )}
+      <DayDetailCard
+        date={selectedDay?.date ?? null}
+        marking={selectedDay?.marking}
+        onClose={() => setSelectedDay(null)}
+        onEdit={canEditSelectedDay ? handleEditCurrentCycle : undefined}
+      />
+      <PeriodCheckInSheet />
     </View>
   );
 }

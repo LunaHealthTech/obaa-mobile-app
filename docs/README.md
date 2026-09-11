@@ -9,3 +9,4 @@ This folder documents the current state of the codebase as of branch `feature/ca
 - [architecture.md](./architecture.md) — folder structure, layering pattern (View → ViewModel → Service/Store), state management, routing/auth-guard setup, styling, TypeScript config.
 - [features.md](./features.md) — screen-by-screen breakdown of what's implemented, what's a placeholder, and the cycle-tracking calendar logic in detail.
 - [known-issues.md](./known-issues.md) — placeholder/stubbed features, small bugs, and cleanup items worth knowing about before touching related code.
+- [animation-ideas.md](./animation-ideas.md) — a backlog of "cute and thoughtful" micro-animation opportunities per screen, plus a technical playbook for building them performantly with Reanimated/gesture-handler.

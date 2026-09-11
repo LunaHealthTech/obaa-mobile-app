@@ -7,9 +7,11 @@ export const usePeriodCheckInStore = create<PeriodCheckInState>((set) => ({
   cycleId: null,
   flowIntensity: null,
   symptoms: [],
+  step: null,
 
-  start: ({ mode, date, cycleId }) =>
-    set({ mode, date, cycleId, flowIntensity: null, symptoms: [] }),
+  start: ({ mode, date, cycleId, step }) =>
+    set({ mode, date, cycleId, step, flowIntensity: null, symptoms: [] }),
+  setStep: (step) => set({ step }),
   setDate: (date) => set({ date }),
   setFlowIntensity: (flowIntensity) => set({ flowIntensity }),
   toggleSymptom: (symptom) =>
@@ -18,6 +20,7 @@ export const usePeriodCheckInStore = create<PeriodCheckInState>((set) => ({
         ? state.symptoms.filter((s) => s !== symptom)
         : [...state.symptoms, symptom],
     })),
+  close: () => set({ step: null }),
   reset: () =>
-    set({ mode: "confirm", date: "", cycleId: null, flowIntensity: null, symptoms: [] }),
+    set({ mode: "confirm", date: "", cycleId: null, flowIntensity: null, symptoms: [], step: null }),
 }));

@@ -1,12 +1,10 @@
 import { View, Text, Pressable } from "react-native";
-import { useRouter } from "expo-router";
 import { usePeriodCheckInStore } from "@/repositories/usePeriodCheckInStore";
 
 const INTENSITIES = ["Light", "Medium", "Heavy", "Spotting"];
 
-export default function FlowIntensity() {
-  const router = useRouter();
-  const { flowIntensity, setFlowIntensity } = usePeriodCheckInStore();
+export function FlowIntensityStep() {
+  const { flowIntensity, setFlowIntensity, setStep } = usePeriodCheckInStore();
 
   return (
     <View className="bg-white px-6 pt-8 pb-8">
@@ -39,7 +37,7 @@ export default function FlowIntensity() {
         );
       })}
       <Pressable
-        onPress={() => router.push("/period-checkin/symptoms")}
+        onPress={() => setStep("symptoms")}
         className="bg-primaryColor rounded-full py-4 items-center mt-4"
       >
         <Text className="text-white font-semibold">Continue</Text>

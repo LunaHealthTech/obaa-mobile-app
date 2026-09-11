@@ -1,8 +1,9 @@
 import { View, Text, Pressable } from "react-native";
-import { useRouter } from "expo-router";
+import { usePeriodCheckInStore } from "@/repositories/usePeriodCheckInStore";
 
-export default function NotYet() {
-  const router = useRouter();
+export function NotYetStep() {
+  const close = usePeriodCheckInStore((s) => s.close);
+
   return (
     <View className="bg-white items-center px-8 py-8">
       <Text className="text-xl font-semibold text-mainText text-center mb-2">
@@ -14,7 +15,7 @@ export default function NotYet() {
         changes.
       </Text>
       <Pressable
-        onPress={() => router.dismissAll()}
+        onPress={close}
         className="bg-primaryColor rounded-full w-full py-4 items-center"
       >
         <Text className="text-white font-semibold">Continue</Text>

@@ -1,24 +1,9 @@
 import { View, Text, Pressable } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { usePeriodCheckInStore } from "@/repositories/usePeriodCheckInStore";
 
-export default function QuickCheckIn() {
-  const router = useRouter();
-  const { date, cycleId } = useLocalSearchParams<{
-    date: string;
-    cycleId?: string;
-  }>();
-  const start = usePeriodCheckInStore((s) => s.start);
-
-  const onYes = () => {
-    start({
-      mode: "confirm",
-      date,
-      cycleId: cycleId ? Number(cycleId) : null,
-    });
-    router.push("/period-checkin/date");
-  };
+export function QuickCheckInStep() {
+  const setStep = usePeriodCheckInStore((s) => s.setStep);
 
   return (
     <View className="bg-white items-center px-8 py-8">
@@ -35,7 +20,7 @@ export default function QuickCheckIn() {
         Have you started your period or noticed any bleeding today?
       </Text>
       <Pressable
-        onPress={onYes}
+        onPress={() => setStep("date")}
         className="border-2 border-primaryColor rounded-full w-full py-4 items-center mb-3"
       >
         <Text className="text-primaryColor font-semibold">
@@ -43,7 +28,7 @@ export default function QuickCheckIn() {
         </Text>
       </Pressable>
       <Pressable
-        onPress={() => router.push("/period-checkin/not-yet")}
+        onPress={() => setStep("not-yet")}
         className="border-2 border-borderGreyColor rounded-full w-full py-4 items-center"
       >
         <Text className="text-mainText font-semibold">🌿 No, Not yet</Text>

@@ -92,15 +92,31 @@ export interface GetLogsParams {
 
 export type PeriodCheckInMode = "confirm" | "edit";
 
+export type PeriodCheckInStep =
+  | "quick-check-in"
+  | "not-yet"
+  | "date"
+  | "flow-intensity"
+  | "symptoms"
+  | "confirmation";
+
 export interface PeriodCheckInState {
   mode: PeriodCheckInMode;
   date: string;
   cycleId: number | null;
   flowIntensity: string | null;
   symptoms: string[];
-  start: (params: { mode: PeriodCheckInMode; date: string; cycleId: number | null }) => void;
+  step: PeriodCheckInStep | null;
+  start: (params: {
+    mode: PeriodCheckInMode;
+    date: string;
+    cycleId: number | null;
+    step: PeriodCheckInStep;
+  }) => void;
+  setStep: (step: PeriodCheckInStep) => void;
   setDate: (date: string) => void;
   setFlowIntensity: (flowIntensity: string) => void;
   toggleSymptom: (symptom: string) => void;
+  close: () => void;
   reset: () => void;
 }

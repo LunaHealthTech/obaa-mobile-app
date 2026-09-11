@@ -1,20 +1,18 @@
 import { View, Text, Pressable } from "react-native";
 import { useState } from "react";
-import { useRouter } from "expo-router";
 import { Calendar } from "react-native-calendars";
 import { format } from "date-fns";
 import { usePeriodCheckInStore } from "@/repositories/usePeriodCheckInStore";
 
-export default function PeriodStartDate() {
-  const router = useRouter();
-  const { date, setDate } = usePeriodCheckInStore();
+export function DateStep() {
+  const { date, setDate, setStep } = usePeriodCheckInStore();
   const [selected, setSelected] = useState(
     date || format(new Date(), "yyyy-MM-dd"),
   );
 
   const onConfirm = () => {
     setDate(selected);
-    router.push("/period-checkin/flow-intensity");
+    setStep("flow-intensity");
   };
 
   return (
