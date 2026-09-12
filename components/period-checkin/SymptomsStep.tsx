@@ -1,7 +1,9 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Pressable } from "react-native";
 import { toast } from "sonner-native";
 import { usePeriodCheckInStore } from "@/repositories/usePeriodCheckInStore";
 import { usePeriodCheckIn } from "@/viewmodel/usePeriodCheckIn";
+import { MOOD_OPTIONS } from "@/constants/logOptions";
+import { Body, ButtonText, Caption, Label, SectionHeading } from "@/components/Typography";
 
 const SYMPTOMS = [
   "Cramps",
@@ -16,7 +18,8 @@ const SYMPTOMS = [
 ];
 
 export function SymptomsStep() {
-  const { symptoms, toggleSymptom, setStep } = usePeriodCheckInStore();
+  const { moods, toggleMood, symptoms, toggleSymptom, setStep } =
+    usePeriodCheckInStore();
   const { save, isSaving } = usePeriodCheckIn();
 
   const onSave = () => {
@@ -28,13 +31,35 @@ export function SymptomsStep() {
 
   return (
     <View className="bg-white px-6 pt-8 pb-8">
-      <Text className="text-subText text-center">Step 3 of 3</Text>
-      <Text className="text-xl font-semibold text-mainText text-center mt-1 mb-1">
-        🩸 Period-Related Symptoms
-      </Text>
-      <Text className="text-subText text-center mb-6">
+      <Caption className="text-subText text-center">Step 3 of 3</Caption>
+      <SectionHeading className="text-mainText text-center mt-1 mb-1">
+        🩸 Mood & Symptoms
+      </SectionHeading>
+      <Body className="text-subText text-center mb-6">
         How is your body feeling?
-      </Text>
+      </Body>
+      <Label className="text-mainText mb-2">Mood</Label>
+      <View className="flex-row flex-wrap gap-2 justify-center mb-6">
+        {MOOD_OPTIONS.map(({ emoji, label }) => {
+          const isSelected = moods.includes(label);
+          return (
+            <Pressable
+              key={label}
+              onPress={() => toggleMood(label)}
+              className={`rounded-full px-4 py-2 border ${
+                isSelected
+                  ? "bg-primaryColor border-primaryColor"
+                  : "border-borderGreyColor"
+              }`}
+            >
+              <Label className={isSelected ? "text-white" : "text-mainText"}>
+                {emoji} {label}
+              </Label>
+            </Pressable>
+          );
+        })}
+      </View>
+      <Label className="text-mainText mb-2">Symptoms</Label>
       <View className="flex-row flex-wrap gap-2 justify-center">
         {SYMPTOMS.map((symptom) => {
           const isSelected = symptoms.includes(symptom);
@@ -48,21 +73,30 @@ export function SymptomsStep() {
                   : "border-borderGreyColor"
               }`}
             >
-              <Text className={isSelected ? "text-white" : "text-mainText"}>
+              <Label className={isSelected ? "text-white" : "text-mainText"}>
                 {symptom}
-              </Text>
+              </Label>
             </Pressable>
           );
         })}
       </View>
+      {moods.length === 0 && (
+        <Caption className="text-subText text-center mt-4">
+          Select at least one mood to save your log
+        </Caption>
+      )}
       <Pressable
         onPress={onSave}
-        disabled={isSaving}
-        className="bg-primaryColor rounded-full py-4 items-center mt-6"
+        disabled={isSaving || moods.length === 0}
+        className={`rounded-full py-4 items-center mt-2 ${
+          isSaving || moods.length === 0
+            ? "bg-borderGreyColor"
+            : "bg-primaryColor"
+        }`}
       >
-        <Text className="text-white font-semibold">
+        <ButtonText className="text-white">
           {isSaving ? "Saving..." : "Save Today's Log"}
-        </Text>
+        </ButtonText>
       </Pressable>
     </View>
   );

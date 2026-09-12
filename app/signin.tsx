@@ -7,6 +7,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/lib/FormSchemas";
 import { useAuth } from "@/viewmodel/useAuth";
+import { Body, ButtonText, PageTitle } from "@/components/Typography";
 
 const appLogo = require("@/assets/icons/ObaaLogoCircularC1.png");
 const messageIcon = require("@/assets/icons/message.png");
@@ -56,16 +57,16 @@ export default function SignInScreen() {
             />
           </View>
 
-          <Text className="text-2xl font-semibold">Welcome back</Text>
-          <Text className="text-subText">
+          <PageTitle>Welcome back</PageTitle>
+          <Body className="text-subText">
             Sign in to be able to access your page
-          </Text>
+          </Body>
         </View>
 
         {/*Form*/}
         <View className={"px-8 flex gap-10"}>
           <View>
-            <Text>Email</Text>
+            <Body>Email</Body>
             <View
               className={
                 "bg-white border border-[#999999] mt-2 rounded-md flex flex-row gap-2 items-center px-2"
@@ -88,13 +89,13 @@ export default function SignInScreen() {
             </View>
             {/* Email error message */}
             {errors.email && (
-              <Text className="text-red-500 text-sm mt-1">
+              <Body className="text-red-500 mt-1">
                 {errors.email.message}
-              </Text>
+              </Body>
             )}
           </View>
           <View>
-            <Text>Password</Text>
+            <Body>Password</Body>
             <View
               className={
                 "bg-white border border-[#999999] mt-2 rounded-md flex flex-row gap-2 items-center px-2"
@@ -123,13 +124,13 @@ export default function SignInScreen() {
               </Pressable>
             </View>
             <View className={"flex flex-row justify-end gap-4 space-between"}>
-              <Text className={"text-primaryColor"}>Forgot Password?</Text>
+              <Body className={"text-primaryColor"}>Forgot Password?</Body>
             </View>
             {/* Password error message */}
             {errors.password && (
-              <Text className="text-red-500 text-sm mt-1">
+              <Body className="text-red-500 mt-1">
                 {errors.password.message}
-              </Text>
+              </Body>
             )}
           </View>
         </View>
@@ -143,30 +144,30 @@ export default function SignInScreen() {
             "bg-primaryColor text-white w-[360px] h-[62px] rounded-full flex items-center justify-center active:opacity-80"
           }
         >
-          <Text className={"text-white text-lg font-semibold"}>Login</Text>
+          <ButtonText className={"text-white"}>Login</ButtonText>
         </Pressable>
 
         <View className={"my-5 flex gap-5 items-center"}>
-          <Text>Or Sign in with</Text>
+          <Body>Or Sign in with</Body>
           <View className={"flex flex-row gap-5"}>
             <Image source={facebookIcon} width={40} height={40} />
             <Image source={googleIcon} width={40} height={40} />
             <Image source={appleIcon} width={50} height={55} />
           </View>
-          <Text>
+          <Body>
             Don't have an account yet?{" "}
             <Link href={"/signup"}>
-              <Text className={"text-primaryColor font-bold"}>
+              <Text className={"text-primaryColor font-sans-bold"}>
                 Sign up
               </Text>{" "}
             </Link>
-          </Text>
-          <Text>
+          </Body>
+          <Body>
             Need help? Visit our{" "}
-            <Text className={"text-primaryColor font-bold"}>
+            <Text className={"text-primaryColor font-sans-bold"}>
               help center
             </Text>{" "}
-          </Text>
+          </Body>
         </View>
       </View>
     </View>

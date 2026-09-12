@@ -1,9 +1,17 @@
-import { View, Text, Pressable, ScrollView } from "react-native";
+import { View, Pressable, ScrollView } from "react-native";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { addMinutes, format, parse, parseISO } from "date-fns";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Midwife, midwives } from "@/constants/midwives";
+import {
+  Body,
+  ButtonText,
+  CardTitle,
+  Caption,
+  Label,
+  PageTitle,
+} from "@/components/Typography";
 
 const CONSULTATION_TYPE_LABELS: Record<string, string> = {
   chat: "Chat Consultation",
@@ -45,7 +53,7 @@ function AppointmentDetailRow({
   return (
     <View className={"flex-row items-center gap-2"}>
       <Ionicons name={icon} size={16} color={"#0F969C"} />
-      <Text className={"text-mainText text-sm font-medium"}>{value}</Text>
+      <Label className={"text-mainText"}>{value}</Label>
     </View>
   );
 }
@@ -94,12 +102,12 @@ export default function MidwifeMatchPage() {
           >
             <Ionicons name={"checkmark"} size={32} color={"#fff"} />
           </View>
-          <Text className={"text-mainText text-xl font-bold mt-4 text-center"}>
+          <PageTitle className={"text-mainText mt-4 text-center"}>
             We found a midwife for you
-          </Text>
-          <Text className={"text-greyColor text-sm mt-2 text-center leading-5"}>
+          </PageTitle>
+          <Body className={"text-greyColor mt-2 text-center leading-5"}>
             Based on your preferences and availability
-          </Text>
+          </Body>
         </View>
 
         <View className={"px-4 mt-6"}>
@@ -119,18 +127,18 @@ export default function MidwifeMatchPage() {
               </View>
               <View>
                 <View className={"flex-row items-center gap-1.5"}>
-                  <Text className={"text-mainText font-bold"}>
+                  <CardTitle className={"text-mainText"}>
                     {midwife.name}
-                  </Text>
+                  </CardTitle>
                   <Ionicons
                     name={"checkmark-circle"}
                     size={16}
                     color={"#0F969C"}
                   />
                 </View>
-                <Text className={"text-greyColor text-xs mt-0.5"}>
+                <Caption className={"text-greyColor mt-0.5"}>
                   {midwife.role}
-                </Text>
+                </Caption>
               </View>
             </View>
 
@@ -140,21 +148,21 @@ export default function MidwifeMatchPage() {
               }
             >
               <View className={"items-center flex-1"}>
-                <Text className={"text-mainText text-sm font-bold"}>
+                <Label className={"text-mainText"}>
                   {midwife.yearsExperience} Years
-                </Text>
-                <Text className={"text-greyColor text-xs mt-0.5"}>
+                </Label>
+                <Caption className={"text-greyColor mt-0.5"}>
                   Experience
-                </Text>
+                </Caption>
               </View>
               <View className={"w-px h-10 bg-borderGreyColor"} />
               <View className={"items-center flex-1 px-2"}>
-                <Text className={"text-mainText text-sm font-bold text-center"}>
+                <Label className={"text-mainText text-center"}>
                   {midwife.specialty}
-                </Text>
-                <Text className={"text-greyColor text-xs mt-0.5"}>
+                </Label>
+                <Caption className={"text-greyColor mt-0.5"}>
                   Specialty
-                </Text>
+                </Caption>
               </View>
             </View>
 
@@ -163,15 +171,15 @@ export default function MidwifeMatchPage() {
                 "flex-row items-center flex-wrap gap-2 mt-4 pt-4 border-t border-borderGreyColor"
               }
             >
-              <Text className={"text-greyColor text-sm"}>Languages:</Text>
+              <Body className={"text-greyColor"}>Languages:</Body>
               {midwife.languages.map((language) => (
                 <View
                   key={language}
                   className={"border border-borderGreyColor rounded-full px-3 py-1"}
                 >
-                  <Text className={"text-mainText text-xs font-medium"}>
+                  <Caption className={"text-mainText"}>
                     {language}
-                  </Text>
+                  </Caption>
                 </View>
               ))}
             </View>
@@ -180,9 +188,9 @@ export default function MidwifeMatchPage() {
 
         <View className={"px-4 mt-4"}>
           <View className={"bg-[#0F969C1A] rounded-xl p-4 gap-3"}>
-            <Text className={"text-primaryColor font-semibold"}>
+            <Label className={"text-primaryColor"}>
               Appointment Details
-            </Text>
+            </Label>
             <AppointmentDetailRow icon={"calendar-outline"} value={formattedDate} />
             <AppointmentDetailRow icon={"time-outline"} value={timeRange} />
             <AppointmentDetailRow icon={typeIcon} value={typeLabel} />
@@ -197,7 +205,7 @@ export default function MidwifeMatchPage() {
             "bg-primaryColor rounded-full py-4 items-center justify-center active:opacity-80"
           }
         >
-          <Text className={"text-white font-semibold"}>Confirm Booking</Text>
+          <ButtonText className={"text-white"}>Confirm Booking</ButtonText>
         </Pressable>
       </View>
     </View>

@@ -9,11 +9,27 @@ import {
   subDays,
 } from "date-fns";
 import {
+  CurrentCyclePhase,
   CyclePhase,
   DayMarking,
   GenerateDaysProps,
   UserCycleData,
 } from "@/types/menstrual.types";
+
+export type RingPhase = "MENSTRUATING" | "FOLLICULAR" | "OVULATING" | "LUTEAL";
+
+const PHASE_NORMALIZATION: Record<CurrentCyclePhase, RingPhase | null> = {
+  menstrual: "MENSTRUATING",
+  follicular: "FOLLICULAR",
+  ovulation: "OVULATING",
+  luteal: "LUTEAL",
+  completed: null,
+  upcoming: null,
+};
+
+export function normalizeCyclePhase(phase: CurrentCyclePhase): RingPhase {
+  return PHASE_NORMALIZATION[phase] ?? "FOLLICULAR";
+}
 
 export function computeCycleDay(date: Date | string, cycle: UserCycleData) {
   return differenceInCalendarDays(new Date(date), new Date(cycle.start_date)) + 1;
@@ -54,6 +70,7 @@ export function generateDays({
         predicted: cycle.predicted,
         cycleDay: computeCycleDay(date, cycle),
         phase: computeCyclePhase(date, cycle),
+        cycleBleedEndDate: cycle.bleed_end_date,
       }),
       ...customProps,
     };
@@ -61,57 +78,47 @@ export function generateDays({
   return formattedDates;
 }
 
+export const CONFIRMED_MENSTRUAL_STYLE = {
+  container: {
+    width: 35.43,
+    height: 30,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 40,
+    position: "relative",
+    bottom: 0,
+  },
+  text: { color: "white", fontSize: 14, textAlign: "center" },
+};
+
+export const PREDICTED_MENSTRUAL_STYLE = {
+  container: {
+    ...CONFIRMED_MENSTRUAL_STYLE.container,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: "#E82A73",
+  },
+  text: { color: "black", fontSize: 14, textAlign: "center" },
+};
+
 export function extractDates(
   dates: UserCycleData[],
 ): Record<string, DayMarking> {
   let res: Record<string, DayMarking> = {};
   for (const data of dates) {
-    let menstrualOptions = {
+    const menstrualOptions = {
       startDate: data.start_date,
       endDate: data.bleed_end_date,
       colorCode: data.predicted ? "#FFFFFF" : "#E82A73",
       category: "MENSTRUAL",
       cycle: data,
       customProps: {
-        customStyles: {
-          container: {
-            width: 35.43,
-            height: 30,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            borderRadius: 40,
-            position: "relative",
-            bottom: 0,
-          },
-          text: { color: "white", fontSize: 14, textAlign: "center" },
-        },
+        customStyles: data.predicted
+          ? PREDICTED_MENSTRUAL_STYLE
+          : CONFIRMED_MENSTRUAL_STYLE,
       },
     };
-
-    if (data.predicted) {
-      menstrualOptions = {
-        ...menstrualOptions,
-        customProps: {
-          customStyles: {
-            container: {
-              width: 35.43,
-              height: 30,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: 40,
-              position: "relative",
-              bottom: 0,
-              borderWidth: 1,
-              borderStyle: "dashed",
-              borderColor: "#E82A73",
-            },
-            text: { color: "black", fontSize: 14, textAlign: "center" },
-          },
-        },
-      };
-    }
     const menstrualDays = generateDays(menstrualOptions);
     const fertileWindowStyle = {
       customStyles: {
@@ -160,11 +167,11 @@ export function extractDates(
       }),
     };
 
-    let safeDays: Record<string, DayMarking> = {};
+    const safeDays: Record<string, DayMarking> = {};
     for (const safeRange of data.safe_days) {
-      safeDays = {
-        ...safeDays,
-        ...generateDays({
+      Object.assign(
+        safeDays,
+        generateDays({
           startDate: safeRange.start_date,
           endDate: safeRange.end_date,
           colorCode: "#3CB9FB50",
@@ -186,9 +193,38 @@ export function extractDates(
             },
           },
         }),
-      };
+      );
     }
-    res = { ...res, ...ovulationDays, ...safeDays, ...menstrualDays };
+    Object.assign(res, ovulationDays, safeDays, menstrualDays);
   }
   return res;
+}
+
+export function applyAssumedConfirmedRanges(
+  markedDates: Record<string, DayMarking>,
+  ranges: Record<number, { startDate: string; bleedEndDate: string }>,
+): Record<string, DayMarking> {
+  const result = { ...markedDates };
+  for (const [cycleIdStr, range] of Object.entries(ranges)) {
+    const cycleId = Number(cycleIdStr);
+    const confirmedDays = generateDays({
+      startDate: range.startDate,
+      endDate: range.bleedEndDate,
+      colorCode: "#E82A73",
+      category: "MENSTRUAL",
+      cycle: {
+        id: cycleId,
+        start_date: range.startDate,
+        bleed_end_date: range.bleedEndDate,
+        end_date: range.bleedEndDate,
+        safe_days: [],
+        ovulation_day: range.startDate,
+        cycle_length: 0,
+        predicted: false,
+      },
+      customProps: { customStyles: CONFIRMED_MENSTRUAL_STYLE },
+    });
+    Object.assign(result, confirmedDays);
+  }
+  return result;
 }

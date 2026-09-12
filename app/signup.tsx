@@ -13,6 +13,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { DateInput } from "@/components/DateInput";
 import { useAuth } from "@/viewmodel/useAuth";
 import { AuthState } from "@/types/auth.types";
+import { Body, ButtonText, PageTitle } from "@/components/Typography";
 
 type FormValues = {
   first_name: string;
@@ -97,10 +98,10 @@ export default function SignUp() {
             />
           </View>
 
-          <Text className="text-2xl font-semibold">Register with us</Text>
-          <Text className="text-subText">
+          <PageTitle>Register with us</PageTitle>
+          <Body className="text-subText">
             Sign up to be able to access your page
-          </Text>
+          </Body>
         </View>
       </View>
 
@@ -133,9 +134,9 @@ export default function SignUp() {
               "bg-primaryColor text-white w-[360px] h-[62px] rounded-full flex items-center justify-center active:opacity-80"
             }
           >
-            <Text className={"text-white text-lg font-semibold"}>
+            <ButtonText className={"text-white"}>
               {step === maxSteps ? "Create your account" : "Next"}
-            </Text>
+            </ButtonText>
           </Pressable>
 
           {step !== 0 && (
@@ -151,16 +152,16 @@ export default function SignUp() {
                 className={" flex flex-row items-center justify-center gap-2"}
               >
                 <FontAwesome name="long-arrow-left" size={24} color="#0F969C" />
-                <Text className={"text-primaryColor text-xl"}>back</Text>
+                <ButtonText className={"text-primaryColor"}>back</ButtonText>
               </View>
             </Pressable>
           )}
         </View>
-        <Text className={"text-sm text-center"}>
+        <Body className={"text-center"}>
           By submitting this form to create a TTYM Global account, you agree to
           the <Text className={"text-primaryColor"}>Terms and Conditions</Text>{" "}
           and <Text className={"text-primaryColor"}>Privacy Policy</Text>
-        </Text>
+        </Body>
       </View>
     </View>
   );
@@ -170,7 +171,7 @@ function Step1({ control, signUpSteps, setSignUpItem, errors }: StepProps) {
   return (
     <>
       <View>
-        <Text>First Name</Text>
+        <Body>First Name</Body>
         <View
           className={
             "bg-white border border-[#999999] mt-2 rounded-md flex flex-row gap-2 items-center px-2"
@@ -193,11 +194,11 @@ function Step1({ control, signUpSteps, setSignUpItem, errors }: StepProps) {
             )}
             name={"first_name"}
           />
-          {errors?.first_name && <Text>{errors?.first_name.message}</Text>}
+          {errors?.first_name && <Body>{errors?.first_name.message}</Body>}
         </View>
       </View>
       <View>
-        <Text>Last Name</Text>
+        <Body>Last Name</Body>
         <View
           className={
             "bg-white border border-[#999999] mt-2 rounded-md flex flex-row gap-2 items-center px-2"
@@ -218,9 +219,9 @@ function Step1({ control, signUpSteps, setSignUpItem, errors }: StepProps) {
                   onBlur={onBlur}
                 />
                 {errors?.last_name && (
-                  <Text className={"text-red-500 text-sm"}>
+                  <Body className={"text-red-500"}>
                     {errors?.last_name.message}
-                  </Text>
+                  </Body>
                 )}
               </>
             )}
@@ -236,7 +237,7 @@ function Step2({ control, signUpSteps, setSignUpItem }: StepProps) {
   return (
     <>
       <View>
-        <Text>Date of Birth</Text>
+        <Body>Date of Birth</Body>
         <Controller
           name="date_of_birth"
           control={control}
@@ -256,7 +257,7 @@ function Step2({ control, signUpSteps, setSignUpItem }: StepProps) {
         />
       </View>
       <View>
-        <Text>Email</Text>
+        <Body>Email</Body>
         <View
           className={
             "bg-white border border-[#999999] mt-2 rounded-md flex flex-row gap-2 items-center px-2"
@@ -280,7 +281,7 @@ function Step2({ control, signUpSteps, setSignUpItem }: StepProps) {
                   }}
                   onBlur={onBlur}
                 />
-                <Text>{error?.message}</Text>
+                <Body>{error?.message}</Body>
               </>
             )}
             name={"email"}
@@ -296,7 +297,7 @@ function Step3({ control, signUpSteps, setSignUpItem, errors }: StepProps) {
   return (
     <>
       <View>
-        <Text>Phone number</Text>
+        <Body>Phone number</Body>
         <View>
           <Controller
             control={control}
@@ -318,7 +319,7 @@ function Step3({ control, signUpSteps, setSignUpItem, errors }: StepProps) {
         </View>
       </View>
       <View>
-        <Text>Password</Text>
+        <Body>Password</Body>
         <View
           className={
             "bg-white border border-[#999999] mt-2 rounded-md flex flex-row gap-2 items-center px-2"
@@ -351,9 +352,9 @@ function Step3({ control, signUpSteps, setSignUpItem, errors }: StepProps) {
           </Pressable>
         </View>
         {errors?.password?.message && (
-          <Text className="text-red-500 text-sm mt-6">
+          <Body className="text-red-500 mt-6">
             {errors?.password.message}
-          </Text>
+          </Body>
         )}
       </View>
     </>

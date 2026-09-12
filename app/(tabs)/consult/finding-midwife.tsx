@@ -1,6 +1,7 @@
 import { useEffect } from "react";
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { Body, CardTitle, SectionHeading } from "@/components/Typography";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -96,12 +97,12 @@ export default function FindingMidwifePage() {
         </Animated.View>
       </Animated.View>
 
-      <Text className={"text-mainText text-lg font-bold mt-8"}>
+      <SectionHeading className={"text-mainText mt-8"}>
         Finding your midwife...
-      </Text>
-      <Text className={"text-greyColor text-sm mt-1"}>
+      </SectionHeading>
+      <Body className={"text-greyColor mt-1"}>
         This can take up to a minute
-      </Text>
+      </Body>
 
       <View className={"w-full mt-10 gap-4"}>
         {steps.map((step) => (
@@ -130,15 +131,13 @@ export default function FindingMidwifePage() {
             {step.status === "pending" && (
               <View className={"w-6 h-6 rounded-full bg-[#F5F7F8]"} />
             )}
-            <Text
+            <CardTitle
               className={
-                step.status === "pending"
-                  ? "text-greyColor text-base"
-                  : "text-mainText text-base"
+                step.status === "pending" ? "text-greyColor" : "text-mainText"
               }
             >
               {step.label}
-            </Text>
+            </CardTitle>
           </View>
         ))}
       </View>

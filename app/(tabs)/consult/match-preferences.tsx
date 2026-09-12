@@ -4,6 +4,14 @@ import { useRouter } from "expo-router";
 import { addDays, format } from "date-fns";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import {
+  Body,
+  ButtonText,
+  Caption,
+  Label,
+  PageTitle,
+  SectionHeading,
+} from "@/components/Typography";
 
 const supportTopics = [
   "Pregnancy Support",
@@ -75,19 +83,19 @@ export default function MatchPreferencesPage() {
           <Ionicons name={"chevron-back"} size={20} color={"#17252A"} />
         </Pressable>
         <View className={"flex-1 mt-1"}>
-          <Text className={"text-mainText text-xl font-bold"}>
+          <PageTitle className={"text-mainText"}>
             Let&apos;s find the right support
-          </Text>
-          <Text className={"text-greyColor text-sm mt-1"}>
+          </PageTitle>
+          <Body className={"text-greyColor mt-1"}>
             Tell us what you need and we&apos;ll handle the rest.
-          </Text>
+          </Body>
         </View>
       </View>
 
       <View className={"px-4 mt-6"}>
-        <Text className={"text-mainText font-semibold mb-3"}>
+        <SectionHeading className={"text-mainText mb-3"}>
           What do you need support with?
-        </Text>
+        </SectionHeading>
         <View className={"flex-row flex-wrap gap-2"}>
           {supportTopics.map((topic) => {
             const isSelected = topic === selectedTopic;
@@ -101,15 +109,11 @@ export default function MatchPreferencesPage() {
                     : "bg-white border border-borderGreyColor rounded-full px-4 py-2"
                 }
               >
-                <Text
-                  className={
-                    isSelected
-                      ? "text-white text-sm font-medium"
-                      : "text-mainText text-sm font-medium"
-                  }
+                <Label
+                  className={isSelected ? "text-white" : "text-mainText"}
                 >
                   {topic}
-                </Text>
+                </Label>
               </Pressable>
             );
           })}
@@ -117,9 +121,9 @@ export default function MatchPreferencesPage() {
       </View>
 
       <View className={"px-4 mt-6"}>
-        <Text className={"text-mainText font-semibold mb-3"}>
+        <SectionHeading className={"text-mainText mb-3"}>
           Consultation Type
-        </Text>
+        </SectionHeading>
         <View className={"flex-row gap-3"}>
           {consultationTypes.map((type) => {
             const isSelected = type.key === consultationType;
@@ -138,15 +142,11 @@ export default function MatchPreferencesPage() {
                   size={22}
                   color={isSelected ? "#0F969C" : "#72777A"}
                 />
-                <Text
-                  className={
-                    isSelected
-                      ? "text-primaryColor text-sm font-medium"
-                      : "text-greyColor text-sm font-medium"
-                  }
+                <Label
+                  className={isSelected ? "text-primaryColor" : "text-greyColor"}
                 >
                   {type.label}
-                </Text>
+                </Label>
               </Pressable>
             );
           })}
@@ -154,9 +154,9 @@ export default function MatchPreferencesPage() {
       </View>
 
       <View className={"mt-6"}>
-        <Text className={"text-mainText font-semibold mb-3 px-4"}>
+        <SectionHeading className={"text-mainText mb-3 px-4"}>
           Preferred day
-        </Text>
+        </SectionHeading>
         <FlatList
           horizontal={true}
           data={upcomingDays}
@@ -174,24 +174,18 @@ export default function MatchPreferencesPage() {
                     : "bg-white border border-borderGreyColor rounded-xl items-center justify-center w-14 h-16"
                 }
               >
-                <Text
-                  className={
-                    isSelected
-                      ? "text-white text-xs"
-                      : "text-greyColor text-xs"
-                  }
+                <Caption
+                  className={isSelected ? "text-white" : "text-greyColor"}
                 >
                   {item.weekday}
-                </Text>
-                <Text
+                </Caption>
+                <SectionHeading
                   className={
-                    isSelected
-                      ? "text-white text-lg font-semibold mt-1"
-                      : "text-mainText text-lg font-semibold mt-1"
+                    isSelected ? "text-white mt-1" : "text-mainText mt-1"
                   }
                 >
                   {item.day}
-                </Text>
+                </SectionHeading>
               </Pressable>
             );
           }}
@@ -199,9 +193,9 @@ export default function MatchPreferencesPage() {
       </View>
 
       <View className={"px-4 mt-6"}>
-        <Text className={"text-mainText font-semibold mb-3"}>
+        <SectionHeading className={"text-mainText mb-3"}>
           Preferred time
-        </Text>
+        </SectionHeading>
         <View className={"flex-row flex-wrap gap-2"}>
           {timeSlots.map((time) => {
             const isUnavailable = unavailableTimeSlots.includes(time);
@@ -219,17 +213,17 @@ export default function MatchPreferencesPage() {
                       : "bg-white border border-borderGreyColor rounded-full px-4 py-2"
                 }
               >
-                <Text
+                <Label
                   className={
                     isSelected
-                      ? "text-white text-sm font-medium"
+                      ? "text-white"
                       : isUnavailable
-                        ? "text-greyColor text-sm font-medium line-through"
-                        : "text-mainText text-sm font-medium"
+                        ? "text-greyColor line-through"
+                        : "text-mainText"
                   }
                 >
                   {time}
-                </Text>
+                </Label>
               </Pressable>
             );
           })}
@@ -237,9 +231,9 @@ export default function MatchPreferencesPage() {
       </View>
 
       <View className={"px-4 mt-6"}>
-        <Text className={"text-mainText font-semibold mb-3"}>
-          Additional Notes <Text className={"text-greyColor font-normal"}>(optional)</Text>
-        </Text>
+        <SectionHeading className={"text-mainText mb-3"}>
+          Additional Notes <Text className={"text-greyColor text-sm font-sans"}>(optional)</Text>
+        </SectionHeading>
         <TextInput
           value={notes}
           onChangeText={setNotes}
@@ -261,7 +255,7 @@ export default function MatchPreferencesPage() {
             "bg-primaryColor rounded-full py-4 items-center justify-center active:opacity-80"
           }
         >
-          <Text className={"text-white font-semibold"}>Find My Midwife</Text>
+          <ButtonText className={"text-white"}>Find My Midwife</ButtonText>
         </Pressable>
       </View>
 

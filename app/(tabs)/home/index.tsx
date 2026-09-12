@@ -1,6 +1,5 @@
 import {
   View,
-  Text,
   Pressable,
   FlatList,
   Animated,
@@ -9,7 +8,7 @@ import {
 } from "react-native";
 import { Image } from "expo-image";
 import { useAuthStore } from "@/repositories/useAuthStore";
-import { Stack, Link } from "expo-router";
+import { Link } from "expo-router";
 import CalendarIcon from "@/assets/icons/topCalendarIcon.svg";
 import NotificationsIcon from "@/assets/icons/notificationIcon.svg";
 import PinkFlowerIcon from "@/assets/icons/flowers-1.svg";
@@ -28,7 +27,8 @@ import { EmoticonData } from "@/types/emotion.types";
 import { useState } from "react";
 import { SentimentCard } from "@/components/SentimentCard";
 import { ArticleCardSM } from "@/components/ArticleCardSM";
-import { SharedNav } from "@/components/SharedNav";
+import { AppHeader } from "@/components/AppHeader";
+import { Body, CardTitle, Label, SectionHeading } from "@/components/Typography";
 
 const emoticonData: EmoticonData[] = [
   { emoji: "😊", name: "happy" },
@@ -59,7 +59,7 @@ export default function HomePage() {
   if (isLoading) {
     return (
       <View>
-        <Text>Loading</Text>
+        <Body>Loading</Body>
       </View>
     );
   }
@@ -69,97 +69,99 @@ export default function HomePage() {
       style={{ flex: 1 }}
     >
       <ScrollView>
-        <View className={"bg-white px-8"}>
+        <View className={"bg-white"}>
           <StatusBar style={"dark"} />
-          <SharedNav name={"index"} />
-          <View className={"flex flex-row gap-3 items-center my-5"}>
-            <CalendarIcon width={25} height={25} color={"#3A3A3A"} />
-            <Text className={"font-bold"}>September 2026</Text>
-            <Image source={flowers} width={25} height={25} />
-          </View>
-
-          {/*  Today's update */}
-          <View>
-            <View className={"flex flex-row justify-between items-center"}>
-              <Text className={"font-semibold"}>Today&apos;s Update</Text>
-              <PinkFlowerIcon width={55} height={55} />
+          <AppHeader />
+          <View className={"px-4"}>
+            <View className={"flex flex-row gap-3 items-center my-5"}>
+              <CalendarIcon width={25} height={25} color={"#3A3A3A"} />
+              <CardTitle>September 2026</CardTitle>
+              <Image source={flowers} width={25} height={25} />
             </View>
-            {/*    Cards go here */}
-            <MenstrualInfoCard
-              text={`You are currently ${data?.general?.status}`}
-              subText={`Period started ${data?.general?.yourPeriodStarted}`}
-            >
-              <DrippingBloodIcon width={25} height={25} />
-            </MenstrualInfoCard>
-            <MenstrualInfoCard
-              text={`Period Length: ${data?.general?.periodLength} ${data?.general?.periodLength > 1 ? "days" : "day"}`}
-              subText={"Normal"}
-            >
-              <ClockIcon width={25} height={25} />
-            </MenstrualInfoCard>
 
-            <MenstrualInfoCard
-              text={`Cycle Length: ${data?.general?.cycleLength} ${data?.general?.cycleLength > 1 ? "days" : "day"}`}
-              subText={"Normal"}
-            >
-              <SyncIcon width={25} height={25} />
-            </MenstrualInfoCard>
-            <MenstrualInfoCard
-              text={"Pregnancy"}
-              subText={`${data?.general?.pregnancyProbability}`}
-            >
-              <PregnancyIcon width={25} height={25} />
-            </MenstrualInfoCard>
-          </View>
+            {/*  Today's update */}
+            <View>
+              <View className={"flex flex-row justify-between items-center"}>
+                <SectionHeading>Today&apos;s Update</SectionHeading>
+                <PinkFlowerIcon width={55} height={55} />
+              </View>
+              {/*    Cards go here */}
+              <MenstrualInfoCard
+                text={`You are currently ${data?.general?.status}`}
+                subText={`Period started ${data?.general?.yourPeriodStarted}`}
+              >
+                <DrippingBloodIcon width={25} height={25} />
+              </MenstrualInfoCard>
+              <MenstrualInfoCard
+                text={`Period Length: ${data?.general?.periodLength} ${data?.general?.periodLength > 1 ? "days" : "day"}`}
+                subText={"Normal"}
+              >
+                <ClockIcon width={25} height={25} />
+              </MenstrualInfoCard>
 
-          <View className={"mt-5"}>
-            <ShareCard handleClick={handleShareClick} />
-          </View>
+              <MenstrualInfoCard
+                text={`Cycle Length: ${data?.general?.cycleLength} ${data?.general?.cycleLength > 1 ? "days" : "day"}`}
+                subText={"Normal"}
+              >
+                <SyncIcon width={25} height={25} />
+              </MenstrualInfoCard>
+              <MenstrualInfoCard
+                text={"Pregnancy"}
+                subText={`${data?.general?.pregnancyProbability}`}
+              >
+                <PregnancyIcon width={25} height={25} />
+              </MenstrualInfoCard>
+            </View>
 
-          {/*How do you feel today*/}
-          <View className={"mt-5"}>
-            <Text className={"font-semibold mb-3"}>How do you feel today?</Text>
-            <View className={"flex flex-1"}>
-              {!showShareSentiment ? (
+            <View className={"mt-5"}>
+              <ShareCard handleClick={handleShareClick} />
+            </View>
+
+            {/*How do you feel today*/}
+            <View className={"mt-5"}>
+              <SectionHeading className={"mb-3"}>How do you feel today?</SectionHeading>
+              <View className={"flex flex-1"}>
+                {!showShareSentiment ? (
+                  <FlatList
+                    data={emoticonData}
+                    horizontal={true}
+                    keyExtractor={(item) => item.name}
+                    contentContainerStyle={{
+                      gap: 10,
+                    }}
+                    renderItem={({ item }) => (
+                      <EmotionCard
+                        emotion={item}
+                        onPress={handleSentimentClick}
+                      />
+                    )}
+                  />
+                ) : (
+                  <SentimentCard sentiment={currentSentiment} />
+                )}
+              </View>
+            </View>
+
+            {/* Article */}
+            <View className={"mt-5"}>
+              <SectionHeading className={"mb-3"}>How do you feel today?</SectionHeading>
+              <View className={"flex flex-1"}>
                 <FlatList
-                  data={emoticonData}
                   horizontal={true}
-                  keyExtractor={(item) => item.name}
                   contentContainerStyle={{
                     gap: 10,
                   }}
-                  renderItem={({ item }) => (
-                    <EmotionCard
-                      emotion={item}
-                      onPress={handleSentimentClick}
-                    />
-                  )}
+                  data={["som", "an", "tow", "son"]}
+                  keyExtractor={(item) => item}
+                  renderItem={(article) => <ArticleCardSM />}
                 />
-              ) : (
-                <SentimentCard sentiment={currentSentiment} />
-              )}
+              </View>
             </View>
+            <Pressable onPress={() => logout()}>
+              <Label>Logout</Label>
+            </Pressable>
+            <Link href={"/onboarding/persona"}>Onboarding</Link>
           </View>
-
-          {/* Article */}
-          <View className={"mt-5"}>
-            <Text className={"font-semibold mb-3"}>How do you feel today?</Text>
-            <View className={"flex flex-1"}>
-              <FlatList
-                horizontal={true}
-                contentContainerStyle={{
-                  gap: 10,
-                }}
-                data={["som", "an", "tow", "son"]}
-                keyExtractor={(item) => item}
-                renderItem={(article) => <ArticleCardSM />}
-              />
-            </View>
-          </View>
-          <Pressable onPress={() => logout()}>
-            <Text>Logout</Text>
-          </Pressable>
-          <Link href={"/onboarding/persona"}>Onboarding</Link>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

@@ -9,7 +9,7 @@ export default function HomeLayout() {
   let src = `https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=${userInfo?.first_name}&size=24&backgroundColor=d1d4f9`;
   return (
     <Stack>
-      <Stack.Screen name={"index"} />
+      <Stack.Screen name={"index"} options={{ headerShown: false }} />
       <Stack.Screen
         name={"settings"}
         options={{

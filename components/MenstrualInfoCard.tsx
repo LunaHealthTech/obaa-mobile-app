@@ -1,4 +1,5 @@
-import { View, Text } from "react-native";
+import { View } from "react-native";
+import { CardTitle, Caption } from "@/components/Typography";
 
 export function MenstrualInfoCard({
   children,
@@ -18,8 +19,8 @@ export function MenstrualInfoCard({
       <View className={"flex items-center flex-row gap-4 "}>
         {children}
         <View>
-          <Text className={"text-lg"}>{text}</Text>
-          <Text className={"text-sm text-greyColor"}>{subText}</Text>
+          <CardTitle>{text}</CardTitle>
+          <Caption className={"text-greyColor"}>{subText}</Caption>
         </View>
       </View>
     </View>

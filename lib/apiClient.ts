@@ -2,7 +2,31 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { TokenStorage } from "@/services/tokenStorage";
 import { useAuthStore } from "@/repositories/useAuthStore";
 
-const BASE_URL = "http://10.0.2.2:8000/api/v1"; // TODO: find a replacement for this
+// DRF validation errors are typically { field: ["message", ...] } or { detail: "message" }.
+export function extractErrorMessage(
+  error: unknown,
+  fallback: string,
+): string {
+  const data = (error as AxiosError)?.response?.data as
+    | Record<string, unknown>
+    | string
+    | undefined;
+
+  if (!data) return fallback;
+  if (typeof data === "string") return data;
+  if (typeof data.detail === "string") return data.detail;
+  if (typeof data.message === "string") return data.message;
+
+  const firstFieldError = Object.values(data).find(
+    (value) => Array.isArray(value) && typeof value[0] === "string",
+  ) as string[] | undefined;
+  if (firstFieldError) return firstFieldError[0];
+
+  return fallback;
+}
+
+// const BASE_URL = "http://10.0.2.2:8000/api/v1"; // TODO: find a replacement for this
+const BASE_URL = "http://localhost:8000/api/v1"; 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
   timeout: 10000,
@@ -39,11 +63,24 @@ const processQueue = (error: unknown, token: string | null = null) => {
 };
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log(
+      `[apiClient] ${response.config.method?.toUpperCase()} ${response.config.url} -> ${response.status}`,
+      response.data,
+    );
+    return response;
+  },
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };
+
+    if (error.response) {
+      console.error(
+        `[apiClient] ${originalRequest.method?.toUpperCase()} ${originalRequest.url} -> ${error.response.status}`,
+        error.response.data,
+      );
+    }
 
     if (error.response?.status !== 401 || originalRequest._retry) {
       return Promise.reject(error);

@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { ladyImage } from "@/constants/assets";
+import { Body, CardTitle } from "@/components/Typography";
 
 export function ArticleCardSM() {
   return (
@@ -17,13 +18,13 @@ export function ArticleCardSM() {
         alt={"image lady"}
       />
       <View className={"px-2"}>
-        <Text className={"capitalize text-mainText font-semibold"}>
+        <CardTitle className={"capitalize text-mainText"}>
           the glow phase: when your skin loves your cycle
-        </Text>
-        <Text className={"text-greyColor"}>
+        </CardTitle>
+        <Body className={"text-greyColor"}>
           Yes, there’s a point in your cycle where your skin naturally shines.
           Here’s how to spot it.
-        </Text>
+        </Body>
       </View>
     </View>
   );

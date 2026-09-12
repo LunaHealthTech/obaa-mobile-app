@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, Pressable, ScrollView } from "react-native";
+import { View, Pressable, ScrollView } from "react-native";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
@@ -12,6 +12,14 @@ import {
 import { toast } from "sonner-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Midwife, midwives } from "@/constants/midwives";
+import {
+  Body,
+  ButtonText,
+  CardTitle,
+  Caption,
+  Label,
+  PageTitle,
+} from "@/components/Typography";
 
 const CONSULTATION_TYPE_LABELS: Record<string, string> = {
   chat: "Chat Consultation",
@@ -70,10 +78,10 @@ function InfoRow({
         <Ionicons name={icon} size={18} color={"#0F969C"} />
       </View>
       <View>
-        <Text className={"text-greyColor text-xs"}>{label}</Text>
-        <Text className={"text-mainText text-sm font-semibold mt-0.5"}>
+        <Caption className={"text-greyColor"}>{label}</Caption>
+        <Label className={"text-mainText mt-0.5"}>
           {value}
-        </Text>
+        </Label>
       </View>
     </View>
   );
@@ -160,15 +168,15 @@ export default function AppointmentPage() {
         >
           <Ionicons name={"chevron-back"} size={20} color={"#17252A"} />
         </Pressable>
-        <Text className={"text-mainText text-lg font-bold"}>
+        <PageTitle className={"text-mainText"}>
           Upcoming Appointment
-        </Text>
+        </PageTitle>
       </View>
 
       <ScrollView className={"flex-1"} contentContainerStyle={{ paddingBottom: 24 }}>
         <View className={"px-4 mt-6"}>
           <View className={"bg-[#0F969C0D] rounded-2xl p-4 items-center"}>
-            <Text className={"text-greyColor text-sm"}>Session starts in</Text>
+            <Body className={"text-greyColor"}>Session starts in</Body>
             <View className={"flex-row gap-3 mt-3"}>
               {countdownUnits.map((unit) => (
                 <View
@@ -177,12 +185,12 @@ export default function AppointmentPage() {
                     "bg-white rounded-xl items-center justify-center w-16 h-16"
                   }
                 >
-                  <Text className={"text-primaryColor text-xl font-bold"}>
+                  <PageTitle className={"text-primaryColor"}>
                     {pad(unit.value)}
-                  </Text>
-                  <Text className={"text-greyColor text-xs mt-0.5"}>
+                  </PageTitle>
+                  <Caption className={"text-greyColor mt-0.5"}>
                     {unit.label}
-                  </Text>
+                  </Caption>
                 </View>
               ))}
             </View>
@@ -206,18 +214,18 @@ export default function AppointmentPage() {
               </View>
               <View>
                 <View className={"flex-row items-center gap-1.5"}>
-                  <Text className={"text-mainText font-bold"}>
+                  <CardTitle className={"text-mainText"}>
                     {midwife.name}
-                  </Text>
+                  </CardTitle>
                   <Ionicons
                     name={"checkmark-circle"}
                     size={16}
                     color={"#0F969C"}
                   />
                 </View>
-                <Text className={"text-greyColor text-xs mt-0.5"}>
+                <Caption className={"text-greyColor mt-0.5"}>
                   {midwife.role}
-                </Text>
+                </Caption>
               </View>
             </View>
 
@@ -235,9 +243,9 @@ export default function AppointmentPage() {
               "bg-[#F5F7F8] rounded-full py-4 items-center justify-center"
             }
           >
-            <Text className={"text-greyColor font-semibold"}>
+            <Label className={"text-greyColor"}>
               Join Session (Available Soon)
-            </Text>
+            </Label>
           </View>
         </View>
 
@@ -248,7 +256,7 @@ export default function AppointmentPage() {
               "flex-1 bg-white border-2 border-red-500 rounded-full py-4 items-center justify-center active:opacity-80"
             }
           >
-            <Text className={"text-red-500 font-semibold"}>Cancel</Text>
+            <ButtonText className={"text-red-500"}>Cancel</ButtonText>
           </Pressable>
           <Pressable
             onPress={handleReschedule}
@@ -256,7 +264,7 @@ export default function AppointmentPage() {
               "flex-1 bg-white border border-borderGreyColor rounded-full py-4 items-center justify-center active:opacity-80"
             }
           >
-            <Text className={"text-mainText font-semibold"}>Reschedule</Text>
+            <ButtonText className={"text-mainText"}>Reschedule</ButtonText>
           </Pressable>
         </View>
       </ScrollView>

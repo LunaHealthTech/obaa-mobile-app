@@ -11,6 +11,7 @@ import Animated, {
 
 import { useAuthStore } from "@/repositories/useAuthStore";
 import { AnimatedLogo } from "@/components/splash/AnimatedLogo";
+import { Body, ButtonText } from "@/components/Typography";
 
 export default function Intro() {
   const router = useRouter();
@@ -52,8 +53,8 @@ export default function Intro() {
           onEntranceComplete={() => setEntranceComplete(true)}
         />
         <View className="items-center gap-1 mt-2">
-          <Text className="text-white text-3xl font-bold">Obaa</Text>
-          <Text className="text-white/80 text-sm">by Ergon Pulse</Text>
+          <Text className="text-white text-3xl font-display-bold">Obaa</Text>
+          <Body className="text-white/80">by Ergon Pulse</Body>
         </View>
       </View>
 
@@ -66,15 +67,15 @@ export default function Intro() {
           onPress={() => router.push("/signin")}
           className="bg-white w-full max-w-[360px] h-[62px] rounded-full items-center justify-center active:opacity-80"
         >
-          <Text className="text-primaryColor text-lg font-semibold">
+          <ButtonText className="text-primaryColor">
             Sign In
-          </Text>
+          </ButtonText>
         </Pressable>
         <Pressable
           onPress={() => router.push("/signup")}
           className="bg-[rgba(255,255,255,0.15)] border-2 border-white w-full max-w-[360px] h-[62px] rounded-full items-center justify-center active:opacity-80"
         >
-          <Text className="text-white text-lg font-semibold">Register</Text>
+          <ButtonText className="text-white">Register</ButtonText>
         </Pressable>
       </Animated.View>
     </View>

@@ -1,24 +1,25 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Pressable } from "react-native";
 import { usePeriodCheckInStore } from "@/repositories/usePeriodCheckInStore";
+import { Body, ButtonText, SectionHeading } from "@/components/Typography";
 
 export function NotYetStep() {
   const close = usePeriodCheckInStore((s) => s.close);
 
   return (
     <View className="bg-white items-center px-8 py-8">
-      <Text className="text-xl font-semibold text-mainText text-center mb-2">
+      <SectionHeading className="text-mainText text-center mb-2">
         🤍 That's perfectly okay
-      </Text>
-      <Text className="text-subText text-center mb-8">
+      </SectionHeading>
+      <Body className="text-subText text-center mb-8">
         Bodies aren't always predictable. We'll keep an eye on things and let
         you know when it's time. You can check in anytime if something
         changes.
-      </Text>
+      </Body>
       <Pressable
         onPress={close}
         className="bg-primaryColor rounded-full w-full py-4 items-center"
       >
-        <Text className="text-white font-semibold">Continue</Text>
+        <ButtonText className="text-white">Continue</ButtonText>
       </Pressable>
     </View>
   );

@@ -1,5 +1,6 @@
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { ButtonText } from "@/components/Typography";
 
 interface MultiStepButtonProps {
   maxSteps: number;
@@ -24,9 +25,9 @@ export function MultiStepButton({
           "bg-primaryColor text-white w-[360px] h-[62px] rounded-full flex items-center justify-center active:opacity-80"
         }
       >
-        <Text className={"text-white text-lg font-semibold"}>
+        <ButtonText className={"text-white"}>
           {step === maxSteps ? completionMsg : "Next"}
-        </Text>
+        </ButtonText>
       </Pressable>
 
       {step !== 0 && (
@@ -40,7 +41,7 @@ export function MultiStepButton({
         >
           <View className={" flex flex-row items-center justify-center gap-2"}>
             <FontAwesome name="long-arrow-left" size={24} color="#0F969C" />
-            <Text className={"text-primaryColor text-xl"}>back</Text>
+            <ButtonText className={"text-primaryColor"}>back</ButtonText>
           </View>
         </Pressable>
       )}

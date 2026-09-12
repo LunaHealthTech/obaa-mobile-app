@@ -62,6 +62,7 @@ export async function endPeriod(payload: { end_date: string }) {
   return res.data;
 }
 
+
 // ============ LocalStorage =======================
 export const useMenstrualStore = create<MenstrualStorage>()(
   persist(

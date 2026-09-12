@@ -1,5 +1,6 @@
 import { View, Text, Pressable } from "react-native";
 import { EmoticonData } from "@/types/emotion.types";
+import { Caption } from "@/components/Typography";
 
 interface EmotionCardProps {
   emotion: EmoticonData;
@@ -20,7 +21,7 @@ export function EmotionCard({ emotion, onPress }: EmotionCardProps) {
           style={{ opacity: pressed ? 0.5 : 1 }}
         >
           <Text className={"text-2xl"}>{emotion.emoji}</Text>
-          <Text className={"capitalize"}>{emotion.name}</Text>
+          <Caption className={"capitalize"}>{emotion.name}</Caption>
         </View>
       )}
     </Pressable>

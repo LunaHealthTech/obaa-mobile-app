@@ -6,6 +6,14 @@ export interface FormattedMenstrualProfileInfo {
   whenPeriodStartedInDays: number;
 }
 
+export type CurrentCyclePhase =
+  | "menstrual"
+  | "follicular"
+  | "ovulation"
+  | "luteal"
+  | "completed"
+  | "upcoming";
+
 export interface MenstrualProfileInfo {
   id: number;
   cycle_length: number;
@@ -17,7 +25,7 @@ export interface MenstrualProfileInfo {
     start_date: string;
     bleed_end_date: string;
     end_date: string;
-    current_phase: string;
+    current_phase: CurrentCyclePhase;
     next_phase_start: string;
     safe_days: { start_date: string; end_date: string }[];
     ovulation_day: string;
@@ -68,6 +76,7 @@ export interface DayMarking {
   cycleDay?: number;
   phase?: CyclePhase;
   customStyles?: { container: object; text: object };
+  cycleBleedEndDate?: string;
 }
 
 export interface LogEntry {
@@ -90,33 +99,73 @@ export interface GetLogsParams {
   "range-end"?: string;
 }
 
-export type PeriodCheckInMode = "confirm" | "edit";
-
 export type PeriodCheckInStep =
   | "quick-check-in"
   | "not-yet"
-  | "date"
+  | "end-date"
   | "flow-intensity"
   | "symptoms"
   | "confirmation";
 
 export interface PeriodCheckInState {
-  mode: PeriodCheckInMode;
   date: string;
   cycleId: number | null;
+  assumedBleedEndDate: string | null;
   flowIntensity: string | null;
+  moods: string[];
   symptoms: string[];
   step: PeriodCheckInStep | null;
   start: (params: {
-    mode: PeriodCheckInMode;
     date: string;
     cycleId: number | null;
+    assumedBleedEndDate?: string | null;
     step: PeriodCheckInStep;
   }) => void;
   setStep: (step: PeriodCheckInStep) => void;
   setDate: (date: string) => void;
   setFlowIntensity: (flowIntensity: string) => void;
+  toggleMood: (mood: string) => void;
   toggleSymptom: (symptom: string) => void;
   close: () => void;
   reset: () => void;
+}
+
+export type FixCycleStep =
+  | "intro"
+  | "period-start"
+  | "bleeding-end"
+  | "next-period-start"
+  | "summary"
+  | "success";
+
+export interface FixCycleState {
+  step: FixCycleStep | null;
+  cycleId: number | null;
+  periodStart: string;
+  bleedingEnd: string;
+  nextPeriodStart: string;
+  dismissedCycleId: number | null;
+  start: (params: { cycleId: number | null }) => void;
+  setStep: (step: FixCycleStep) => void;
+  setPeriodStart: (date: string) => void;
+  setBleedingEnd: (date: string) => void;
+  setNextPeriodStart: (date: string) => void;
+  dismiss: () => void;
+  close: () => void;
+  reset: () => void;
+}
+
+export interface ConfirmedCycleRange {
+  startDate: string;
+  bleedEndDate: string;
+}
+
+export interface ConfirmedCycleState {
+  ranges: Record<number, ConfirmedCycleRange>;
+  setAssumedRange: (
+    cycleId: number,
+    startDate: string,
+    bleedEndDate: string,
+  ) => void;
+  clearAssumedRange: (cycleId: number) => void;
 }

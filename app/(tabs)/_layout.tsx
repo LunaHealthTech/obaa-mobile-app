@@ -30,6 +30,7 @@ export default function HomeLayout() {
         name={"logs"}
         options={{
           title: "logs",
+          headerShown: false,
           tabBarIcon: ({ size, color }) => (
             <LogIcon width={size} color={color} />
           ),
@@ -39,6 +40,7 @@ export default function HomeLayout() {
         name={"calendar"}
         options={{
           title: "calendar",
+          headerShown: false,
           tabBarIcon: ({ size, color }) => (
             <CalendarIcon width={size} color={color} />
           ),
@@ -67,6 +69,7 @@ export default function HomeLayout() {
         name={"community"}
         options={{
           title: "Community",
+          headerShown: false,
           tabBarIcon: ({ size, color }) => (
             <CommunityIcon width={size} color={color} />
           ),

@@ -1,9 +1,17 @@
 import { useMemo, useState } from "react";
-import { View, Text, Pressable, TextInput, FlatList } from "react-native";
+import { View, Pressable, TextInput, FlatList } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { midwives } from "@/constants/midwives";
+import {
+  Body,
+  ButtonText,
+  CardTitle,
+  Caption,
+  Label,
+  PageTitle,
+} from "@/components/Typography";
 
 const filters = ["All", "Available Today", "Pregnancy", "Menstrual Health"];
 
@@ -48,12 +56,12 @@ export default function ChooseMidwifePage() {
           <Ionicons name={"chevron-back"} size={20} color={"#17252A"} />
         </Pressable>
         <View className={"flex-1 mt-1"}>
-          <Text className={"text-mainText text-xl font-bold"}>
+          <PageTitle className={"text-mainText"}>
             Choose a midwife
-          </Text>
-          <Text className={"text-greyColor text-sm mt-1"}>
+          </PageTitle>
+          <Body className={"text-greyColor mt-1"}>
             All midwives are certified professionals
-          </Text>
+          </Body>
         </View>
       </View>
 
@@ -92,15 +100,11 @@ export default function ChooseMidwifePage() {
                     : "bg-white border border-borderGreyColor rounded-full px-4 py-2"
                 }
               >
-                <Text
-                  className={
-                    isSelected
-                      ? "text-white text-sm font-medium"
-                      : "text-mainText text-sm font-medium"
-                  }
+                <Label
+                  className={isSelected ? "text-white" : "text-mainText"}
                 >
                   {item}
-                </Text>
+                </Label>
               </Pressable>
             );
           }}
@@ -113,9 +117,9 @@ export default function ChooseMidwifePage() {
         contentContainerStyle={{ padding: 16, gap: 12 }}
         ListEmptyComponent={
           <View className={"items-center mt-10"}>
-            <Text className={"text-greyColor text-sm"}>
+            <Body className={"text-greyColor"}>
               No midwives match your search
-            </Text>
+            </Body>
           </View>
         }
         renderItem={({ item }) => {
@@ -136,18 +140,18 @@ export default function ChooseMidwifePage() {
                 </View>
                 <View className={"flex-1"}>
                   <View className={"flex-row items-center gap-1"}>
-                    <Text className={"text-mainText font-semibold"}>
+                    <CardTitle className={"text-mainText"}>
                       {item.name}
-                    </Text>
+                    </CardTitle>
                     <Ionicons
                       name={"checkmark-circle"}
                       size={16}
                       color={"#0F969C"}
                     />
                   </View>
-                  <Text className={"text-greyColor text-xs mt-0.5"}>
+                  <Caption className={"text-greyColor mt-0.5"}>
                     {item.yearsExperience} years · {item.specialty}
-                  </Text>
+                  </Caption>
                 </View>
               </View>
 
@@ -158,18 +162,18 @@ export default function ChooseMidwifePage() {
                       "border border-borderGreyColor rounded-full px-3 py-1.5"
                     }
                   >
-                    <Text className={"text-mainText text-xs font-medium"}>
+                    <Caption className={"text-mainText"}>
                       Chat
-                    </Text>
+                    </Caption>
                   </View>
                   <View
                     className={
                       "border border-borderGreyColor rounded-full px-3 py-1.5"
                     }
                   >
-                    <Text className={"text-mainText text-xs font-medium"}>
+                    <Caption className={"text-mainText"}>
                       Audio
-                    </Text>
+                    </Caption>
                   </View>
                 </View>
                 <View className={"flex-row items-center gap-1.5"}>
@@ -180,9 +184,9 @@ export default function ChooseMidwifePage() {
                         : "w-2 h-2 rounded-full bg-[#E8A72A]"
                     }
                   />
-                  <Text className={"text-greyColor text-xs"}>
+                  <Caption className={"text-greyColor"}>
                     {item.availability.label}
-                  </Text>
+                  </Caption>
                 </View>
               </View>
 
@@ -193,9 +197,9 @@ export default function ChooseMidwifePage() {
                     "flex-1 bg-white border-2 border-primaryColor rounded-full py-3 items-center justify-center active:opacity-80"
                   }
                 >
-                  <Text className={"text-primaryColor font-semibold text-sm"}>
+                  <ButtonText className={"text-primaryColor"}>
                     View Profile
-                  </Text>
+                  </ButtonText>
                 </Pressable>
                 <Pressable
                   onPress={() => handleQuickBook(item.id)}
@@ -203,9 +207,9 @@ export default function ChooseMidwifePage() {
                     "flex-1 bg-primaryColor rounded-full py-3 items-center justify-center active:opacity-80"
                   }
                 >
-                  <Text className={"text-white font-semibold text-sm"}>
+                  <ButtonText className={"text-white"}>
                     Quick Book
-                  </Text>
+                  </ButtonText>
                 </Pressable>
               </View>
             </View>

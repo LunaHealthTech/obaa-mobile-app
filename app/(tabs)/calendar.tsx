@@ -1,46 +1,53 @@
-import { View, Text, ScrollView } from "react-native";
-import { useState } from "react";
-import { SharedNav } from "@/components/SharedNav";
+import { View, ScrollView, Pressable } from "react-native";
+import { useEffect, useState } from "react";
+import { router } from "expo-router";
+import { AppHeader } from "@/components/AppHeader";
 import { Calendar } from "@/components/Calendar";
 import { CircularProgress } from "@/components/CircularProgress";
 import { DayDetailCard } from "@/components/DayDetailCard";
 import { PeriodCheckInSheet } from "@/components/period-checkin/PeriodCheckInSheet";
+import { FixCycleSheet } from "@/components/fix-cycle/FixCycleSheet";
 import { useMenstrualProfileViewModel } from "@/viewmodel/useMenstrualProfile";
 import { usePeriodCheckInStore } from "@/repositories/usePeriodCheckInStore";
+import { useFixCycleStore } from "@/repositories/useFixCycleStore";
 import type { DayMarking } from "@/types/menstrual.types";
 import BlueOvulation from "@/assets/ovulation_blue.svg";
 import PregnancyWhite from "@/assets/pregnancy_white.svg";
+import { Body, Caption, PageTitle } from "@/components/Typography";
 
 export default function CalendarPage() {
   const { data, isLoading, isError } = useMenstrualProfileViewModel();
   const startCheckIn = usePeriodCheckInStore((s) => s.start);
+  const startFixCycle = useFixCycleStore((s) => s.start);
+  const dismissedCycleId = useFixCycleStore((s) => s.dismissedCycleId);
   const [selectedDay, setSelectedDay] = useState<{
     date: string;
     marking?: DayMarking;
   } | null>(null);
 
+  const isCycleStale = data?.calendarPage.isCycleStale;
+
+  useEffect(() => {
+    if (isCycleStale && data?.currentCycleId !== dismissedCycleId) {
+      startFixCycle({ cycleId: data?.currentCycleId ?? null });
+    }
+  }, [isCycleStale, data?.currentCycleId, dismissedCycleId, startFixCycle]);
+
   const handleDayPress = (date: string, marking?: DayMarking) => {
     if (marking?.category === "MENSTRUAL" && marking?.predicted) {
+      const isCurrentCycle =
+        marking.cycleId != null && marking.cycleId === data?.currentCycleId;
       startCheckIn({
-        mode: "confirm",
         date,
-        cycleId: marking.cycleId ?? null,
+        cycleId: isCurrentCycle ? marking.cycleId ?? null : null,
+        assumedBleedEndDate: isCurrentCycle
+          ? null
+          : marking.cycleBleedEndDate ?? null,
         step: "quick-check-in",
       });
       return;
     }
     setSelectedDay({ date, marking });
-  };
-
-  const handleEditCurrentCycle = () => {
-    if (!selectedDay) return;
-    startCheckIn({
-      mode: "edit",
-      date: selectedDay.date,
-      cycleId: selectedDay.marking?.cycleId ?? null,
-      step: "date",
-    });
-    setSelectedDay(null);
   };
 
   const canEditSelectedDay =
@@ -49,8 +56,25 @@ export default function CalendarPage() {
     !selectedDay.marking?.predicted &&
     selectedDay.marking?.cycleId === data?.currentCycleId;
 
+  const handleEditSelectedDay = () => {
+    if (!selectedDay) return;
+    if (canEditSelectedDay) {
+      startCheckIn({
+        date: selectedDay.date,
+        cycleId: selectedDay.marking?.cycleId ?? null,
+        step: "end-date",
+      });
+    } else {
+      router.push({
+        pathname: "/(tabs)/logs",
+        params: { date: selectedDay.date },
+      });
+    }
+    setSelectedDay(null);
+  };
+
   if (isLoading) {
-    return <Text>Loading...</Text>;
+    return <Body>Loading...</Body>;
   }
 
   if (isError) {
@@ -59,9 +83,7 @@ export default function CalendarPage() {
   return (
     <View className="flex-1 bg-white">
       <ScrollView className="bg-white">
-      <View className={"px-4"}>
-        <SharedNav />
-      </View>
+      <AppHeader />
       <View className={"bg-white flex-1 w-full"}>
         <Calendar onDayPress={handleDayPress} />
         <View
@@ -75,11 +97,11 @@ export default function CalendarPage() {
                 "w-4 h-4 border border-dashed border-[#E82A73] rounded-full"
               }
             ></View>
-            <Text className="w-fit">Predicted Period</Text>
+            <Caption className="w-fit">Predicted Period</Caption>
           </View>
           <View className={`flex-row items-center gap-2 w-fit`}>
             <View className={"w-4 h-4 bg-[#E82A73] rounded-full"}></View>
-            <Text className="w-fit line-clamp-2 wrap">Confirmed Period</Text>
+            <Caption className="w-fit line-clamp-2 wrap">Confirmed Period</Caption>
           </View>
         </View>
         <View className={"flex-row gap-4 w-fit px-4 .border-2"}>
@@ -87,25 +109,30 @@ export default function CalendarPage() {
             <View
               className={"w-4 h-4 flex-row bg-[#DEE4F5] rounded-full"}
             ></View>
-            <Text>Fertile Window</Text>
+            <Caption>Fertile Window</Caption>
           </View>
           <View className={`flex-row gap-2 items-center `}>
             <View className={"w-4 h-4 bg-[#07226B] rounded-full"}> </View>
-            <Text>Ovulation day</Text>
+            <Caption>Ovulation day</Caption>
           </View>
           <View className={`flex-row gap-2 items-center `}>
             <View className={"w-4 h-4 bg-[#3CB9FB50] rounded-full"}></View>
-            <Text>Safe days</Text>
+            <Caption>Safe days</Caption>
           </View>
         </View>
       </View>
-      <View className={"px-4 items-center mt-20"}>
+      <Pressable
+        className={"px-4 items-center mt-20"}
+        onPress={() =>
+          startFixCycle({ cycleId: data?.currentCycleId ?? null })
+        }
+      >
         <CircularProgress
           phase={data?.calendarPage.phase}
           day={data?.calendarPage.numberOfDaysIn}
           totalDays={data?.calendarPage.totalDays}
         />
-      </View>
+      </Pressable>
       <View
         className={"flex-1 flex-row items-start justify-between mt-10 px-4"}
       >
@@ -122,8 +149,8 @@ export default function CalendarPage() {
             <BlueOvulation />
           </View>
           <View>
-            <Text className={"text-greyColor"}>Next Ovulation</Text>
-            <Text className={"text-2xl font-semibold"}>15 Days</Text>
+            <Caption className={"text-greyColor"}>Next Ovulation</Caption>
+            <PageTitle>15 Days</PageTitle>
           </View>
         </View>
         <View
@@ -135,10 +162,10 @@ export default function CalendarPage() {
             <PregnancyWhite />
           </View>
           <View>
-            <Text className={"text-greyColor"}>Pregnancy</Text>
-            <Text className={"text-2xl font-semibold text-mainText"}>
+            <Caption className={"text-greyColor"}>Pregnancy</Caption>
+            <PageTitle className={"text-mainText"}>
               {data?.calendarPage?.pregnancyProbability}
-            </Text>
+            </PageTitle>
           </View>
         </View>
       </View>
@@ -147,9 +174,10 @@ export default function CalendarPage() {
         date={selectedDay?.date ?? null}
         marking={selectedDay?.marking}
         onClose={() => setSelectedDay(null)}
-        onEdit={canEditSelectedDay ? handleEditCurrentCycle : undefined}
+        onEdit={handleEditSelectedDay}
       />
       <PeriodCheckInSheet />
+      <FixCycleSheet />
     </View>
   );
 }

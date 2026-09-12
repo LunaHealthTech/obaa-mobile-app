@@ -7,10 +7,12 @@ import {
 } from "@/services/menstrualService";
 import { toast } from "sonner-native";
 import { router } from "expo-router";
-import { generateDays } from "@/lib/CalendarHelpers";
-import { addDays, differenceInDays, isFuture } from "date-fns";
+import { generateDays, normalizeCyclePhase } from "@/lib/CalendarHelpers";
+import { addDays, differenceInDays, isAfter, isFuture } from "date-fns";
+import { useConfirmedCycleStore } from "@/repositories/useConfirmedCycleStore";
 
 export function useMenstrualProfileViewModel() {
+  const assumedRanges = useConfirmedCycleStore((s) => s.ranges);
   const queryKey = ["/menstrual/profile/"];
   const { data, isLoading, error, isError } = useQuery({
     queryKey,
@@ -20,6 +22,10 @@ export function useMenstrualProfileViewModel() {
         new Date(),
         data.current_cycle.start_date,
       );
+      const assumedRange = assumedRanges[data.current_cycle.id];
+      const isWithinAssumedBleed =
+        !!assumedRange &&
+        !isAfter(new Date(), new Date(assumedRange.bleedEndDate));
       let res = {
         currentCycleId: data.current_cycle.id,
         general: {
@@ -31,11 +37,19 @@ export function useMenstrualProfileViewModel() {
         },
         calendarPage: {
           totalDays: data.current_cycle.cycle_length,
-          phase: data.status,
-          numberOfDaysIn: differenceInDays(
-            new Date(),
-            data.current_cycle.start_date,
+          phase: isWithinAssumedBleed
+            ? "MENSTRUATING"
+            : normalizeCyclePhase(data.current_cycle.current_phase),
+          numberOfDaysIn: Math.min(
+            Math.max(
+              differenceInDays(new Date(), data.current_cycle.start_date),
+              0,
+            ),
+            data.current_cycle.cycle_length,
           ),
+          isCycleStale: isWithinAssumedBleed
+            ? false
+            : data.current_cycle.current_phase === "completed",
           nextOvulationIn: isFuture(data.current_cycle.ovulation_day)
             ? differenceInDays(new Date(), data.current_cycle.ovulation_day)
             : Math.floor(data.cycle_length / 2) +

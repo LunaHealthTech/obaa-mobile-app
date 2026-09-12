@@ -1,5 +1,6 @@
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { useMenstrualProfileViewModel } from "@/viewmodel/useMenstrualProfile";
+import { Body } from "@/components/Typography";
 export default function SettingsPage() {
   const { data, isLoading, isError, error } = useMenstrualProfileViewModel();
   console.log({ data, isLoading });
@@ -15,13 +16,13 @@ export default function SettingsPage() {
   if (isLoading) {
     return (
       <View>
-        <Text>Loading</Text>
+        <Body>Loading</Body>
       </View>
     );
   }
   return (
     <View>
-      <Text>Settings Pages</Text>
+      <Body>Settings Pages</Body>
     </View>
   );
 }

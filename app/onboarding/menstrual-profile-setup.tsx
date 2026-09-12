@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,6 +9,7 @@ import { toast } from "sonner-native";
 import { DateInput } from "@/components/DateInput";
 import { useMenstrualProfileViewModel } from "@/viewmodel/useMenstrualProfile";
 import { QuestionHeaderProps, QuestionProps } from "@/types/onboarding.types";
+import { Body, PageTitle } from "@/components/Typography";
 
 const QuestionData = [
   {
@@ -102,10 +103,10 @@ export default function MenstrualProfileSetup() {
 function QuestionHeader({ mainText, subText }: QuestionHeaderProps) {
   return (
     <View className={"items-center justify-center my-10"}>
-      <Text className={"text-2xl font-bold flex items-center text-center "}>
+      <PageTitle className={"flex items-center text-center "}>
         {mainText}
-      </Text>
-      <Text className={"flex text-center"}>{subText}</Text>
+      </PageTitle>
+      <Body className={"flex text-center"}>{subText}</Body>
     </View>
   );
 }
@@ -131,7 +132,7 @@ function CycleLengthQuestion({ control, errors }: QuestionProps) {
         }}
         name={"cycle_length"}
       />
-      {errors?.cycle_length && <Text>{errors?.cycle_length.message}</Text>}
+      {errors?.cycle_length && <Body>{errors?.cycle_length.message}</Body>}
     </>
   );
 }
@@ -157,7 +158,7 @@ function PeriodLengthQuestion({ control, errors }: QuestionProps) {
           );
         }}
       />
-      {errors?.period_length && <Text>{errors?.period_length.message}</Text>}
+      {errors?.period_length && <Body>{errors?.period_length.message}</Body>}
     </View>
   );
 }
@@ -165,7 +166,7 @@ function PeriodLengthQuestion({ control, errors }: QuestionProps) {
 function LastPeriodStart({ control }: QuestionProps) {
   return (
     <View>
-      <Text>Last Menstrual Period Date</Text>
+      <Body>Last Menstrual Period Date</Body>
       <Controller
         name="last_period_start"
         control={control}

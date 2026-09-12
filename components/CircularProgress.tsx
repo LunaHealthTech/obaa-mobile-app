@@ -4,6 +4,7 @@ import FollicularPhase from "@/assets/follicular.svg";
 import LutealPhase from "@/assets/luteal.svg";
 import OvulationPhase from "@/assets/ovulation.svg";
 import PeriodPhase from "@/assets/period_phase.svg";
+import { CardTitle, Caption } from "@/components/Typography";
 
 const SIZE = 300;
 const STROKE_WIDTH = 24;
@@ -26,7 +27,7 @@ const PhaseWordPair = {
 export function CircularProgress({
   day = 2,
   totalDays = 25,
-  phase = "Follicular",
+  phase = "FOLLICULAR",
 }) {
   const progress = day / totalDays;
   const trackLength = CIRCUMFERENCE * (1 - GAP);
@@ -76,11 +77,11 @@ export function CircularProgress({
       </Svg>
       <>
         <View className="items-center relative">
-          <Text className="text-sm text-gray-400">Cycle</Text>
-          <Text className="text-5xl font-bold text-gray-900">Day {day}</Text>
-          <Text className="text-base font-semibold text-gray-900">
+          <Caption className="text-gray-400">Cycle</Caption>
+          <Text className="text-5xl font-display-bold text-gray-900">Day {day}</Text>
+          <CardTitle className="text-gray-900">
             {PhaseWordPair[phase]} Phase
-          </Text>
+          </CardTitle>
         </View>
         {/*  background image */}
         <View

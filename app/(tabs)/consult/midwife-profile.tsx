@@ -1,8 +1,16 @@
-import { View, Text, Pressable, ScrollView } from "react-native";
+import { View, Pressable, ScrollView } from "react-native";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { midwives } from "@/constants/midwives";
+import {
+  Body,
+  ButtonText,
+  Caption,
+  Label,
+  PageTitle,
+  SectionHeading,
+} from "@/components/Typography";
 
 export default function MidwifeProfilePage() {
   const router = useRouter();
@@ -29,9 +37,9 @@ export default function MidwifeProfilePage() {
         >
           <Ionicons name={"chevron-back"} size={20} color={"#17252A"} />
         </Pressable>
-        <Text className={"text-mainText text-lg font-bold"}>
+        <PageTitle className={"text-mainText"}>
           Midwife Profile
-        </Text>
+        </PageTitle>
       </View>
 
       <ScrollView className={"flex-1"}>
@@ -46,14 +54,14 @@ export default function MidwifeProfilePage() {
           </View>
           <View>
             <View className={"flex-row items-center gap-1.5"}>
-              <Text className={"text-mainText text-lg font-bold"}>
+              <PageTitle className={"text-mainText"}>
                 {midwife.name}
-              </Text>
+              </PageTitle>
               <Ionicons name={"checkmark-circle"} size={18} color={"#0F969C"} />
             </View>
-            <Text className={"text-greyColor text-sm mt-0.5"}>
+            <Body className={"text-greyColor mt-0.5"}>
               {midwife.role}
-            </Text>
+            </Body>
           </View>
         </View>
 
@@ -63,89 +71,89 @@ export default function MidwifeProfilePage() {
           }
         >
           <View className={"items-center flex-1"}>
-            <Text className={"text-primaryColor text-lg font-bold"}>
+            <PageTitle className={"text-primaryColor"}>
               {midwife.yearsExperience} Yrs
-            </Text>
-            <Text className={"text-greyColor text-xs mt-0.5"}>Experience</Text>
+            </PageTitle>
+            <Caption className={"text-greyColor mt-0.5"}>Experience</Caption>
           </View>
           <View className={"w-px h-8 bg-borderGreyColor"} />
           <View className={"items-center flex-1"}>
-            <Text className={"text-primaryColor text-lg font-bold"}>
+            <PageTitle className={"text-primaryColor"}>
               {midwife.consultationsCount}+
-            </Text>
-            <Text className={"text-greyColor text-xs mt-0.5"}>
+            </PageTitle>
+            <Caption className={"text-greyColor mt-0.5"}>
               Consultations
-            </Text>
+            </Caption>
           </View>
           <View className={"w-px h-8 bg-borderGreyColor"} />
           <View className={"items-center flex-1"}>
-            <Text className={"text-primaryColor text-lg font-bold"}>
+            <PageTitle className={"text-primaryColor"}>
               {midwife.satisfactionRate}%
-            </Text>
-            <Text className={"text-greyColor text-xs mt-0.5"}>
+            </PageTitle>
+            <Caption className={"text-greyColor mt-0.5"}>
               Satisfaction
-            </Text>
+            </Caption>
           </View>
         </View>
 
         <View className={"px-4 mt-6"}>
-          <Text className={"text-mainText text-lg font-bold mb-2"}>
+          <SectionHeading className={"text-mainText mb-2"}>
             About
-          </Text>
-          <Text className={"text-greyColor text-sm leading-5"}>
+          </SectionHeading>
+          <Body className={"text-greyColor leading-5"}>
             {midwife.about}
-          </Text>
+          </Body>
         </View>
 
         <View className={"px-4 mt-6"}>
-          <Text className={"text-mainText text-lg font-bold mb-3"}>
+          <SectionHeading className={"text-mainText mb-3"}>
             Area of Expertise
-          </Text>
+          </SectionHeading>
           <View className={"flex-row flex-wrap gap-2"}>
             {midwife.expertise.map((item) => (
               <View key={item} className={"bg-[#0F969C1A] rounded-full px-4 py-2"}>
-                <Text className={"text-primaryColor text-sm font-medium"}>
+                <Label className={"text-primaryColor"}>
                   {item}
-                </Text>
+                </Label>
               </View>
             ))}
           </View>
         </View>
 
         <View className={"px-4 mt-6"}>
-          <Text className={"text-mainText text-lg font-bold mb-3"}>
+          <SectionHeading className={"text-mainText mb-3"}>
             Languages
-          </Text>
+          </SectionHeading>
           <View className={"flex-row flex-wrap gap-2"}>
             {midwife.languages.map((language) => (
               <View
                 key={language}
                 className={"border border-borderGreyColor rounded-full px-4 py-2"}
               >
-                <Text className={"text-mainText text-sm font-medium"}>
+                <Label className={"text-mainText"}>
                   {language}
-                </Text>
+                </Label>
               </View>
             ))}
           </View>
         </View>
 
         <View className={"px-4 mt-6"}>
-          <Text className={"text-mainText text-lg font-bold mb-3"}>
+          <SectionHeading className={"text-mainText mb-3"}>
             Education &amp; Certification
-          </Text>
+          </SectionHeading>
           <View className={"flex-row items-start gap-2"}>
             <View className={"w-1.5 h-1.5 rounded-full bg-primaryColor mt-2"} />
-            <Text className={"text-mainText text-sm flex-1"}>
+            <Body className={"text-mainText flex-1"}>
               {midwife.education}
-            </Text>
+            </Body>
           </View>
         </View>
 
         <View className={"px-4 mt-6"}>
-          <Text className={"text-mainText text-lg font-bold mb-3"}>
+          <SectionHeading className={"text-mainText mb-3"}>
             Available Consultation Types
-          </Text>
+          </SectionHeading>
           <View className={"gap-3"}>
             {midwife.consultationTypes.map((type, index) => (
               <View
@@ -162,12 +170,12 @@ export default function MidwifeProfilePage() {
                   color={"#455A64"}
                 />
                 <View>
-                  <Text className={"text-mainText font-semibold text-sm"}>
+                  <Label className={"text-mainText"}>
                     {type.label}
-                  </Text>
-                  <Text className={"text-greyColor text-xs mt-0.5"}>
+                  </Label>
+                  <Caption className={"text-greyColor mt-0.5"}>
                     {type.duration}
-                  </Text>
+                  </Caption>
                 </View>
               </View>
             ))}
@@ -184,7 +192,7 @@ export default function MidwifeProfilePage() {
             "bg-primaryColor rounded-full py-4 items-center justify-center active:opacity-80"
           }
         >
-          <Text className={"text-white font-semibold"}>Book Appointment</Text>
+          <ButtonText className={"text-white"}>Book Appointment</ButtonText>
         </Pressable>
       </View>
     </View>

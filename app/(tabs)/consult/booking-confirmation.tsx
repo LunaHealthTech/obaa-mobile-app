@@ -1,10 +1,18 @@
-import { View, Text, Pressable, ScrollView } from "react-native";
+import { View, Pressable, ScrollView } from "react-native";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { addMinutes, format, parse, parseISO } from "date-fns";
 import { toast } from "sonner-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Midwife, midwives } from "@/constants/midwives";
+import {
+  Body,
+  ButtonText,
+  CardTitle,
+  Caption,
+  Label,
+  PageTitle,
+} from "@/components/Typography";
 
 const CONSULTATION_TYPE_LABELS: Record<string, string> = {
   chat: "Chat Consultation",
@@ -59,10 +67,10 @@ function InfoRow({
         <Ionicons name={icon} size={18} color={"#0F969C"} />
       </View>
       <View>
-        <Text className={"text-greyColor text-xs"}>{label}</Text>
-        <Text className={"text-mainText text-sm font-semibold mt-0.5"}>
+        <Caption className={"text-greyColor"}>{label}</Caption>
+        <Label className={"text-mainText mt-0.5"}>
           {value}
-        </Text>
+        </Label>
       </View>
     </View>
   );
@@ -117,13 +125,13 @@ export default function BookingConfirmationPage() {
           >
             <Ionicons name={"checkmark-circle"} size={40} color={"#0F969C"} />
           </View>
-          <Text className={"text-mainText text-xl font-bold mt-4 text-center"}>
+          <PageTitle className={"text-mainText mt-4 text-center"}>
             Consultation Booked 🎉
-          </Text>
-          <Text className={"text-greyColor text-sm mt-2 text-center leading-5"}>
+          </PageTitle>
+          <Body className={"text-greyColor mt-2 text-center leading-5"}>
             Your consultation has been successfully scheduled. We&apos;ll send
             you a reminder before your session.
-          </Text>
+          </Body>
         </View>
 
         <View className={"px-4 mt-6"}>
@@ -143,18 +151,18 @@ export default function BookingConfirmationPage() {
               </View>
               <View>
                 <View className={"flex-row items-center gap-1.5"}>
-                  <Text className={"text-mainText font-bold"}>
+                  <CardTitle className={"text-mainText"}>
                     {midwife.name}
-                  </Text>
+                  </CardTitle>
                   <Ionicons
                     name={"checkmark-circle"}
                     size={16}
                     color={"#0F969C"}
                   />
                 </View>
-                <Text className={"text-greyColor text-xs mt-0.5"}>
+                <Caption className={"text-greyColor mt-0.5"}>
                   {midwife.role}
-                </Text>
+                </Caption>
               </View>
             </View>
 
@@ -172,10 +180,10 @@ export default function BookingConfirmationPage() {
               "bg-[#FFF8E1] border border-[#F5C542] rounded-xl px-4 py-3"
             }
           >
-            <Text className={"text-[#8A6D1D] text-sm leading-5"}>
+            <Body className={"text-[#8A6D1D] leading-5"}>
               You&apos;ll receive reminders 1 hour and 30 minutes before your
               appointment.
-            </Text>
+            </Body>
           </View>
         </View>
       </ScrollView>
@@ -188,9 +196,9 @@ export default function BookingConfirmationPage() {
           }
         >
           <Ionicons name={"calendar-outline"} size={18} color={"#0F969C"} />
-          <Text className={"text-primaryColor font-semibold"}>
+          <ButtonText className={"text-primaryColor"}>
             Add to Calendar
-          </Text>
+          </ButtonText>
         </Pressable>
         <Pressable
           onPress={handleViewAppointment}
@@ -198,15 +206,15 @@ export default function BookingConfirmationPage() {
             "bg-primaryColor rounded-full py-4 items-center justify-center active:opacity-80"
           }
         >
-          <Text className={"text-white font-semibold"}>View Appointment</Text>
+          <ButtonText className={"text-white"}>View Appointment</ButtonText>
         </Pressable>
         <Pressable
           onPress={() => router.push("/home")}
           className={"py-2 items-center justify-center"}
         >
-          <Text className={"text-greyColor text-sm font-medium"}>
+          <Label className={"text-greyColor"}>
             Return to Home
-          </Text>
+          </Label>
         </Pressable>
       </View>
     </View>

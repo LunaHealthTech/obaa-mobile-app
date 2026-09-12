@@ -1,11 +1,20 @@
 import { useEffect, useRef, useState } from "react";
-import { View, Text, Pressable, ScrollView, ActivityIndicator } from "react-native";
+import { View, Pressable, ScrollView, ActivityIndicator } from "react-native";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { format, parseISO } from "date-fns";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { midwives } from "@/constants/midwives";
+import {
+  Body,
+  ButtonText,
+  CardTitle,
+  Caption,
+  Label,
+  PageTitle,
+  SectionHeading,
+} from "@/components/Typography";
 
 const CONSULTATION_TYPE_LABELS: Record<string, string> = {
   chat: "Chat Consultation",
@@ -74,14 +83,14 @@ export default function CheckoutPage() {
         >
           <Ionicons name={"chevron-back"} size={20} color={"#17252A"} />
         </Pressable>
-        <Text className={"text-mainText text-lg font-bold"}>Checkout</Text>
+        <PageTitle className={"text-mainText"}>Checkout</PageTitle>
       </View>
 
       <ScrollView className={"flex-1"}>
         <View className={"px-4 mt-6"}>
-          <Text className={"text-mainText font-semibold mb-3"}>
+          <SectionHeading className={"text-mainText mb-3"}>
             Appointment Summary
-          </Text>
+          </SectionHeading>
           <View
             className={
               "bg-white rounded-xl border border-borderGreyColor p-4"
@@ -100,46 +109,46 @@ export default function CheckoutPage() {
               </View>
               <View>
                 <View className={"flex-row items-center gap-1.5"}>
-                  <Text className={"text-mainText font-bold"}>
+                  <CardTitle className={"text-mainText"}>
                     {midwife.name}
-                  </Text>
+                  </CardTitle>
                   <Ionicons
                     name={"checkmark-circle"}
                     size={16}
                     color={"#0F969C"}
                   />
                 </View>
-                <Text className={"text-greyColor text-xs mt-0.5"}>
+                <Caption className={"text-greyColor mt-0.5"}>
                   {midwife.role}
-                </Text>
+                </Caption>
               </View>
             </View>
 
             <View className={"mt-4 pt-4 border-t border-borderGreyColor gap-3"}>
               <View className={"flex-row items-center justify-between"}>
-                <Text className={"text-greyColor text-sm"}>Date</Text>
-                <Text className={"text-mainText text-sm font-medium"}>
+                <Body className={"text-greyColor"}>Date</Body>
+                <Label className={"text-mainText"}>
                   {formattedDate}
-                </Text>
+                </Label>
               </View>
               <View className={"flex-row items-center justify-between"}>
-                <Text className={"text-greyColor text-sm"}>Time</Text>
-                <Text className={"text-mainText text-sm font-medium"}>
+                <Body className={"text-greyColor"}>Time</Body>
+                <Label className={"text-mainText"}>
                   {time}
-                </Text>
+                </Label>
               </View>
               <View className={"flex-row items-center justify-between"}>
-                <Text className={"text-greyColor text-sm"}>Type</Text>
-                <Text className={"text-mainText text-sm font-medium"}>
+                <Body className={"text-greyColor"}>Type</Body>
+                <Label className={"text-mainText"}>
                   {typeLabel}
-                </Text>
+                </Label>
               </View>
               {!!topic && (
                 <View className={"flex-row items-center justify-between"}>
-                  <Text className={"text-greyColor text-sm"}>Support Topic</Text>
-                  <Text className={"text-mainText text-sm font-medium"}>
+                  <Body className={"text-greyColor"}>Support Topic</Body>
+                  <Label className={"text-mainText"}>
                     {topic}
-                  </Text>
+                  </Label>
                 </View>
               )}
             </View>
@@ -147,9 +156,9 @@ export default function CheckoutPage() {
         </View>
 
         <View className={"px-4 mt-6"}>
-          <Text className={"text-mainText font-semibold mb-3"}>
+          <SectionHeading className={"text-mainText mb-3"}>
             Payment Method
-          </Text>
+          </SectionHeading>
           <View className={"gap-3"}>
             {paymentMethods.map((method) => {
               const isSelected = method.key === selectedMethod;
@@ -168,15 +177,13 @@ export default function CheckoutPage() {
                     size={18}
                     color={isSelected ? "#0F969C" : "#72777A"}
                   />
-                  <Text
+                  <Label
                     className={
-                      isSelected
-                        ? "flex-1 text-primaryColor text-sm font-medium"
-                        : "flex-1 text-mainText text-sm font-medium"
+                      isSelected ? "flex-1 text-primaryColor" : "flex-1 text-mainText"
                     }
                   >
                     {method.label}
-                  </Text>
+                  </Label>
                   <Ionicons
                     name={isSelected ? "radio-button-on" : "radio-button-off"}
                     size={20}
@@ -194,12 +201,12 @@ export default function CheckoutPage() {
               "flex-row items-center justify-between bg-[#F5F7F8] rounded-xl px-4 py-4"
             }
           >
-            <Text className={"text-mainText font-semibold"}>
+            <Label className={"text-mainText"}>
               Consultation Fee
-            </Text>
-            <Text className={"text-mainText font-bold"}>
+            </Label>
+            <CardTitle className={"text-mainText"}>
               {CONSULTATION_FEE}
-            </Text>
+            </CardTitle>
           </View>
         </View>
 
@@ -216,9 +223,9 @@ export default function CheckoutPage() {
           style={isProcessing ? { opacity: 0.7 } : undefined}
         >
           {isProcessing && <ActivityIndicator color={"#fff"} size={"small"} />}
-          <Text className={"text-white font-semibold"}>
+          <ButtonText className={"text-white"}>
             {isProcessing ? "Processing..." : `Pay ${CONSULTATION_FEE}`}
-          </Text>
+          </ButtonText>
         </Pressable>
       </View>
     </View>

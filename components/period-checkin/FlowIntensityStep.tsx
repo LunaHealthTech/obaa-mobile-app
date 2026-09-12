@@ -1,5 +1,6 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Pressable } from "react-native";
 import { usePeriodCheckInStore } from "@/repositories/usePeriodCheckInStore";
+import { Body, ButtonText, Caption, Label, SectionHeading } from "@/components/Typography";
 
 const INTENSITIES = ["Light", "Medium", "Heavy", "Spotting"];
 
@@ -8,14 +9,14 @@ export function FlowIntensityStep() {
 
   return (
     <View className="bg-white px-6 pt-8 pb-8">
-      <Text className="text-subText text-center">Step 2 of 3</Text>
-      <Text className="text-xl font-semibold text-mainText text-center mt-1 mb-1">
+      <Caption className="text-subText text-center">Step 2 of 3</Caption>
+      <SectionHeading className="text-mainText text-center mt-1 mb-1">
         🩸 Flow Intensity
-      </Text>
-      <Text className="text-subText text-center mb-6">
+      </SectionHeading>
+      <Body className="text-subText text-center mb-6">
         How would you describe your flow today? There's no right answer,
         every body is different.
-      </Text>
+      </Body>
       {INTENSITIES.map((intensity) => {
         const isSelected = flowIntensity === intensity;
         return (
@@ -26,13 +27,11 @@ export function FlowIntensityStep() {
               isSelected ? "border-primaryColor" : "border-borderGreyColor"
             }`}
           >
-            <Text
-              className={
-                isSelected ? "text-primaryColor font-semibold" : "text-mainText"
-              }
+            <Label
+              className={isSelected ? "text-primaryColor" : "text-mainText"}
             >
               {intensity}
-            </Text>
+            </Label>
           </Pressable>
         );
       })}
@@ -40,7 +39,7 @@ export function FlowIntensityStep() {
         onPress={() => setStep("symptoms")}
         className="bg-primaryColor rounded-full py-4 items-center mt-4"
       >
-        <Text className="text-white font-semibold">Continue</Text>
+        <ButtonText className="text-white">Continue</ButtonText>
       </Pressable>
     </View>
   );
