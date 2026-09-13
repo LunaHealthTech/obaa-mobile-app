@@ -1,76 +1,74 @@
 import { View, ScrollView, Pressable } from "react-native";
-import { useEffect, useState } from "react";
-import { router } from "expo-router";
+import { useEffect } from "react";
+import { format } from "date-fns";
 import { AppHeader } from "@/components/AppHeader";
 import { Calendar } from "@/components/Calendar";
 import { CircularProgress } from "@/components/CircularProgress";
-import { DayDetailCard } from "@/components/DayDetailCard";
-import { PeriodCheckInSheet } from "@/components/period-checkin/PeriodCheckInSheet";
-import { FixCycleSheet } from "@/components/fix-cycle/FixCycleSheet";
+import { CycleFlowSheet } from "@/components/cycle-flow/CycleFlowSheet";
 import { useMenstrualProfileViewModel } from "@/viewmodel/useMenstrualProfile";
-import { usePeriodCheckInStore } from "@/repositories/usePeriodCheckInStore";
-import { useFixCycleStore } from "@/repositories/useFixCycleStore";
-import type { DayMarking } from "@/types/menstrual.types";
+import { useCycleList } from "@/viewmodel/useCycles";
+import { useCycleFlowStore } from "@/repositories/useCycleFlowStore";
+import { findNextCycle, findOwningCycle } from "@/lib/CalendarHelpers";
 import BlueOvulation from "@/assets/ovulation_blue.svg";
 import PregnancyWhite from "@/assets/pregnancy_white.svg";
 import { Body, Caption, PageTitle } from "@/components/Typography";
 
 export default function CalendarPage() {
   const { data, isLoading, isError } = useMenstrualProfileViewModel();
-  const startCheckIn = usePeriodCheckInStore((s) => s.start);
-  const startFixCycle = useFixCycleStore((s) => s.start);
-  const dismissedCycleId = useFixCycleStore((s) => s.dismissedCycleId);
-  const [selectedDay, setSelectedDay] = useState<{
-    date: string;
-    marking?: DayMarking;
-  } | null>(null);
+  const { sortedCycles } = useCycleList();
+  const flowMode = useCycleFlowStore((s) => s.state.mode);
+  const openForOldCycle = useCycleFlowStore((s) => s.openForOldCycle);
+  const openForCurrentCycle = useCycleFlowStore((s) => s.openForCurrentCycle);
+  const openForStaleFix = useCycleFlowStore((s) => s.openForStaleFix);
+  const dismissedCycleId = useCycleFlowStore((s) => s.dismissedCycleId);
 
   const isCycleStale = data?.calendarPage.isCycleStale;
 
   useEffect(() => {
-    if (isCycleStale && data?.currentCycleId !== dismissedCycleId) {
-      startFixCycle({ cycleId: data?.currentCycleId ?? null });
+    if (
+      isCycleStale &&
+      data?.currentCycleId !== dismissedCycleId &&
+      flowMode === "idle"
+    ) {
+      openForStaleFix({ cycleId: data?.currentCycleId ?? null });
     }
-  }, [isCycleStale, data?.currentCycleId, dismissedCycleId, startFixCycle]);
+  }, [isCycleStale, data?.currentCycleId, dismissedCycleId, flowMode, openForStaleFix]);
 
-  const handleDayPress = (date: string, marking?: DayMarking) => {
-    if (marking?.category === "MENSTRUAL" && marking?.predicted) {
-      const isCurrentCycle =
-        marking.cycleId != null && marking.cycleId === data?.currentCycleId;
-      startCheckIn({
+  const handleDayPress = (date: string) => {
+    const owner = findOwningCycle(date, sortedCycles);
+
+    if (!owner) {
+      // no cycle history at all yet — still show the log view, nothing to correct
+      openForCurrentCycle({ date, cycleId: null, assumedBleedEndDate: null });
+      return;
+    }
+
+    if (owner.id === data?.currentCycleId) {
+      openForCurrentCycle({
         date,
-        cycleId: isCurrentCycle ? marking.cycleId ?? null : null,
-        assumedBleedEndDate: isCurrentCycle
-          ? null
-          : marking.cycleBleedEndDate ?? null,
-        step: "quick-check-in",
+        cycleId: owner.id,
+        assumedBleedEndDate: owner.predicted ? owner.bleed_end_date : null,
       });
       return;
     }
-    setSelectedDay({ date, marking });
-  };
 
-  const canEditSelectedDay =
-    !!selectedDay &&
-    selectedDay.marking?.category === "MENSTRUAL" &&
-    !selectedDay.marking?.predicted &&
-    selectedDay.marking?.cycleId === data?.currentCycleId;
-
-  const handleEditSelectedDay = () => {
-    if (!selectedDay) return;
-    if (canEditSelectedDay) {
-      startCheckIn({
-        date: selectedDay.date,
-        cycleId: selectedDay.marking?.cycleId ?? null,
-        step: "end-date",
-      });
-    } else {
-      router.push({
-        pathname: "/(tabs)/logs",
-        params: { date: selectedDay.date },
-      });
+    if (owner.id == null) {
+      // virtual predicted continuation of the still-open cycle — no real id to updateCycle
+      openForStaleFix({ cycleId: data?.currentCycleId ?? null });
+      return;
     }
-    setSelectedDay(null);
+
+    const next = findNextCycle(owner, sortedCycles);
+    openForOldCycle({
+      date,
+      tappedCycleId: owner.id,
+      nextCycleId: next?.id ?? data?.currentCycleId ?? null,
+      seed: {
+        periodStart: owner.start_date,
+        bleedingEnd: owner.bleed_end_date,
+        nextPeriodStart: next?.start_date ?? format(new Date(), "yyyy-MM-dd"),
+      },
+    });
   };
 
   if (isLoading) {
@@ -123,9 +121,11 @@ export default function CalendarPage() {
       </View>
       <Pressable
         className={"px-4 items-center mt-20"}
-        onPress={() =>
-          startFixCycle({ cycleId: data?.currentCycleId ?? null })
-        }
+        onPress={() => {
+          if (flowMode === "idle") {
+            openForStaleFix({ cycleId: data?.currentCycleId ?? null });
+          }
+        }}
       >
         <CircularProgress
           phase={data?.calendarPage.phase}
@@ -170,14 +170,7 @@ export default function CalendarPage() {
         </View>
       </View>
       </ScrollView>
-      <DayDetailCard
-        date={selectedDay?.date ?? null}
-        marking={selectedDay?.marking}
-        onClose={() => setSelectedDay(null)}
-        onEdit={handleEditSelectedDay}
-      />
-      <PeriodCheckInSheet />
-      <FixCycleSheet />
+      <CycleFlowSheet />
     </View>
   );
 }

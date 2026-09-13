@@ -2,31 +2,40 @@ import { View, Pressable } from "react-native";
 import { useState } from "react";
 import { Calendar } from "react-native-calendars";
 import { format } from "date-fns";
-import { useFixCycleStore } from "@/repositories/useFixCycleStore";
+import { useCycleFlowStore } from "@/repositories/useCycleFlowStore";
 import { Body, ButtonText, Caption, SectionHeading } from "@/components/Typography";
 
-export function NextPeriodStartStep() {
-  const { bleedingEnd, nextPeriodStart, setNextPeriodStart, setStep } =
-    useFixCycleStore();
-  const [selected, setSelected] = useState(nextPeriodStart || bleedingEnd);
+export function PeriodStartStep() {
+  const periodStart = useCycleFlowStore((s) =>
+    s.state.mode === "old-cycle-correction" ? s.state.periodStart : "",
+  );
+  const variant = useCycleFlowStore((s) =>
+    s.state.mode === "old-cycle-correction" ? s.state.variant : "closed-cycle",
+  );
+  const setPeriodStart = useCycleFlowStore((s) => s.setPeriodStart);
+  const advance = useCycleFlowStore((s) => s.advance);
+  const back = useCycleFlowStore((s) => s.back);
+  const close = useCycleFlowStore((s) => s.close);
+  const [selected, setSelected] = useState(
+    periodStart || format(new Date(), "yyyy-MM-dd"),
+  );
 
   const onNext = () => {
-    setNextPeriodStart(selected);
-    setStep("summary");
+    setPeriodStart(selected);
+    advance("bleeding-end");
   };
 
   return (
     <View className="bg-white px-6 pt-8 pb-8">
-      <Caption className="text-subText text-center">Step 3 of 3</Caption>
+      <Caption className="text-subText text-center">Step 1 of 3</Caption>
       <SectionHeading className="text-mainText text-center mt-1 mb-1">
-        🔄 When did your next period start?
+        🩸 When did your period start?
       </SectionHeading>
       <Body className="text-subText text-center mb-4">
-        We use this to know when this cycle ended.
+        This is the first day you noticed bleeding
       </Body>
       <Calendar
         current={selected}
-        minDate={bleedingEnd}
         maxDate={format(new Date(), "yyyy-MM-dd")}
         onDayPress={(day) => setSelected(day.dateString)}
         markedDates={{
@@ -40,10 +49,12 @@ export function NextPeriodStartStep() {
         <ButtonText className="text-white">Next</ButtonText>
       </Pressable>
       <Pressable
-        onPress={() => setStep("bleeding-end")}
+        onPress={variant === "stale-current" ? back : close}
         className="border-2 border-borderGreyColor rounded-full py-4 items-center"
       >
-        <ButtonText className="text-mainText">Back</ButtonText>
+        <ButtonText className="text-mainText">
+          {variant === "stale-current" ? "Back" : "Cancel"}
+        </ButtonText>
       </Pressable>
     </View>
   );

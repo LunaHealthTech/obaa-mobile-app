@@ -46,10 +46,15 @@ export async function startCycle(payload: { start_date: string }) {
   return res.data;
 }
 
-export async function updateCycle(
-  id: number,
-  payload: { start_date: string },
-) {
+export type UpdateCyclePayload = Partial<{
+  start_date: string;
+  bleed_end_date: string;
+  end_date: string;
+  predicted: boolean;
+  paused: boolean;
+}>;
+
+export async function updateCycle(id: number, payload: UpdateCyclePayload) {
   const res = await apiClient.put(`/menstrual/cycles/${id}/`, payload);
   return res.data;
 }

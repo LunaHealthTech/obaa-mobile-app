@@ -4,7 +4,7 @@ import { toast } from "sonner-native";
 import { extractErrorMessage } from "@/lib/apiClient";
 import { endPeriod, startCycle } from "@/services/menstrualService";
 import { createLog, updateLog } from "@/services/logService";
-import { usePeriodCheckInStore } from "@/repositories/usePeriodCheckInStore";
+import { useCycleFlowStore } from "@/repositories/useCycleFlowStore";
 import { useConfirmedCycleStore } from "@/repositories/useConfirmedCycleStore";
 import { useDayLog } from "@/viewmodel/useDayLog";
 
@@ -15,8 +15,14 @@ function invalidateCycleQueries() {
   ]);
 }
 
+function useCurrentCycleFlow() {
+  return useCycleFlowStore((s) => (s.state.mode === "current-cycle" ? s.state : null));
+}
+
 export function useSaveCycleDate() {
-  const { cycleId, assumedBleedEndDate } = usePeriodCheckInStore();
+  const flow = useCurrentCycleFlow();
+  const cycleId = flow?.cycleId ?? null;
+  const assumedBleedEndDate = flow?.assumedBleedEndDate ?? null;
 
   const saveMutation = useMutation({
     mutationFn: async (date: string) => {
@@ -49,7 +55,8 @@ export function useSaveCycleDate() {
 }
 
 export function useSaveCycleEndDate() {
-  const { cycleId } = usePeriodCheckInStore();
+  const flow = useCurrentCycleFlow();
+  const cycleId = flow?.cycleId ?? null;
 
   const saveMutation = useMutation({
     mutationFn: async (endDate: string) => {
@@ -78,14 +85,17 @@ export function useSaveCycleEndDate() {
 }
 
 export function usePeriodCheckIn() {
-  const { date, moods, symptoms } = usePeriodCheckInStore();
+  const flow = useCurrentCycleFlow();
+  const date = flow?.date ?? "";
+  const moods = flow?.moods ?? [];
+  const symptoms = flow?.symptoms ?? [];
   const { log } = useDayLog(date);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
       // Flow intensity (Light/Medium/Heavy/Spotting) has no backing field on
       // Log or MenstrualCycle in Sturdy Engine API.yaml yet — it's captured in
-      // usePeriodCheckInStore but intentionally left out of this payload until
+      // useCycleFlowStore but intentionally left out of this payload until
       // the backend adds somewhere to put it.
       const payload = { date, mood: moods.join(", "), symptoms };
       if (log) {

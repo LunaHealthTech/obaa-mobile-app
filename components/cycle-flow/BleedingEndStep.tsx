@@ -2,20 +2,28 @@ import { View, Pressable } from "react-native";
 import { useMemo, useState } from "react";
 import { Calendar } from "react-native-calendars";
 import { eachDayOfInterval, format } from "date-fns";
-import { useFixCycleStore } from "@/repositories/useFixCycleStore";
+import { useCycleFlowStore } from "@/repositories/useCycleFlowStore";
 import { Body, ButtonText, Caption, SectionHeading } from "@/components/Typography";
 
 export function BleedingEndStep() {
-  const { periodStart, bleedingEnd, setBleedingEnd, setStep } =
-    useFixCycleStore();
+  const periodStart = useCycleFlowStore((s) =>
+    s.state.mode === "old-cycle-correction" ? s.state.periodStart : "",
+  );
+  const bleedingEnd = useCycleFlowStore((s) =>
+    s.state.mode === "old-cycle-correction" ? s.state.bleedingEnd : "",
+  );
+  const setBleedingEnd = useCycleFlowStore((s) => s.setBleedingEnd);
+  const advance = useCycleFlowStore((s) => s.advance);
+  const back = useCycleFlowStore((s) => s.back);
   const [selected, setSelected] = useState(bleedingEnd || periodStart);
 
   const markedDates = useMemo(() => {
     const days = eachDayOfInterval({
       start: new Date(periodStart),
-      end: new Date(selected) < new Date(periodStart)
-        ? new Date(periodStart)
-        : new Date(selected),
+      end:
+        new Date(selected) < new Date(periodStart)
+          ? new Date(periodStart)
+          : new Date(selected),
     });
     const marks: Record<string, any> = {};
     days.forEach((day, index) => {
@@ -32,7 +40,7 @@ export function BleedingEndStep() {
 
   const onNext = () => {
     setBleedingEnd(selected);
-    setStep("next-period-start");
+    advance("next-period-start");
   };
 
   return (
@@ -59,7 +67,7 @@ export function BleedingEndStep() {
         <ButtonText className="text-white">Next</ButtonText>
       </Pressable>
       <Pressable
-        onPress={() => setStep("period-start")}
+        onPress={back}
         className="border-2 border-borderGreyColor rounded-full py-4 items-center"
       >
         <ButtonText className="text-mainText">Back</ButtonText>

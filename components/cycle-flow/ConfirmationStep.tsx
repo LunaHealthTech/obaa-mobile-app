@@ -1,9 +1,9 @@
 import { View, Pressable } from "react-native";
-import { usePeriodCheckInStore } from "@/repositories/usePeriodCheckInStore";
+import { useCycleFlowStore } from "@/repositories/useCycleFlowStore";
 import { Body, ButtonText, SectionHeading } from "@/components/Typography";
 
 export function ConfirmationStep() {
-  const close = usePeriodCheckInStore((s) => s.close);
+  const close = useCycleFlowStore((s) => s.close);
 
   return (
     <View className="bg-white items-center px-8 py-8">

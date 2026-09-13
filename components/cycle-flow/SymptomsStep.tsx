@@ -1,6 +1,6 @@
 import { View, Pressable } from "react-native";
 import { toast } from "sonner-native";
-import { usePeriodCheckInStore } from "@/repositories/usePeriodCheckInStore";
+import { useCycleFlowStore } from "@/repositories/useCycleFlowStore";
 import { usePeriodCheckIn } from "@/viewmodel/usePeriodCheckIn";
 import { MOOD_OPTIONS } from "@/constants/logOptions";
 import { Body, ButtonText, Caption, Label, SectionHeading } from "@/components/Typography";
@@ -18,13 +18,20 @@ const SYMPTOMS = [
 ];
 
 export function SymptomsStep() {
-  const { moods, toggleMood, symptoms, toggleSymptom, setStep } =
-    usePeriodCheckInStore();
+  const moods = useCycleFlowStore((s) =>
+    s.state.mode === "current-cycle" ? s.state.moods : [],
+  );
+  const symptoms = useCycleFlowStore((s) =>
+    s.state.mode === "current-cycle" ? s.state.symptoms : [],
+  );
+  const toggleMood = useCycleFlowStore((s) => s.toggleMood);
+  const toggleSymptom = useCycleFlowStore((s) => s.toggleSymptom);
+  const advance = useCycleFlowStore((s) => s.advance);
   const { save, isSaving } = usePeriodCheckIn();
 
   const onSave = () => {
     save(undefined, {
-      onSuccess: () => setStep("confirmation"),
+      onSuccess: () => advance("confirmation"),
       onError: () => toast.error("Something went wrong saving your check-in"),
     });
   };

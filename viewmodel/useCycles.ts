@@ -12,7 +12,7 @@ export function useMenstrualCycles() {
   const select = useCallback(
     (data: UserCycleData[]) => {
       const extractedDays = extractDates(data);
-      return applyAssumedConfirmedRanges(extractedDays, ranges);
+      return applyAssumedConfirmedRanges(extractedDays, ranges, data);
     },
     [ranges],
   );
@@ -28,5 +28,24 @@ export function useMenstrualCycles() {
     menstrualCycles: data,
     isLoadingMenstrualCycles: isLoading,
     isMenstrualCyclesError: isError,
+  };
+}
+
+function sortCyclesByStartDate(data: UserCycleData[]) {
+  return [...data].sort((a, b) => a.start_date.localeCompare(b.start_date));
+}
+
+export function useCycleList() {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["/menstrual/cycles"],
+    queryFn: getMenstrualCycles,
+    select: sortCyclesByStartDate,
+    staleTime: 24 * 60 * 1000, // 24 mins
+  });
+
+  return {
+    sortedCycles: data ?? [],
+    isLoadingCycles: isLoading,
+    isCyclesError: isError,
   };
 }

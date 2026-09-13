@@ -1,11 +1,11 @@
 import { View, Pressable } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useFixCycleStore } from "@/repositories/useFixCycleStore";
+import { useCycleFlowStore } from "@/repositories/useCycleFlowStore";
 import { Body, ButtonText, SectionHeading } from "@/components/Typography";
 
 export function IntroStep() {
-  const setStep = useFixCycleStore((s) => s.setStep);
-  const dismiss = useFixCycleStore((s) => s.dismiss);
+  const advance = useCycleFlowStore((s) => s.advance);
+  const dismiss = useCycleFlowStore((s) => s.dismiss);
 
   return (
     <View className="bg-white items-center px-8 py-8">
@@ -19,7 +19,7 @@ export function IntroStep() {
         Just update what you remember — we'll handle the rest.
       </Body>
       <Pressable
-        onPress={() => setStep("period-start")}
+        onPress={() => advance("period-start")}
         className="bg-primaryColor rounded-full w-full py-4 items-center mb-3"
       >
         <ButtonText className="text-white">Start Editing</ButtonText>

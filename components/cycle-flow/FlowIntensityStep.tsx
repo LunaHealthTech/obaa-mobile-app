@@ -1,11 +1,15 @@
 import { View, Pressable } from "react-native";
-import { usePeriodCheckInStore } from "@/repositories/usePeriodCheckInStore";
+import { useCycleFlowStore } from "@/repositories/useCycleFlowStore";
 import { Body, ButtonText, Caption, Label, SectionHeading } from "@/components/Typography";
 
 const INTENSITIES = ["Light", "Medium", "Heavy", "Spotting"];
 
 export function FlowIntensityStep() {
-  const { flowIntensity, setFlowIntensity, setStep } = usePeriodCheckInStore();
+  const flowIntensity = useCycleFlowStore((s) =>
+    s.state.mode === "current-cycle" ? s.state.flowIntensity : null,
+  );
+  const setFlowIntensity = useCycleFlowStore((s) => s.setFlowIntensity);
+  const advance = useCycleFlowStore((s) => s.advance);
 
   return (
     <View className="bg-white px-6 pt-8 pb-8">
@@ -36,7 +40,7 @@ export function FlowIntensityStep() {
         );
       })}
       <Pressable
-        onPress={() => setStep("symptoms")}
+        onPress={() => advance("symptoms")}
         className="bg-primaryColor rounded-full py-4 items-center mt-4"
       >
         <ButtonText className="text-white">Continue</ButtonText>

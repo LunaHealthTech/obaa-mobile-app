@@ -1,9 +1,9 @@
 import { View, Pressable } from "react-native";
-import { useFixCycleStore } from "@/repositories/useFixCycleStore";
+import { useCycleFlowStore } from "@/repositories/useCycleFlowStore";
 import { Body, ButtonText, Caption, SectionHeading } from "@/components/Typography";
 
 export function SuccessStep() {
-  const reset = useFixCycleStore((s) => s.reset);
+  const reset = useCycleFlowStore((s) => s.reset);
 
   return (
     <View className="bg-white items-center px-8 py-8">

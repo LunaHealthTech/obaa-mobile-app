@@ -99,38 +99,7 @@ export interface GetLogsParams {
   "range-end"?: string;
 }
 
-export type PeriodCheckInStep =
-  | "quick-check-in"
-  | "not-yet"
-  | "end-date"
-  | "flow-intensity"
-  | "symptoms"
-  | "confirmation";
-
-export interface PeriodCheckInState {
-  date: string;
-  cycleId: number | null;
-  assumedBleedEndDate: string | null;
-  flowIntensity: string | null;
-  moods: string[];
-  symptoms: string[];
-  step: PeriodCheckInStep | null;
-  start: (params: {
-    date: string;
-    cycleId: number | null;
-    assumedBleedEndDate?: string | null;
-    step: PeriodCheckInStep;
-  }) => void;
-  setStep: (step: PeriodCheckInStep) => void;
-  setDate: (date: string) => void;
-  setFlowIntensity: (flowIntensity: string) => void;
-  toggleMood: (mood: string) => void;
-  toggleSymptom: (symptom: string) => void;
-  close: () => void;
-  reset: () => void;
-}
-
-export type FixCycleStep =
+export type CorrectionStep =
   | "intro"
   | "period-start"
   | "bleeding-end"
@@ -138,20 +107,96 @@ export type FixCycleStep =
   | "summary"
   | "success";
 
-export interface FixCycleState {
-  step: FixCycleStep | null;
-  cycleId: number | null;
-  periodStart: string;
-  bleedingEnd: string;
-  nextPeriodStart: string;
+export type CorrectionVariant = "closed-cycle" | "stale-current";
+
+export type CurrentCycleStep =
+  | "log"
+  | "not-yet"
+  | "flow-intensity"
+  | "symptoms"
+  | "confirmation"
+  | "end-date";
+
+export type CycleFlowState =
+  | { mode: "idle" }
+  | {
+      mode: "current-cycle";
+      step: CurrentCycleStep;
+      date: string;
+      cycleId: number | null;
+      assumedBleedEndDate: string | null;
+      flowIntensity: string | null;
+      moods: string[];
+      symptoms: string[];
+    }
+  | {
+      mode: "old-cycle-correction";
+      variant: CorrectionVariant;
+      step: CorrectionStep;
+      tappedCycleId: number | null;
+      nextCycleId: number | null;
+      periodStart: string;
+      bleedingEnd: string;
+      nextPeriodStart: string;
+    };
+
+export type CycleFlowEvent =
+  | {
+      type: "OPEN_OLD_CYCLE";
+      date: string;
+      tappedCycleId: number;
+      nextCycleId: number | null;
+      seed: { periodStart: string; bleedingEnd: string; nextPeriodStart: string };
+    }
+  | {
+      type: "OPEN_CURRENT_CYCLE";
+      date: string;
+      cycleId: number | null;
+      assumedBleedEndDate: string | null;
+    }
+  | { type: "OPEN_STALE_FIX"; cycleId: number | null }
+  | { type: "STEP"; step: CorrectionStep | CurrentCycleStep }
+  | { type: "BACK" }
+  | { type: "SET_DATE"; date: string }
+  | { type: "SET_FLOW_INTENSITY"; flowIntensity: string }
+  | { type: "TOGGLE_MOOD"; mood: string }
+  | { type: "TOGGLE_SYMPTOM"; symptom: string }
+  | { type: "SET_PERIOD_START"; date: string }
+  | { type: "SET_BLEEDING_END"; date: string }
+  | { type: "SET_NEXT_PERIOD_START"; date: string }
+  | { type: "CLOSE" }
+  | { type: "DISMISS" }
+  | { type: "RESET" };
+
+export interface CycleFlowStore {
+  state: CycleFlowState;
   dismissedCycleId: number | null;
-  start: (params: { cycleId: number | null }) => void;
-  setStep: (step: FixCycleStep) => void;
+
+  openForOldCycle: (params: {
+    date: string;
+    tappedCycleId: number;
+    nextCycleId: number | null;
+    seed: { periodStart: string; bleedingEnd: string; nextPeriodStart: string };
+  }) => void;
+  openForCurrentCycle: (params: {
+    date: string;
+    cycleId: number | null;
+    assumedBleedEndDate?: string | null;
+  }) => void;
+  openForStaleFix: (params: { cycleId: number | null }) => void;
+
+  advance: (step: CorrectionStep | CurrentCycleStep) => void;
+  back: () => void;
+  setDate: (date: string) => void;
+  setFlowIntensity: (flowIntensity: string) => void;
+  toggleMood: (mood: string) => void;
+  toggleSymptom: (symptom: string) => void;
   setPeriodStart: (date: string) => void;
   setBleedingEnd: (date: string) => void;
   setNextPeriodStart: (date: string) => void;
-  dismiss: () => void;
+
   close: () => void;
+  dismiss: () => void;
   reset: () => void;
 }
 

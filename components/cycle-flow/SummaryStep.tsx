@@ -1,7 +1,7 @@
 import { View, Pressable } from "react-native";
 import { differenceInCalendarDays, format } from "date-fns";
-import { useFixCycleStore } from "@/repositories/useFixCycleStore";
-import { useFixCycle } from "@/viewmodel/useFixCycle";
+import { useCycleFlowStore } from "@/repositories/useCycleFlowStore";
+import { useCorrectCycle } from "@/viewmodel/useCorrectCycle";
 import { useMenstrualProfileViewModel } from "@/viewmodel/useMenstrualProfile";
 import { Body, ButtonText, Caption, Label, SectionHeading } from "@/components/Typography";
 
@@ -15,9 +15,17 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 }
 
 export function SummaryStep() {
-  const { periodStart, bleedingEnd, nextPeriodStart, setStep } =
-    useFixCycleStore();
-  const { save, isSaving } = useFixCycle();
+  const periodStart = useCycleFlowStore((s) =>
+    s.state.mode === "old-cycle-correction" ? s.state.periodStart : "",
+  );
+  const bleedingEnd = useCycleFlowStore((s) =>
+    s.state.mode === "old-cycle-correction" ? s.state.bleedingEnd : "",
+  );
+  const nextPeriodStart = useCycleFlowStore((s) =>
+    s.state.mode === "old-cycle-correction" ? s.state.nextPeriodStart : "",
+  );
+  const back = useCycleFlowStore((s) => s.back);
+  const { save, isSaving } = useCorrectCycle();
   const { data } = useMenstrualProfileViewModel();
 
   const periodLength =
@@ -69,7 +77,7 @@ export function SummaryStep() {
         </ButtonText>
       </Pressable>
       <Pressable
-        onPress={() => setStep("next-period-start")}
+        onPress={back}
         className="border-2 border-borderGreyColor rounded-full py-4 items-center"
       >
         <ButtonText className="text-mainText">Back</ButtonText>

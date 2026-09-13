@@ -2,12 +2,13 @@ import { View, Pressable } from "react-native";
 import { useState } from "react";
 import { Calendar } from "react-native-calendars";
 import { format } from "date-fns";
-import { usePeriodCheckInStore } from "@/repositories/usePeriodCheckInStore";
+import { useCycleFlowStore } from "@/repositories/useCycleFlowStore";
 import { useSaveCycleEndDate } from "@/viewmodel/usePeriodCheckIn";
 import { Body, ButtonText, SectionHeading } from "@/components/Typography";
 
 export function EndDateStep() {
-  const { date, close } = usePeriodCheckInStore();
+  const date = useCycleFlowStore((s) => (s.state.mode === "current-cycle" ? s.state.date : ""));
+  const close = useCycleFlowStore((s) => s.close);
   const { save: saveEndDate, isSaving } = useSaveCycleEndDate();
   const [selected, setSelected] = useState(
     date || format(new Date(), "yyyy-MM-dd"),

@@ -200,13 +200,29 @@ export function extractDates(
   return res;
 }
 
+/**
+ * An assumed range is only still useful while the real backend cycle hasn't
+ * caught up to it yet. If the cycle no longer exists, or its real
+ * bleed_end_date has reached/passed what we assumed, real data should win.
+ */
+export function isAssumedRangeActive(
+  range: { startDate: string; bleedEndDate: string },
+  realCycle: UserCycleData | undefined,
+): boolean {
+  if (!realCycle) return false;
+  return realCycle.bleed_end_date < range.bleedEndDate;
+}
+
 export function applyAssumedConfirmedRanges(
   markedDates: Record<string, DayMarking>,
   ranges: Record<number, { startDate: string; bleedEndDate: string }>,
+  cycles: UserCycleData[],
 ): Record<string, DayMarking> {
   const result = { ...markedDates };
   for (const [cycleIdStr, range] of Object.entries(ranges)) {
     const cycleId = Number(cycleIdStr);
+    const realCycle = cycles.find((c) => c.id === cycleId);
+    if (!isAssumedRangeActive(range, realCycle)) continue;
     const confirmedDays = generateDays({
       startDate: range.startDate,
       endDate: range.bleedEndDate,
@@ -227,4 +243,29 @@ export function applyAssumedConfirmedRanges(
     Object.assign(result, confirmedDays);
   }
   return result;
+}
+
+/**
+ * A cycle "owns" every date from its start_date up to (but not including) the
+ * next cycle's start_date, or indefinitely if it's the last one. `sortedCycles`
+ * must be sorted ascending by start_date (see `useCycles.ts`'s `useCycleList`).
+ */
+export function findOwningCycle(
+  date: string,
+  sortedCycles: UserCycleData[],
+): UserCycleData | null {
+  let owner: UserCycleData | null = null;
+  for (const cycle of sortedCycles) {
+    if (cycle.start_date <= date) owner = cycle;
+    else break;
+  }
+  return owner;
+}
+
+export function findNextCycle(
+  cycle: UserCycleData,
+  sortedCycles: UserCycleData[],
+): UserCycleData | null {
+  const idx = sortedCycles.indexOf(cycle);
+  return idx >= 0 ? (sortedCycles[idx + 1] ?? null) : null;
 }
