@@ -73,6 +73,7 @@ export default function RootLayout() {
                 options={{ title: "Sign up joor" }}
               />
             </Stack.Protected>
+            <Stack.Screen name={"verify-email"} options={{ title: "" }} />
           </Stack>
           <Toaster position={"top-center"} />
         </AppProviders>

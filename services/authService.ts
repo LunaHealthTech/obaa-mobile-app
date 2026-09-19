@@ -15,6 +15,15 @@ interface SignUpPayload {
   date_of_birth: Date | string;
 }
 
+interface VerifyEmailPayload {
+  email: string;
+  code: string;
+}
+
+interface ResendVerificationPayload {
+  email: string;
+}
+
 export async function signIn(payload: SignInPayload) {
   const res = await apiClient.post("/auth/login/", payload);
   console.log(res.data); // TODO: remove these
@@ -29,5 +38,15 @@ export async function signUp(payload: SignUpPayload) {
   console.log({ updatedPayload });
   const res = await apiClient.post("/auth/register/", updatedPayload);
   // console.log(res.data, { res }); // TODO: remove console log statements
+  return res.data;
+}
+
+export async function verifyEmail(payload: VerifyEmailPayload) {
+  const res = await apiClient.post("/auth/verify-email/", payload);
+  return res.data;
+}
+
+export async function resendVerificationCode(payload: ResendVerificationPayload) {
+  const res = await apiClient.post("/auth/verify-email/request/", payload);
   return res.data;
 }

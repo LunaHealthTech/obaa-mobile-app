@@ -1,7 +1,13 @@
 import { useRouter } from "expo-router";
 import { useAuthStore } from "@/repositories/useAuthStore";
 import { useMutation } from "@tanstack/react-query";
-import { signIn, signUp } from "@/services/authService";
+import {
+  signIn,
+  signUp,
+  verifyEmail,
+  resendVerificationCode,
+} from "@/services/authService";
+import { extractErrorMessage } from "@/lib/apiClient";
 import { toast } from "sonner-native";
 import { AxiosError } from "axios";
 
@@ -11,6 +17,8 @@ export function useAuth() {
   const signUpSteps = useAuthStore((state) => state.signUpItems);
   const setSignUpItem = useAuthStore((s) => s.setSignUpItem);
   const login = useAuthStore((s) => s.login);
+  const token = useAuthStore((s) => s.token);
+  const user = useAuthStore((s) => s.user);
 
   // Mutations
   const loginMutation = useMutation({
@@ -18,6 +26,13 @@ export function useAuth() {
     onSuccess: async (data) => {
       console.log({ dataFromSignIn: data });
       await login(data.user, data.tokens.access, data.tokens.refresh);
+      if (!data.user.email_verified) {
+        router.navigate({
+          pathname: "/verify-email",
+          params: { email: data.user.email },
+        });
+        return;
+      }
       const userHasMenstrualProfile = !!data?.user.menstrual_profile_created;
       if (userHasMenstrualProfile) {
         router.navigate("/(tabs)");
@@ -37,11 +52,14 @@ export function useAuth() {
 
   const registerMutation = useMutation({
     mutationFn: signUp,
-    onSuccess: async (data) => {
+    onSuccess: async (data, variables) => {
       toast.dismiss();
       console.log({ dataFromSignUp: data });
       toast.success("Your account was created successfully");
-      router.navigate("/signin");
+      router.navigate({
+        pathname: "/verify-email",
+        params: { email: data?.email ?? variables.email },
+      });
     },
     onError: async (err: AxiosError<Record<string, string[]>>) => {
       toast.dismiss();
@@ -62,6 +80,45 @@ export function useAuth() {
     },
   });
 
+  const verifyEmailMutation = useMutation({
+    mutationFn: verifyEmail,
+    onSuccess: () => {
+      toast.dismiss();
+      toast.success("Email verified successfully");
+      if (token) {
+        const userHasMenstrualProfile = !!user?.menstrual_profile_created;
+        router.navigate(
+          userHasMenstrualProfile ? "/(tabs)" : "/onboarding/persona",
+        );
+      } else {
+        router.navigate("/signin");
+      }
+    },
+    onError: (
+      err: AxiosError<{ code?: string; message?: string; detail?: string }>,
+    ) => {
+      toast.dismiss();
+      toast.error(extractErrorMessage(err, "Invalid or expired code"));
+    },
+  });
+
+  const resendCodeMutation = useMutation({
+    mutationFn: resendVerificationCode,
+    onSuccess: () => {
+      toast.dismiss();
+      toast.success("A new code has been sent");
+    },
+    onError: (
+      err: AxiosError<{ detail?: string; retry_after?: number }>,
+    ) => {
+      toast.dismiss();
+      toast.error(
+        err.response?.data?.detail ??
+          extractErrorMessage(err, "Could not resend code, please try again"),
+      );
+    },
+  });
+
   return {
     signUpSteps,
     setSignUpItem,
@@ -69,5 +126,9 @@ export function useAuth() {
     registerPending: registerMutation.isPending,
     signIn: loginMutation.mutate,
     signInPending: loginMutation.isPending,
+    verifyEmail: verifyEmailMutation.mutate,
+    verifyEmailPending: verifyEmailMutation.isPending,
+    resendCode: resendCodeMutation.mutate,
+    resendCodePending: resendCodeMutation.isPending,
   };
 }
