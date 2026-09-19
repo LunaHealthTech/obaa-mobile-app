@@ -107,19 +107,22 @@ apiClient.interceptors.response.use(
       if (!refreshToken) throw new Error("No refresh token");
 
       // Call your refresh endpoint directly with plain axios to avoid loops
-      const { data } = await axios.post(`${BASE_URL}/auth/refresh`, {
-        refresh_token: refreshToken,
+      // Field names here (`refresh` in, `access` out) match the backend's
+      // TokenRefresh schema, NOT the login endpoint's `tokens.access`/`tokens.refresh`
+      // shape — the two responses are intentionally differently named.
+      const { data } = await axios.post(`${BASE_URL}/auth/token/refresh/`, {
+        refresh: refreshToken,
       });
 
-      const { access_token, refresh_token } = data;
-      await TokenStorage.saveTokens(access_token, refresh_token);
+      const { access, refresh } = data;
+      await TokenStorage.saveTokens(access, refresh ?? refreshToken);
 
       // Update auth store with new access token
-      useAuthStore.getState().setToken(access_token);
+      useAuthStore.getState().setToken(access);
 
-      processQueue(null, access_token);
+      processQueue(null, access);
 
-      originalRequest.headers.Authorization = `Bearer ${access_token}`;
+      originalRequest.headers.Authorization = `Bearer ${access}`;
       return apiClient(originalRequest);
     } catch (refreshError) {
       processQueue(refreshError, null);
