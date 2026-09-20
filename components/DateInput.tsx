@@ -4,7 +4,21 @@ import { Pressable, View } from "react-native";
 import { format, parseISO } from "date-fns";
 import { Body } from "@/components/Typography";
 
-export function DateInput({ value, onChange, error }) {
+type DateInputProps = {
+  value?: Date;
+  onChange: (date: Date) => void;
+  error?: string;
+  minimumDate?: Date;
+  maximumDate?: Date;
+};
+
+export function DateInput({
+  value,
+  onChange,
+  error,
+  minimumDate,
+  maximumDate = new Date(),
+}: DateInputProps) {
   const [show, setShow] = useState(false);
   console.log("Date input" ,{ value });
   return (
@@ -22,14 +36,15 @@ export function DateInput({ value, onChange, error }) {
       {/* Picker */}
       {show && (
         <DateTimePicker
-          value={value || new Date()}
+          value={value || maximumDate}
           mode="date"
           display="spinner" // 'spinner', 'calendar', 'default'
           onChange={(event, date) => {
             setShow(false);
             if (date) onChange(date);
           }}
-          maximumDate={new Date()} // useful for date of birth
+          minimumDate={minimumDate}
+          maximumDate={maximumDate}
         />
       )}
 

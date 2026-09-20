@@ -137,7 +137,8 @@ export type CycleFlowState =
       nextCycleId: number | null;
       periodStart: string;
       bleedingEnd: string;
-      nextPeriodStart: string;
+      nextPeriodStart: string | null;
+      cycleLength: number | null;
     };
 
 export type CycleFlowEvent =
@@ -147,6 +148,7 @@ export type CycleFlowEvent =
       tappedCycleId: number;
       nextCycleId: number | null;
       seed: { periodStart: string; bleedingEnd: string; nextPeriodStart: string };
+      cycleLength: number | null;
     }
   | {
       type: "OPEN_CURRENT_CYCLE";
@@ -154,7 +156,7 @@ export type CycleFlowEvent =
       cycleId: number | null;
       assumedBleedEndDate: string | null;
     }
-  | { type: "OPEN_STALE_FIX"; cycleId: number | null }
+  | { type: "OPEN_STALE_FIX"; cycleId: number | null; cycleLength: number | null }
   | { type: "STEP"; step: CorrectionStep | CurrentCycleStep }
   | { type: "BACK" }
   | { type: "SET_DATE"; date: string }
@@ -163,7 +165,7 @@ export type CycleFlowEvent =
   | { type: "TOGGLE_SYMPTOM"; symptom: string }
   | { type: "SET_PERIOD_START"; date: string }
   | { type: "SET_BLEEDING_END"; date: string }
-  | { type: "SET_NEXT_PERIOD_START"; date: string }
+  | { type: "SET_NEXT_PERIOD_START"; date: string | null }
   | { type: "CLOSE" }
   | { type: "DISMISS" }
   | { type: "RESET" };
@@ -177,13 +179,14 @@ export interface CycleFlowStore {
     tappedCycleId: number;
     nextCycleId: number | null;
     seed: { periodStart: string; bleedingEnd: string; nextPeriodStart: string };
+    cycleLength?: number | null;
   }) => void;
   openForCurrentCycle: (params: {
     date: string;
     cycleId: number | null;
     assumedBleedEndDate?: string | null;
   }) => void;
-  openForStaleFix: (params: { cycleId: number | null }) => void;
+  openForStaleFix: (params: { cycleId: number | null; cycleLength?: number | null }) => void;
 
   advance: (step: CorrectionStep | CurrentCycleStep) => void;
   back: () => void;
@@ -193,7 +196,7 @@ export interface CycleFlowStore {
   toggleSymptom: (symptom: string) => void;
   setPeriodStart: (date: string) => void;
   setBleedingEnd: (date: string) => void;
-  setNextPeriodStart: (date: string) => void;
+  setNextPeriodStart: (date: string | null) => void;
 
   close: () => void;
   dismiss: () => void;

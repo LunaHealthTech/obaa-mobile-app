@@ -36,7 +36,7 @@ function sortCyclesByStartDate(data: UserCycleData[]) {
 }
 
 export function useCycleList() {
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["/menstrual/cycles"],
     queryFn: getMenstrualCycles,
     select: sortCyclesByStartDate,
@@ -47,5 +47,7 @@ export function useCycleList() {
     sortedCycles: data ?? [],
     isLoadingCycles: isLoading,
     isCyclesError: isError,
+    cyclesError: error,
+    refetchCycles: refetch,
   };
 }

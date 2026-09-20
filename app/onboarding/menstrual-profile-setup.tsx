@@ -4,6 +4,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MenstrualProfileSchema } from "@/lib/FormSchemas";
 import WheelPicker from "@quidone/react-native-wheel-picker";
+import { subMonths } from "date-fns";
 import { MultiStepButton } from "@/components/MultiStepButton";
 import { toast } from "sonner-native";
 import { DateInput } from "@/components/DateInput";
@@ -174,10 +175,11 @@ function LastPeriodStart({ control }: QuestionProps) {
           <>
             <DateInput
               value={value}
-              onChange={(val: string) => {
+              onChange={(val: Date) => {
                 onChange(val);
               }}
               error={error?.message}
+              minimumDate={subMonths(new Date(), 2)}
             />
           </>
         )}

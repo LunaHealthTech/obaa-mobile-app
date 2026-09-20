@@ -30,12 +30,15 @@ export function SummaryStep() {
 
   const periodLength =
     differenceInCalendarDays(new Date(bleedingEnd), new Date(periodStart)) + 1;
-  const cycleLength = differenceInCalendarDays(
-    new Date(nextPeriodStart),
-    new Date(periodStart),
-  );
+  const cycleLength =
+    nextPeriodStart != null
+      ? differenceInCalendarDays(new Date(nextPeriodStart), new Date(periodStart))
+      : null;
   const existingCycleLength = data?.general.cycleLength ?? cycleLength;
-  const updatedAverage = Math.round((existingCycleLength + cycleLength) / 2);
+  const updatedAverage =
+    cycleLength != null && existingCycleLength != null
+      ? Math.round((existingCycleLength + cycleLength) / 2)
+      : null;
 
   return (
     <View className="bg-white px-6 pt-8 pb-8">
@@ -57,15 +60,23 @@ export function SummaryStep() {
       />
       <SummaryRow
         label="Cycle ended:"
-        value={format(new Date(nextPeriodStart), "do MMMM, yyyy")}
+        value={
+          nextPeriodStart != null
+            ? format(new Date(nextPeriodStart), "do MMMM, yyyy")
+            : "Still ongoing"
+        }
       />
 
       <SectionHeading className="text-mainText mt-4 mb-2">
         System-calculated
       </SectionHeading>
       <SummaryRow label="Period length:" value={`${periodLength} days`} />
-      <SummaryRow label="Cycle length:" value={`${cycleLength} days`} />
-      <SummaryRow label="Updated average:" value={`${updatedAverage} days`} />
+      {cycleLength != null && (
+        <SummaryRow label="Cycle length:" value={`${cycleLength} days`} />
+      )}
+      {updatedAverage != null && (
+        <SummaryRow label="Updated average:" value={`${updatedAverage} days`} />
+      )}
 
       <Pressable
         onPress={() => save()}

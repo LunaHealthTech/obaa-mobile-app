@@ -1,7 +1,7 @@
 import { View, Pressable } from "react-native";
 import { useMemo, useState } from "react";
 import { Calendar } from "react-native-calendars";
-import { eachDayOfInterval, format } from "date-fns";
+import { addDays, eachDayOfInterval, format, isFuture } from "date-fns";
 import { useCycleFlowStore } from "@/repositories/useCycleFlowStore";
 import { Body, ButtonText, Caption, SectionHeading } from "@/components/Typography";
 
@@ -12,7 +12,11 @@ export function BleedingEndStep() {
   const bleedingEnd = useCycleFlowStore((s) =>
     s.state.mode === "old-cycle-correction" ? s.state.bleedingEnd : "",
   );
+  const cycleLength = useCycleFlowStore((s) =>
+    s.state.mode === "old-cycle-correction" ? s.state.cycleLength : null,
+  );
   const setBleedingEnd = useCycleFlowStore((s) => s.setBleedingEnd);
+  const setNextPeriodStart = useCycleFlowStore((s) => s.setNextPeriodStart);
   const advance = useCycleFlowStore((s) => s.advance);
   const back = useCycleFlowStore((s) => s.back);
   const [selected, setSelected] = useState(bleedingEnd || periodStart);
@@ -40,7 +44,14 @@ export function BleedingEndStep() {
 
   const onNext = () => {
     setBleedingEnd(selected);
-    advance("next-period-start");
+    const stillOngoing =
+      cycleLength != null && isFuture(addDays(new Date(periodStart), cycleLength));
+    if (stillOngoing) {
+      setNextPeriodStart(null);
+      advance("summary");
+    } else {
+      advance("next-period-start");
+    }
   };
 
   return (

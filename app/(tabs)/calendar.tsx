@@ -11,11 +11,16 @@ import { useCycleFlowStore } from "@/repositories/useCycleFlowStore";
 import { findNextCycle, findOwningCycle } from "@/lib/CalendarHelpers";
 import BlueOvulation from "@/assets/ovulation_blue.svg";
 import PregnancyWhite from "@/assets/pregnancy_white.svg";
-import { Body, Caption, PageTitle } from "@/components/Typography";
+import { Body, ButtonText, Caption, PageTitle } from "@/components/Typography";
 
 export default function CalendarPage() {
-  const { data, isLoading, isError } = useMenstrualProfileViewModel();
-  const { sortedCycles } = useCycleList();
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch: refetchProfile,
+  } = useMenstrualProfileViewModel();
+  const { sortedCycles, isCyclesError, refetchCycles } = useCycleList();
   const flowMode = useCycleFlowStore((s) => s.state.mode);
   const openForOldCycle = useCycleFlowStore((s) => s.openForOldCycle);
   const openForCurrentCycle = useCycleFlowStore((s) => s.openForCurrentCycle);
@@ -23,16 +28,28 @@ export default function CalendarPage() {
   const dismissedCycleId = useCycleFlowStore((s) => s.dismissedCycleId);
 
   const isCycleStale = data?.calendarPage.isCycleStale;
+  const isWithinCycleStartWindow = data?.calendarPage.isWithinCycleStartWindow;
 
   useEffect(() => {
     if (
       isCycleStale &&
+      isWithinCycleStartWindow &&
       data?.currentCycleId !== dismissedCycleId &&
       flowMode === "idle"
     ) {
-      openForStaleFix({ cycleId: data?.currentCycleId ?? null });
+      openForStaleFix({
+        cycleId: data?.currentCycleId ?? null,
+        cycleLength: data?.general.cycleLength ?? null,
+      });
     }
-  }, [isCycleStale, data?.currentCycleId, dismissedCycleId, flowMode, openForStaleFix]);
+  }, [
+    isCycleStale,
+    isWithinCycleStartWindow,
+    data?.currentCycleId,
+    dismissedCycleId,
+    flowMode,
+    openForStaleFix,
+  ]);
 
   const handleDayPress = (date: string) => {
     const owner = findOwningCycle(date, sortedCycles);
@@ -54,7 +71,10 @@ export default function CalendarPage() {
 
     if (owner.id == null) {
       // virtual predicted continuation of the still-open cycle — no real id to updateCycle
-      openForStaleFix({ cycleId: data?.currentCycleId ?? null });
+      openForStaleFix({
+        cycleId: data?.currentCycleId ?? null,
+        cycleLength: data?.general.cycleLength ?? null,
+      });
       return;
     }
 
@@ -68,6 +88,7 @@ export default function CalendarPage() {
         bleedingEnd: owner.bleed_end_date,
         nextPeriodStart: next?.start_date ?? format(new Date(), "yyyy-MM-dd"),
       },
+      cycleLength: data?.general.cycleLength ?? null,
     });
   };
 
@@ -75,13 +96,26 @@ export default function CalendarPage() {
     return <Body>Loading...</Body>;
   }
 
-  if (isError) {
-    console.error(isError);
-  }
   return (
     <View className="flex-1 bg-white">
       <ScrollView className="bg-white">
       <AppHeader />
+      {(isError || isCyclesError) && (
+        <View className="mx-4 mt-4 bg-red-50 border border-red-200 rounded-lg p-4 flex-row items-center justify-between gap-3">
+          <Body className="text-red-600 flex-1">
+            Couldn't load your cycle data. Please try again.
+          </Body>
+          <Pressable
+            onPress={() => {
+              refetchProfile();
+              refetchCycles();
+            }}
+            className="bg-primaryColor rounded-full px-4 py-2"
+          >
+            <ButtonText className="text-white">Retry</ButtonText>
+          </Pressable>
+        </View>
+      )}
       <View className={"bg-white flex-1 w-full"}>
         <Calendar onDayPress={handleDayPress} />
         <View
@@ -123,7 +157,10 @@ export default function CalendarPage() {
         className={"px-4 items-center mt-20"}
         onPress={() => {
           if (flowMode === "idle") {
-            openForStaleFix({ cycleId: data?.currentCycleId ?? null });
+            openForStaleFix({
+              cycleId: data?.currentCycleId ?? null,
+              cycleLength: data?.general.cycleLength ?? null,
+            });
           }
         }}
       >

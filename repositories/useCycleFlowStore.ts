@@ -24,6 +24,7 @@ export function transition(state: CycleFlowState, event: CycleFlowEvent): CycleF
         periodStart: event.seed.periodStart,
         bleedingEnd: event.seed.bleedingEnd,
         nextPeriodStart: event.seed.nextPeriodStart,
+        cycleLength: event.cycleLength,
       };
 
     case "OPEN_CURRENT_CYCLE":
@@ -49,6 +50,7 @@ export function transition(state: CycleFlowState, event: CycleFlowEvent): CycleF
         periodStart: today(),
         bleedingEnd: today(),
         nextPeriodStart: today(),
+        cycleLength: event.cycleLength,
       };
 
     case "STEP": {
@@ -73,7 +75,10 @@ export function transition(state: CycleFlowState, event: CycleFlowEvent): CycleF
         case "next-period-start":
           return { ...state, step: "bleeding-end" };
         case "summary":
-          return { ...state, step: "next-period-start" };
+          return {
+            ...state,
+            step: state.nextPeriodStart == null ? "bleeding-end" : "next-period-start",
+          };
         default:
           return state;
       }
@@ -140,6 +145,7 @@ export const useCycleFlowStore = create<CycleFlowStore>()(
             tappedCycleId: params.tappedCycleId,
             nextCycleId: params.nextCycleId,
             seed: params.seed,
+            cycleLength: params.cycleLength ?? null,
           }),
         }),
       openForCurrentCycle: (params) =>
@@ -152,7 +158,13 @@ export const useCycleFlowStore = create<CycleFlowStore>()(
           }),
         }),
       openForStaleFix: (params) =>
-        set({ state: transition(get().state, { type: "OPEN_STALE_FIX", cycleId: params.cycleId }) }),
+        set({
+          state: transition(get().state, {
+            type: "OPEN_STALE_FIX",
+            cycleId: params.cycleId,
+            cycleLength: params.cycleLength ?? null,
+          }),
+        }),
 
       advance: (step) => set({ state: transition(get().state, { type: "STEP", step }) }),
       back: () => set({ state: transition(get().state, { type: "BACK" }) }),

@@ -29,7 +29,7 @@ export function useCorrectCycle() {
           start_date: periodStart,
           bleed_end_date: bleedingEnd,
         });
-        if (nextCycleId != null) {
+        if (nextCycleId != null && nextPeriodStart != null) {
           await updateCycle(nextCycleId, { start_date: nextPeriodStart });
         }
         useConfirmedCycleStore.getState().clearAssumedRange(tappedCycleId);
@@ -40,7 +40,12 @@ export function useCorrectCycle() {
           await startCycle({ start_date: periodStart });
         }
         await endPeriod({ end_date: bleedingEnd });
-        await startCycle({ start_date: nextPeriodStart });
+        if (nextPeriodStart != null) {
+          await startCycle({ start_date: nextPeriodStart });
+        }
+        if (tappedCycleId) {
+          useConfirmedCycleStore.getState().clearAssumedRange(tappedCycleId);
+        }
       }
     },
     onSuccess: async () => {

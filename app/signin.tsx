@@ -124,7 +124,9 @@ export default function SignInScreen() {
               </Pressable>
             </View>
             <View className={"flex flex-row justify-end gap-4 space-between"}>
-              <Body className={"text-primaryColor"}>Forgot Password?</Body>
+              <Link href={"/forgot-password"}>
+                <Body className={"text-primaryColor"}>Forgot Password?</Body>
+              </Link>
             </View>
             {/* Password error message */}
             {errors.password && (

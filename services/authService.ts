@@ -24,6 +24,15 @@ interface ResendVerificationPayload {
   email: string;
 }
 
+interface RequestPasswordResetPayload {
+  email: string;
+}
+
+interface ConfirmPasswordResetPayload {
+  password: string;
+  token: string;
+}
+
 export async function signIn(payload: SignInPayload) {
   const res = await apiClient.post("/auth/login/", payload);
   console.log(res.data); // TODO: remove these
@@ -48,5 +57,15 @@ export async function verifyEmail(payload: VerifyEmailPayload) {
 
 export async function resendVerificationCode(payload: ResendVerificationPayload) {
   const res = await apiClient.post("/auth/verify-email/request/", payload);
+  return res.data;
+}
+
+export async function requestPasswordReset(payload: RequestPasswordResetPayload) {
+  const res = await apiClient.post("/auth/reset-password/request/", payload);
+  return res.data;
+}
+
+export async function confirmPasswordReset(payload: ConfirmPasswordResetPayload) {
+  const res = await apiClient.post("/auth/reset-password/confirm/", payload);
   return res.data;
 }

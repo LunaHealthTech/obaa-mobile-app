@@ -72,6 +72,14 @@ export default function RootLayout() {
                 name={"signup"}
                 options={{ title: "Sign up joor" }}
               />
+              <Stack.Screen
+                name={"forgot-password"}
+                options={{ title: "" }}
+              />
+              <Stack.Screen
+                name={"reset-password"}
+                options={{ title: "" }}
+              />
             </Stack.Protected>
             <Stack.Screen name={"verify-email"} options={{ title: "" }} />
           </Stack>

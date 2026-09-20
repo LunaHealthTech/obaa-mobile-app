@@ -8,13 +8,13 @@ import {
 import { toast } from "sonner-native";
 import { router } from "expo-router";
 import { generateDays, normalizeCyclePhase } from "@/lib/CalendarHelpers";
-import { addDays, differenceInDays, isAfter, isFuture } from "date-fns";
+import { addDays, differenceInDays, isAfter, isBefore, isFuture } from "date-fns";
 import { useConfirmedCycleStore } from "@/repositories/useConfirmedCycleStore";
 
 export function useMenstrualProfileViewModel() {
   const assumedRanges = useConfirmedCycleStore((s) => s.ranges);
   const queryKey = ["/menstrual/profile/"];
-  const { data, isLoading, error, isError } = useQuery({
+  const { data, isLoading, error, isError, refetch } = useQuery({
     queryKey,
     queryFn: getMenstrualInfo,
     select: (data) => {
@@ -50,6 +50,10 @@ export function useMenstrualProfileViewModel() {
           isCycleStale: isWithinAssumedBleed
             ? false
             : data.current_cycle.current_phase === "completed",
+          isWithinCycleStartWindow: !isBefore(
+            new Date(),
+            new Date(data.next_cycle_start_window.lower),
+          ),
           nextOvulationIn: isFuture(data.current_cycle.ovulation_day)
             ? differenceInDays(new Date(), data.current_cycle.ovulation_day)
             : Math.floor(data.cycle_length / 2) +
@@ -101,5 +105,6 @@ export function useMenstrualProfileViewModel() {
     isUpdating: updateMutation.isPending,
     error,
     isError,
+    refetch,
   };
 }

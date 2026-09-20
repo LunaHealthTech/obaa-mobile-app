@@ -10,6 +10,7 @@ import { toast } from "sonner-native";
 import { PhoneInput } from "@/components/PhoneInput";
 import { SignUpSchema } from "@/lib/FormSchemas";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { subYears } from "date-fns";
 import { DateInput } from "@/components/DateInput";
 import { useAuth } from "@/viewmodel/useAuth";
 import { AuthState } from "@/types/auth.types";
@@ -31,6 +32,8 @@ type StepProps = {
   errors?: FieldErrors<FormValues>;
 };
 
+const maxDateOfBirth: Date = subYears(new Date(), 13);
+
 export default function SignUp() {
   const maxSteps = 2;
   const { register, registerPending, signUpSteps, setSignUpItem } = useAuth();
@@ -47,7 +50,7 @@ export default function SignUp() {
       first_name: "",
       last_name: "",
       phone_number: "+233",
-      date_of_birth: new Date(),
+      date_of_birth: maxDateOfBirth,
     },
   });
   // @ts-ignore
@@ -245,12 +248,16 @@ function Step2({ control, signUpSteps, setSignUpItem }: StepProps) {
             <>
               <DateInput
                 value={value}
-                onChange={(val: string) => {
+                onChange={(val: Date) => {
                   console.log({ signUpSteps });
-                  setSignUpItem({ ...signUpSteps, date_of_birth: val });
+                  setSignUpItem({
+                    ...signUpSteps,
+                    date_of_birth: val.toISOString(),
+                  });
                   onChange(val);
                 }}
                 error={error?.message}
+                maximumDate={maxDateOfBirth}
               />
             </>
           )}

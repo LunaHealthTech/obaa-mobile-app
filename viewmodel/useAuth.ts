@@ -6,6 +6,8 @@ import {
   signUp,
   verifyEmail,
   resendVerificationCode,
+  requestPasswordReset,
+  confirmPasswordReset,
 } from "@/services/authService";
 import { extractErrorMessage } from "@/lib/apiClient";
 import { toast } from "sonner-native";
@@ -119,6 +121,33 @@ export function useAuth() {
     },
   });
 
+  const requestPasswordResetMutation = useMutation({
+    mutationFn: requestPasswordReset,
+    onSuccess: (data: { message?: string }) => {
+      toast.dismiss();
+      toast.success(data?.message ?? "Reset link sent");
+    },
+    onError: (err: AxiosError<{ message?: string }>) => {
+      toast.dismiss();
+      toast.error(
+        extractErrorMessage(err, "Something went wrong, please try again"),
+      );
+    },
+  });
+
+  const confirmPasswordResetMutation = useMutation({
+    mutationFn: confirmPasswordReset,
+    onSuccess: () => {
+      toast.dismiss();
+      toast.success("Password changed successfully");
+      router.navigate("/signin");
+    },
+    onError: (err: AxiosError<{ message?: string }>) => {
+      toast.dismiss();
+      toast.error(extractErrorMessage(err, "Invalid or expired reset link"));
+    },
+  });
+
   return {
     signUpSteps,
     setSignUpItem,
@@ -130,5 +159,10 @@ export function useAuth() {
     verifyEmailPending: verifyEmailMutation.isPending,
     resendCode: resendCodeMutation.mutate,
     resendCodePending: resendCodeMutation.isPending,
+    requestPasswordReset: requestPasswordResetMutation.mutate,
+    requestPasswordResetPending: requestPasswordResetMutation.isPending,
+    requestPasswordResetSuccess: requestPasswordResetMutation.isSuccess,
+    confirmPasswordReset: confirmPasswordResetMutation.mutate,
+    confirmPasswordResetPending: confirmPasswordResetMutation.isPending,
   };
 }
