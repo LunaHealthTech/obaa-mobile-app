@@ -7,7 +7,12 @@ export function extractErrorMessage(
   error: unknown,
   fallback: string,
 ): string {
-  const data = (error as AxiosError)?.response?.data as
+  const axiosError = error as AxiosError;
+  if (axiosError?.isAxiosError && !axiosError.response) {
+    return "Can't reach the server. Check your internet connection and try again.";
+  }
+
+  const data = axiosError?.response?.data as
     | Record<string, unknown>
     | string
     | undefined;
@@ -82,7 +87,13 @@ apiClient.interceptors.response.use(
       );
     }
 
-    if (error.response?.status !== 401 || originalRequest._retry) {
+    // A 401 from sign-in or other /auth/ endpoints describes the account
+    // (wrong password, unverified email), not an expired session.
+    if (
+      error.response?.status !== 401 ||
+      originalRequest._retry ||
+      originalRequest.url?.startsWith("/auth/")
+    ) {
       return Promise.reject(error);
     }
 

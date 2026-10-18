@@ -42,13 +42,18 @@ export function useAuth() {
         router.navigate("/onboarding/persona");
       }
     },
-    onError: (err: AxiosError<{ detail?: string }>) => {
+    onError: (err: AxiosError<{ code?: string }>, variables) => {
       // TODO: log this error with a logger
       console.log({ err: err.message, data: err.response?.data });
       toast.error(
-        err.response?.data?.detail ??
-          "Something went wrong, please try again",
+        extractErrorMessage(err, "Something went wrong, please try again"),
       );
+      if (err.response?.data?.code === "auth/email-not-verified") {
+        router.navigate({
+          pathname: "/verify-email",
+          params: { email: variables.email },
+        });
+      }
     },
   });
 
