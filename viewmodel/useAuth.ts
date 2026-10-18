@@ -37,7 +37,7 @@ export function useAuth() {
       }
       const userHasMenstrualProfile = !!data?.user.menstrual_profile_created;
       if (userHasMenstrualProfile) {
-        router.navigate("/(tabs)");
+        router.navigate("/(tabs)/home");
       } else {
         router.navigate("/onboarding/persona");
       }
@@ -90,7 +90,7 @@ export function useAuth() {
       if (token) {
         const userHasMenstrualProfile = !!user?.menstrual_profile_created;
         router.navigate(
-          userHasMenstrualProfile ? "/(tabs)" : "/onboarding/persona",
+          userHasMenstrualProfile ? "/(tabs)/home" : "/onboarding/persona",
         );
       } else {
         router.navigate("/signin");
