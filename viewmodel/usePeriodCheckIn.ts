@@ -21,18 +21,10 @@ function useCurrentCycleFlow() {
 
 export function useSaveCycleDate() {
   const flow = useCurrentCycleFlow();
-  const cycleId = flow?.cycleId ?? null;
   const assumedBleedEndDate = flow?.assumedBleedEndDate ?? null;
 
   const saveMutation = useMutation({
-    mutationFn: async (date: string) => {
-      if (cycleId) {
-        await endPeriod({ end_date: date });
-        return null;
-      }
-      const started = await startCycle({ start_date: date });
-      return started;
-    },
+    mutationFn: async (date: string) => startCycle({ start_date: date }),
     onSuccess: async (started, date) => {
       await invalidateCycleQueries();
       if (started?.id && assumedBleedEndDate) {
