@@ -5,6 +5,7 @@ import { extractErrorMessage } from "@/lib/apiClient";
 import { endPeriod, startCycle, updateCycle } from "@/services/menstrualService";
 import { useCycleFlowStore } from "@/repositories/useCycleFlowStore";
 import { useConfirmedCycleStore } from "@/repositories/useConfirmedCycleStore";
+import type { UserCycleData } from "@/types/menstrual.types";
 
 function invalidateCycleQueries() {
   return Promise.all([
@@ -34,10 +35,24 @@ export function useCorrectCycle() {
         }
         useConfirmedCycleStore.getState().clearAssumedRange(tappedCycleId);
       } else {
-        if (tappedCycleId) {
-          await updateCycle(tappedCycleId, { start_date: periodStart });
-        } else {
+        const staleCycle = queryClient
+          .getQueryData<UserCycleData[]>(["/menstrual/cycles"])
+          ?.find((c) => c.id === tappedCycleId);
+        // A start date after the stale cycle's recorded bleed is a new period:
+        // start a fresh cycle rather than moving the old one's start past its
+        // own bleed_end_date, which the backend rejects and which would erase
+        // the old cycle from history.
+        const isNewPeriod =
+          !tappedCycleId ||
+          (staleCycle?.bleed_end_date != null && periodStart > staleCycle.bleed_end_date);
+
+        if (isNewPeriod) {
           await startCycle({ start_date: periodStart });
+        } else {
+          await updateCycle(tappedCycleId, {
+            start_date: periodStart,
+            bleed_end_date: bleedingEnd,
+          });
         }
         await endPeriod({ end_date: bleedingEnd });
         if (nextPeriodStart != null) {
