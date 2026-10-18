@@ -5,29 +5,37 @@ import LutealPhase from "@/assets/luteal.svg";
 import OvulationPhase from "@/assets/ovulation.svg";
 import PeriodPhase from "@/assets/period_phase.svg";
 import { CardTitle, Caption } from "@/components/Typography";
+import type { RingPhase } from "@/lib/CalendarHelpers";
+import type { ReactNode } from "react";
 
 const SIZE = 300;
 const STROKE_WIDTH = 24;
 const RADIUS = (SIZE - STROKE_WIDTH) / 2;
 const GAP = 0;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-const PhaseImagePair = {
+const PhaseImagePair: Record<RingPhase, ReactNode> = {
   MENSTRUATING: <PeriodPhase />,
   OVULATING: <OvulationPhase />,
   LUTEAL: <LutealPhase />,
   FOLLICULAR: <FollicularPhase />,
+  MISSED: null,
 };
 
-const PhaseWordPair = {
-  MENSTRUATING: "Menstrual",
-  OVULATING: "Ovulation",
-  LUTEAL: "Luteal",
-  FOLLICULAR: "Follicular",
+const PhaseWordPair: Record<RingPhase, string> = {
+  MENSTRUATING: "Menstrual Phase",
+  OVULATING: "Ovulation Phase",
+  LUTEAL: "Luteal Phase",
+  FOLLICULAR: "Follicular Phase",
+  MISSED: "Missed",
 };
 export function CircularProgress({
   day = 2,
   totalDays = 25,
   phase = "FOLLICULAR",
+}: {
+  day?: number;
+  totalDays?: number;
+  phase?: RingPhase;
 }) {
   const progress = day / totalDays;
   const trackLength = CIRCUMFERENCE * (1 - GAP);
@@ -79,9 +87,10 @@ export function CircularProgress({
         <View className="items-center relative">
           <Caption className="text-gray-400">Cycle</Caption>
           <Text className="text-5xl font-display-bold text-gray-900">Day {day}</Text>
-          <CardTitle className="text-gray-900">
-            {PhaseWordPair[phase]} Phase
-          </CardTitle>
+          <CardTitle className="text-gray-900">{PhaseWordPair[phase]}</CardTitle>
+          {phase === "MISSED" && (
+            <Caption className="text-gray-400">Tap to update</Caption>
+          )}
         </View>
         {/*  background image */}
         <View

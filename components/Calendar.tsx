@@ -1,5 +1,5 @@
 import { Pressable, View } from "react-native";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CalendarProvider, ExpandableCalendar } from "react-native-calendars";
 import CalendarIcon from "@/assets/icons/topCalendarIcon.svg";
 import { Image } from "expo-image";
@@ -86,17 +86,62 @@ function AnimatedMonthHeader({ monthLabel }: { monthLabel: string }) {
   );
 }
 
+// Static across the component's lifetime — hoisted so ExpandableCalendar
+// doesn't see a new theme/style object (and re-render every month page) on
+// every parent render.
+const CALENDAR_THEME = {
+  stylesheet: {
+    expandable: {
+      main: {
+        reservedHeight: 500,
+      },
+    },
+  },
+};
+
+const CALENDAR_STYLE = {
+  shadowColor: "transparent",
+  paddingBottom: 10,
+};
+
 export function Calendar({ onDayPress }: CalendarProps) {
   const { menstrualCycles, isLoadingMenstrualCycles } = useMenstrualCycles();
   const [currentDate, setCurrentDate] = useState(
     format(new Date(), "yyyy-MM-dd"),
   );
 
-  const shiftMonth = (delta: number) => {
-    const d = new Date(currentDate);
-    d.setMonth(d.getMonth() + delta);
-    setCurrentDate(format(d, "yyyy-MM-dd"));
-  };
+  const shiftMonth = useCallback((delta: number) => {
+    setCurrentDate((prev) => {
+      const d = new Date(prev);
+      d.setMonth(d.getMonth() + delta);
+      return format(d, "yyyy-MM-dd");
+    });
+  }, []);
+
+  const handleDayPress = useCallback(
+    (day: { dateString: string }) => {
+      const today = format(new Date(), "yyyy-MM-dd");
+      if (day.dateString > today) return;
+      onDayPress?.(day.dateString, menstrualCycles?.[day.dateString]);
+    },
+    [onDayPress, menstrualCycles],
+  );
+
+  const renderHeader = useCallback(() => {
+    return (
+      <View
+        className={
+          "flex flex-1 flex-row space-between items-center border-amber-500"
+        }
+      >
+        <AnimatedMonthHeader monthLabel={format(currentDate, "MMMM yyyy")} />
+        <View className={"flex flex-row gap-3 .border-2"}>
+          <ArrowButton name="chevron-back" onPress={() => shiftMonth(-1)} />
+          <ArrowButton name="chevron-forward" onPress={() => shiftMonth(1)} />
+        </View>
+      </View>
+    );
+  }, [currentDate, shiftMonth]);
 
   if (isLoadingMenstrualCycles) {
     return <Body>Loading...</Body>;
@@ -108,48 +153,17 @@ export function Calendar({ onDayPress }: CalendarProps) {
         onDateChanged={(date) => setCurrentDate(date)}
       >
         <ExpandableCalendar
-          theme={{
-            stylesheet: {
-              expandable: {
-                main: {
-                  reservedHeight: 500,
-                },
-              },
-            },
-          }}
+          theme={CALENDAR_THEME}
           markingType={"custom"}
-          style={{
-            shadowColor: "transparent",
-            paddingBottom: 10,
-          }}
+          style={CALENDAR_STYLE}
           markedDates={menstrualCycles}
           maxDate={format(new Date(), "yyyy-MM-dd")}
           hideArrows={true}
           animateScroll={true}
-          pastScrollRange={12}
-          futureScrollRange={12}
-          onDayPress={(day) => {
-            const today = format(new Date(), "yyyy-MM-dd");
-            if (day.dateString > today) return;
-            onDayPress?.(day.dateString, menstrualCycles?.[day.dateString]);
-          }}
-          renderHeader={() => {
-            return (
-              <View
-                className={
-                  "flex flex-1 flex-row space-between items-center border-amber-500"
-                }
-              >
-                <AnimatedMonthHeader
-                  monthLabel={format(currentDate, "MMMM yyyy")}
-                />
-                <View className={"flex flex-row gap-3 .border-2"}>
-                  <ArrowButton name="chevron-back" onPress={() => shiftMonth(-1)} />
-                  <ArrowButton name="chevron-forward" onPress={() => shiftMonth(1)} />
-                </View>
-              </View>
-            );
-          }}
+          pastScrollRange={3}
+          futureScrollRange={1}
+          onDayPress={handleDayPress}
+          renderHeader={renderHeader}
         />
       </CalendarProvider>
     </>

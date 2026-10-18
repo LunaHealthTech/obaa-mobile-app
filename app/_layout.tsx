@@ -20,6 +20,7 @@ import { AppProviders } from "@/providers/AppProviders";
 import { Toaster } from "sonner-native";
 import { useAuthStore } from "@/repositories/useAuthStore";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 export const unstable_settings = {
   initialRouteName: "intro",
 };
@@ -48,41 +49,43 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <AppProviders>
-          <Stack>
-            <Stack.Protected guard={isAuthenticated === "authenticated"}>
-              <Stack.Screen
-                name={"(tabs)"}
-                options={{ title: "Home", headerShown: false }}
-              />
-              <Stack.Screen
-                name={"onboarding"}
-                options={{ title: "onboarding", headerShown: false }}
-              />
-            </Stack.Protected>
-            <Stack.Protected guard={!(isAuthenticated === "authenticated")}>
-              <Stack.Screen
-                name={"intro"}
-                options={{ title: "Welcome", headerShown: false }}
-              />
-              <Stack.Screen
-                name={"signin"}
-                options={{ title: "Log in joor" }}
-              />
-              <Stack.Screen
-                name={"signup"}
-                options={{ title: "Sign up joor" }}
-              />
-              <Stack.Screen
-                name={"forgot-password"}
-                options={{ title: "" }}
-              />
-              <Stack.Screen
-                name={"reset-password"}
-                options={{ title: "" }}
-              />
-            </Stack.Protected>
-            <Stack.Screen name={"verify-email"} options={{ title: "" }} />
-          </Stack>
+          <ErrorBoundary>
+            <Stack>
+              <Stack.Protected guard={isAuthenticated === "authenticated"}>
+                <Stack.Screen
+                  name={"(tabs)"}
+                  options={{ title: "Home", headerShown: false }}
+                />
+                <Stack.Screen
+                  name={"onboarding"}
+                  options={{ title: "onboarding", headerShown: false }}
+                />
+              </Stack.Protected>
+              <Stack.Protected guard={!(isAuthenticated === "authenticated")}>
+                <Stack.Screen
+                  name={"intro"}
+                  options={{ title: "Welcome", headerShown: false }}
+                />
+                <Stack.Screen
+                  name={"signin"}
+                  options={{ title: "Log in joor" }}
+                />
+                <Stack.Screen
+                  name={"signup"}
+                  options={{ title: "Sign up joor" }}
+                />
+                <Stack.Screen
+                  name={"forgot-password"}
+                  options={{ title: "" }}
+                />
+                <Stack.Screen
+                  name={"reset-password"}
+                  options={{ title: "" }}
+                />
+              </Stack.Protected>
+              <Stack.Screen name={"verify-email"} options={{ title: "" }} />
+            </Stack>
+          </ErrorBoundary>
           <Toaster position={"top-center"} />
         </AppProviders>
       </GestureHandlerRootView>

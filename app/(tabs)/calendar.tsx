@@ -78,6 +78,20 @@ export default function CalendarPage() {
       return;
     }
 
+    if (owner.bleed_end_date == null) {
+      // a closed cycle should always have this confirmed — if it doesn't,
+      // treat it like the stale-current case rather than seeding the
+      // correction flow with a missing date.
+      console.warn(
+        `[calendar] closed cycle ${owner.id} is missing bleed_end_date`,
+      );
+      openForStaleFix({
+        cycleId: data?.currentCycleId ?? null,
+        cycleLength: data?.general.cycleLength ?? null,
+      });
+      return;
+    }
+
     const next = findNextCycle(owner, sortedCycles);
     openForOldCycle({
       date,
@@ -144,7 +158,7 @@ export default function CalendarPage() {
             <Caption>Fertile Window</Caption>
           </View>
           <View className={`flex-row gap-2 items-center `}>
-            <View className={"w-4 h-4 bg-[#07226B] rounded-full"}> </View>
+            <View className={"w-4 h-4 bg-[#07226B] rounded-full"} />
             <Caption>Ovulation day</Caption>
           </View>
           <View className={`flex-row gap-2 items-center `}>
