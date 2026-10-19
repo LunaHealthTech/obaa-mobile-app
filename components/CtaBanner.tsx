@@ -12,18 +12,18 @@ type CtaBannerProps = {
 
 export function CtaBanner({ eyebrow, body, actionLabel, onPress }: CtaBannerProps) {
   return (
-    <View className={"h-[100px] w-full relative flex flex-row"}>
+    <View className={"min-h-[100px] w-full relative flex flex-row"}>
       <RadialBackground colors={["#0FCAD2CC", "#015364"]} />
-      <View className={"flex flex-row gap-3 items-center px-2 w-[50%]"}>
+      <View className={"flex-1 flex-row gap-3 items-center px-2 py-3"}>
         <View>
           <ObaaBrandMark height={40} width={40} />
         </View>
         <View className={"flex-1"}>
           <Label className={"text-white"}>{eyebrow}</Label>
-          <Body className={"text-[#CCDDE0] w-[95%] wrap"}>{body}</Body>
+          <Body className={"text-[#CCDDE0]"}>{body}</Body>
         </View>
       </View>
-      <View className={"flex flex-col justify-center items-end w-[50%] px-2"}>
+      <View className={"flex flex-col justify-center items-end pr-3"}>
         <Pressable
           onPress={onPress}
           accessibilityRole={"button"}

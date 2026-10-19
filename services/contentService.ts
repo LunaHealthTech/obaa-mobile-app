@@ -143,7 +143,7 @@ export async function recordArticleRead(articleId: string) {
   await request("post", `/article/read/${articleId}/`);
 }
 
-export const getComments =(articleId: string) =>
+export const getComments = (articleId: string) =>
   request<ArticleComment[]>("get", `/article/comments/${articleId}/`);
 
 export const postComment = (
