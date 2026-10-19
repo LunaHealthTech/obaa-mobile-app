@@ -12,9 +12,9 @@ export type ContentFailure =
 export function classifyContentError(error: unknown): ContentFailure {
   if (!isAxiosError(error)) return "unknown";
   if (!error.response) return "offline";
-  const { status, data } = error.response;
-  const code = (data as { code?: unknown } | undefined)?.code;
-  if (status === 404 && code === "content/not-found") return "not-found";
+  const { status } = error.response;
+  // Bookmark endpoints answer a removed article with a bare 404, not content/not-found.
+  if (status === 404) return "not-found";
   if (status === 503) return "unavailable";
   if (status === 429) return "throttled";
   if (status === 401) return "sign-in";
