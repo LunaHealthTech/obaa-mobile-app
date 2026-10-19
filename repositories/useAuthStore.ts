@@ -15,6 +15,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   login: async (user, access, refresh) => {
     await TokenStorage.saveTokens(access, refresh);
+    await TokenStorage.saveUser(user);
     set({ user, token: access, status: "authenticated" });
   },
   setToken: (token) => set({ token }),
@@ -29,8 +30,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const token = await TokenStorage.getAccessToken();
       if (token) {
-        // Optionally fetch user profile here with the token
-        set({ token, status: "authenticated" });
+        const user = await TokenStorage.getUser();
+        set({ user, token, status: "authenticated" });
       } else {
         set({ status: "unauthenticated" });
       }

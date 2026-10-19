@@ -1,4 +1,4 @@
-interface User {
+export interface User {
   username: string;
   display_name: string;
   first_name: string;
