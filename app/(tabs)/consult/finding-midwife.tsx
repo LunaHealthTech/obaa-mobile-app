@@ -1,7 +1,12 @@
-import { useEffect } from "react";
-import { View } from "react-native";
+import { useEffect, useState } from "react";
+import { Pressable, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Body, CardTitle, SectionHeading } from "@/components/Typography";
+import {
+  Body,
+  ButtonText,
+  CardTitle,
+  SectionHeading,
+} from "@/components/Typography";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -10,8 +15,10 @@ import Animated, {
   withSequence,
   withTiming,
 } from "react-native-reanimated";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { midwives } from "@/constants/midwives";
+import { Icon, type IconName } from "@/components/icons/Icon";
+import { IconBadge } from "@/components/icons/IconBadge";
+import { routeForAppointment } from "@/lib/appointments/status";
+import { useAppointment } from "@/viewmodel/useAppointments";
 
 type StepStatus = "done" | "active" | "pending";
 
@@ -21,14 +28,67 @@ const steps: { key: string; label: string; status: StepStatus }[] = [
   { key: "appointment", label: "Preparing appointment", status: "pending" },
 ];
 
+const POLL_TIMEOUT_MS = 30_000;
+
+function OutcomeScreen({
+  icon,
+  title,
+  body,
+  primary,
+  secondary,
+}: {
+  icon: IconName;
+  title: string;
+  body: string;
+  primary: { label: string; onPress: () => void };
+  secondary?: { label: string; onPress: () => void };
+}) {
+  return (
+    <View className={"bg-white flex-1 items-center justify-center px-8"}>
+      <IconBadge name={icon} size={"lg"} />
+      <SectionHeading className={"text-mainText mt-6 text-center"}>{title}</SectionHeading>
+      <Body className={"text-greyColor mt-2 text-center"}>{body}</Body>
+      <Pressable
+        onPress={primary.onPress}
+        accessibilityRole={"button"}
+        className={"bg-primaryColor rounded-full py-4 px-8 mt-8 self-stretch items-center active:opacity-80"}
+      >
+        <ButtonText className={"text-white"}>{primary.label}</ButtonText>
+      </Pressable>
+      {secondary && (
+        <Pressable
+          onPress={secondary.onPress}
+          accessibilityRole={"button"}
+          className={"py-4 items-center"}
+        >
+          <ButtonText className={"text-primaryColor"}>{secondary.label}</ButtonText>
+        </Pressable>
+      )}
+    </View>
+  );
+}
+
 export default function FindingMidwifePage() {
   const router = useRouter();
-  const params = useLocalSearchParams<{
-    topic: string;
-    consultationType: string;
-    date: string;
-    time: string;
-  }>();
+  const { appointmentId } = useLocalSearchParams<{ appointmentId: string }>();
+  const id = Number(appointmentId);
+  const [timedOut, setTimedOut] = useState(false);
+  const { data: appointment, refetch, isFetching } = useAppointment(id, {
+    poll: !timedOut,
+  });
+  const status = appointment?.status;
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setTimedOut(true), POLL_TIMEOUT_MS);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  useEffect(() => {
+    if (appointment && status === "MATCHED") {
+      router.replace(routeForAppointment(appointment, new Date()));
+    }
+  }, [appointment, status, router]);
+
   const outerScale = useSharedValue(1);
   const middleScale = useSharedValue(1);
   const dotOpacity = useSharedValue(1);
@@ -54,21 +114,6 @@ export default function FindingMidwifePage() {
     );
   }, [outerScale, middleScale, dotOpacity]);
 
-  useEffect(() => {
-    // Simulated matching delay — replace with real matching-status polling
-    // once the backend endpoint exists.
-    const timeout = setTimeout(() => {
-      const matched = midwives[Math.floor(Math.random() * midwives.length)];
-      router.replace({
-        pathname: "/consult/midwife-match",
-        params: { ...params, midwifeId: matched.id },
-      });
-    }, 2500);
-
-    return () => clearTimeout(timeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router]);
-
   const outerStyle = useAnimatedStyle(() => ({
     transform: [{ scale: outerScale.value }],
   }));
@@ -78,6 +123,41 @@ export default function FindingMidwifePage() {
   const dotStyle = useAnimatedStyle(() => ({
     opacity: dotOpacity.value,
   }));
+
+  const pickAnotherTime = () =>
+    router.replace({
+      pathname: "/consult/match-preferences",
+      params: appointment ? { concern: appointment.concern } : {},
+    });
+
+  if (status === "EXPIRED" || status === "CANCELLED") {
+    return (
+      <OutcomeScreen
+        icon={"calendar"}
+        title={"No midwife is available for that time"}
+        body={"All our midwives are booked for that slot. Pick another time and we'll try again."}
+        primary={{ label: "Pick another time", onPress: pickAnotherTime }}
+      />
+    );
+  }
+
+  if (timedOut && status === "PENDING_MATCH") {
+    return (
+      <OutcomeScreen
+        icon={"search"}
+        title={"Still looking for your midwife"}
+        body={"This is taking longer than usual. We'll keep your request open."}
+        primary={{
+          label: isFetching ? "Checking..." : "Check again",
+          onPress: () => refetch(),
+        }}
+        secondary={{
+          label: "Go to My Consultations",
+          onPress: () => router.replace("/consult/consultations"),
+        }}
+      />
+    );
+  }
 
   return (
     <View className={"bg-white flex-1 items-center justify-center px-8"}>
@@ -93,7 +173,9 @@ export default function FindingMidwifePage() {
             "w-32 h-32 rounded-full bg-[#0F969C33] items-center justify-center"
           }
         >
-          <View className={"w-16 h-16 rounded-full bg-primaryColor"} />
+          <View className={"w-16 h-16 rounded-full bg-primaryColor items-center justify-center"}>
+            <Icon name={"stethoscope"} size={28} color={"#FFFFFF"} />
+          </View>
         </Animated.View>
       </Animated.View>
 
@@ -113,7 +195,7 @@ export default function FindingMidwifePage() {
                   "w-6 h-6 rounded-full bg-primaryColor items-center justify-center"
                 }
               >
-                <Ionicons name={"checkmark"} size={14} color={"#fff"} />
+                <Icon name={"check"} size={14} color={"#FFFFFF"} strokeWidth={2.5} />
               </View>
             )}
             {step.status === "active" && (
@@ -129,7 +211,7 @@ export default function FindingMidwifePage() {
               </View>
             )}
             {step.status === "pending" && (
-              <View className={"w-6 h-6 rounded-full bg-[#F5F7F8]"} />
+              <View className={"w-6 h-6 rounded-full bg-borderGreyColor"} />
             )}
             <CardTitle
               className={
