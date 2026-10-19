@@ -7,8 +7,7 @@ import {
 } from "@/services/menstrualService";
 import { toast } from "sonner-native";
 import { router } from "expo-router";
-import { generateDays, normalizeCyclePhase } from "@/lib/CalendarHelpers";
-import { addDays, differenceInDays, isAfter, isBefore, isFuture } from "date-fns";
+import { differenceInDays, isAfter, isBefore } from "date-fns";
 import { useConfirmedCycleStore } from "@/repositories/useConfirmedCycleStore";
 
 export function useMenstrualProfileViewModel() {
@@ -36,17 +35,6 @@ export function useMenstrualProfileViewModel() {
           pregnancyProbability: data.current_cycle.pregnancy_probability,
         },
         calendarPage: {
-          totalDays: data.current_cycle.cycle_length,
-          phase: isWithinAssumedBleed
-            ? "MENSTRUATING"
-            : normalizeCyclePhase(data.current_cycle.current_phase),
-          numberOfDaysIn: Math.min(
-            Math.max(
-              differenceInDays(new Date(), data.current_cycle.start_date),
-              0,
-            ),
-            data.current_cycle.cycle_length,
-          ),
           isCycleStale: isWithinAssumedBleed
             ? false
             : data.current_cycle.current_phase === "completed",
@@ -54,11 +42,6 @@ export function useMenstrualProfileViewModel() {
             new Date(),
             new Date(data.next_cycle_start_window.lower),
           ),
-          nextOvulationIn: isFuture(data.current_cycle.ovulation_day)
-            ? differenceInDays(new Date(), data.current_cycle.ovulation_day)
-            : Math.floor(data.cycle_length / 2) +
-              differenceInDays(new Date(), data.current_cycle.end_date),
-          pregnancyProbability: data.current_cycle.pregnancy_probability,
         },
       };
       return res;

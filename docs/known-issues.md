@@ -4,9 +4,7 @@ Snapshot as of branch `feature/calendar-page`, 2026-07-21. Re-verify against cur
 
 ## Bugs
 
-- **`CircularProgress.tsx` default `phase` prop mismatch** — the component's default prop is `phase = "Follicular"` (capitalized), but the `PhaseImagePair`/`PhaseWordPair` lookup maps are keyed by uppercase enum values (`"MENSTRUATING" | "OVULATING" | "LUTEAL" | "FOLLICULAR"`). The default therefore won't match any map key and renders `undefined`. The real caller in `calendar.tsx` passes `data?.calendarPage.phase` (the raw `status` string from the API), which must match those uppercase keys to render correctly — worth double-checking the API actually returns uppercase values.
 - **`components/Calendar.tsx`** renders a bare `"loading..."` string while `isLoadingMenstrualCycles`, not wrapped in a `<Text>` component — RN will warn/error on this ("Text strings must be rendered within a <Text> component").
-- **Calendar screen's "Next Ovulation" tile is hardcoded** to "15 Days" text rather than wired to the viewmodel's computed `nextOvulationIn` value.
 
 ## Placeholder / simulated features (not real yet)
 

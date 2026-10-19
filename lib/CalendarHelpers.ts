@@ -10,33 +10,11 @@ import {
   subDays,
 } from "date-fns";
 import {
-  CurrentCyclePhase,
   CyclePhase,
   DayMarking,
   GenerateDaysProps,
   UserCycleData,
 } from "@/types/menstrual.types";
-
-export type RingPhase =
-  | "MENSTRUATING"
-  | "FOLLICULAR"
-  | "OVULATING"
-  | "LUTEAL"
-  | "MISSED";
-
-const PHASE_NORMALIZATION: Record<CurrentCyclePhase, RingPhase | null> = {
-  menstrual: "MENSTRUATING",
-  follicular: "FOLLICULAR",
-  ovulation: "OVULATING",
-  luteal: "LUTEAL",
-  // The cycle passed its predicted end with no new period logged.
-  completed: "MISSED",
-  upcoming: null,
-};
-
-export function normalizeCyclePhase(phase: CurrentCyclePhase): RingPhase {
-  return PHASE_NORMALIZATION[phase] ?? "FOLLICULAR";
-}
 
 export function computeCycleDay(date: Date | string, cycle: UserCycleData) {
   return differenceInCalendarDays(new Date(date), new Date(cycle.start_date)) + 1;
@@ -52,7 +30,6 @@ export function computeCyclePhase(
   if (cycle.bleed_end_date == null || !isAfter(d, new Date(cycle.bleed_end_date))) {
     return "Menstrual";
   }
-  // No ovulation_day yet — fall back to the same default normalizeCyclePhase uses.
   if (cycle.ovulation_day == null) return "Follicular";
   const ovulation = new Date(cycle.ovulation_day);
   if (isSameDay(d, ovulation)) return "Ovulation";
