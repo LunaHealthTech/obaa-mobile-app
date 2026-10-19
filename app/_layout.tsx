@@ -72,6 +72,7 @@ export default function RootLayout() {
                   name={"notifications"}
                   options={{ title: "Notifications" }}
                 />
+                <Stack.Screen name={"bookmarks"} options={{ title: "Bookmarks" }} />
                 <Stack.Screen
                   name={"call"}
                   options={{

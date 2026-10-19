@@ -30,7 +30,7 @@ function StatusLayout({
   children?: React.ReactNode;
 }) {
   return (
-    <View className={"flex-1 items-center justify-center px-6 py-10"}>
+    <View className={"flex-1 items-center justify-center px-6 py-10 bg-white"}>
       <View
         className={
           "bg-[#0F969C1A] w-16 h-16 rounded-full items-center justify-center mb-3"
@@ -59,7 +59,7 @@ function PrimaryButton({ label, onPress }: { label: string; onPress: () => void 
 
 export function ContentLoading() {
   return (
-    <View className={"flex-1 items-center justify-center py-10"}>
+    <View className={"flex-1 items-center justify-center py-10 bg-white"}>
       <ActivityIndicator color={theme.primaryColor} />
     </View>
   );

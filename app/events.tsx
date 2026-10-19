@@ -40,7 +40,16 @@ function EventCard({ event, scope }: { event: ContentEvent; scope: Scope }) {
 
   return (
     <View className={"bg-white rounded-xl border border-borderGreyColor overflow-hidden"}>
-      {event.flyer && <ContentPhoto image={event.flyer} />}
+      {event.flyer && (
+        <ContentPhoto
+          image={event.flyer}
+          aspectRatio={
+            event.flyer.width && event.flyer.height
+              ? event.flyer.width / event.flyer.height
+              : undefined
+          }
+        />
+      )}
       <View className={"p-3 gap-2"}>
         {event.name && <CardTitle className={"text-mainText"}>{event.name}</CardTitle>}
         {when && <Label className={"text-primaryColor"}>{when}</Label>}
