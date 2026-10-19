@@ -6,13 +6,7 @@ import { endPeriod, startCycle, updateCycle } from "@/services/menstrualService"
 import { useCycleFlowStore } from "@/repositories/useCycleFlowStore";
 import { useConfirmedCycleStore } from "@/repositories/useConfirmedCycleStore";
 import type { UserCycleData } from "@/types/menstrual.types";
-
-function invalidateCycleQueries() {
-  return Promise.all([
-    queryClient.invalidateQueries({ queryKey: ["/menstrual/cycles"] }),
-    queryClient.invalidateQueries({ queryKey: ["/menstrual/profile/"] }),
-  ]);
-}
+import { invalidateCycleQueries } from "@/viewmodel/usePeriodCheckIn";
 
 export function useCorrectCycle() {
   const saveMutation = useMutation({

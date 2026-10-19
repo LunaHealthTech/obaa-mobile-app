@@ -7,11 +7,15 @@ import { createLog, updateLog } from "@/services/logService";
 import { useCycleFlowStore } from "@/repositories/useCycleFlowStore";
 import { useConfirmedCycleStore } from "@/repositories/useConfirmedCycleStore";
 import { useDayLog } from "@/viewmodel/useDayLog";
+import { refetchNotifications } from "@/viewmodel/useNotifications";
 
-function invalidateCycleQueries() {
+// The backend re-checks the cycle for abnormalities after every cycle write,
+// so notifications are refetched alongside the cycle data.
+export function invalidateCycleQueries() {
   return Promise.all([
     queryClient.invalidateQueries({ queryKey: ["/menstrual/cycles"] }),
     queryClient.invalidateQueries({ queryKey: ["/menstrual/profile/"] }),
+    refetchNotifications(),
   ]);
 }
 

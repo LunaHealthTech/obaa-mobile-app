@@ -29,6 +29,8 @@ import { SentimentCard } from "@/components/SentimentCard";
 import { ArticleCardSM } from "@/components/ArticleCardSM";
 import { AppHeader } from "@/components/AppHeader";
 import { Body, CardTitle, Label, SectionHeading } from "@/components/Typography";
+import { NotificationCard } from "@/components/NotificationCard";
+import { useNotifications } from "@/viewmodel/useNotifications";
 
 const emoticonData: EmoticonData[] = [
   { emoji: "😊", name: "happy" },
@@ -45,6 +47,8 @@ export default function HomePage() {
     emoticonData[0],
   );
   const { data, isLoading, error, isError } = useMenstrualProfileViewModel();
+  const { newestUnreadUrgent, readNotification, openNotificationCta } =
+    useNotifications();
   console.log({ data, isLoading, error, isError });
 
   const handleShareClick = () => {
@@ -78,6 +82,17 @@ export default function HomePage() {
               <CardTitle>September 2026</CardTitle>
               <Image source={flowers} width={25} height={25} />
             </View>
+
+            {newestUnreadUrgent && (
+              <View className={"mb-5"}>
+                <NotificationCard
+                  notification={newestUnreadUrgent}
+                  expanded={true}
+                  onBook={() => openNotificationCta(newestUnreadUrgent)}
+                  onDismiss={() => readNotification(newestUnreadUrgent)}
+                />
+              </View>
+            )}
 
             {/*  Today's update */}
             <View>
