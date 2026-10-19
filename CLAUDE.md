@@ -19,7 +19,7 @@ npm run lint    # expo lint (ESLint, flat config in eslint.config.js)
 npx tsc --noEmit -p .   # type-check (no dedicated npm script)
 ```
 
-- **No test framework is configured** — no `test` script, no jest/vitest/testing-library dependency, no test files anywhere in first-party code. Don't assume `npm test` exists.
+- `npm test` runs `node --test` over `lib/**/*.test.mjs` (pure logic only; they import `.ts` files by relative path, so modules under test can't use the `@/` alias). There is no component/UI test framework.
 - The project currently has a number of pre-existing `tsc` errors (react-hook-form generic mismatches, `expo-image` prop typing, implicit-`any` params, etc.) scattered across `app/`, `components/`, `services/`, `viewmodel/`. These predate any given change — when running `npx tsc --noEmit`, diff against this baseline rather than treating every reported error as something you introduced.
 - An `android/` folder exists (native project, from `expo-dev-client` / prebuild) — don't hand-edit native files unless the task specifically requires it.
 
@@ -70,7 +70,7 @@ Three layers, no Context/Redux:
 
 - `lib/apiClient.ts` — axios instance, `BASE_URL` hardcoded to `http://10.0.2.2:8000/api/v1` (Android emulator's alias for host localhost) with a `// TODO: find a replacement`. No `.env`/environment-based config exists yet.
 - Request interceptor attaches `Authorization: Bearer <token>`; response interceptor implements 401 → refresh-token retry with a request queue, force-logout on refresh failure.
-- No Contentful/CMS integration exists despite a past `feature/contentful-fetch` branch name — articles are still a hardcoded static list.
+- Editorial content (articles, events, privacy policy, bookmarks, comments) comes from our backend's `/content/` and `/article/` endpoints, which proxy and cache Contentful. The app must never call Contentful directly. All calls and response types live in `services/contentService.ts`; Rich Text renders through `components/content/RichText.tsx`, which must override every `BLOCKS`/`INLINES`/`MARKS` key because the renderer's defaults emit DOM tags.
 
 ## Known gaps to check before touching related code
 
