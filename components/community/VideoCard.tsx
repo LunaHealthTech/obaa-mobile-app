@@ -1,6 +1,5 @@
 import { Linking, Pressable, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { theme } from "@/constants/theme";
 import { Caption, Label } from "@/components/Typography";
 import { ContentPhoto } from "@/components/content/ContentPhoto";
 import { reportContentFailure } from "@/viewmodel/useContent";
