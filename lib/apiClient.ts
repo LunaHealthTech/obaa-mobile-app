@@ -30,8 +30,16 @@ export function extractErrorMessage(
   return fallback;
 }
 
+export function extractErrorCode(error: unknown): string | null {
+  const data = (error as AxiosError)?.response?.data as
+    | { code?: unknown }
+    | undefined;
+  return typeof data?.code === "string" ? data.code : null;
+}
+
 // const BASE_URL = "http://10.0.2.2:8000/api/v1"; // TODO: find a replacement for this
-const BASE_URL = "http://localhost:8000/api/v1"; 
+export const BASE_URL = "http://localhost:8000/api/v1";
+export const apiOrigin = BASE_URL.replace(/\/api\/v1\/?$/, "");
 export const apiClient = axios.create({
   baseURL: BASE_URL,
   timeout: 10000,
