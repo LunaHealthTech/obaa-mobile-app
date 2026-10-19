@@ -12,6 +12,19 @@ import {
 import { extractErrorMessage } from "@/lib/apiClient";
 import { toast } from "sonner-native";
 import { AxiosError } from "axios";
+import type { User } from "@/types/auth.types";
+
+export function useCurrentUser() {
+  return useAuthStore((s) => s.user);
+}
+
+export function useSignOut() {
+  return useAuthStore((s) => s.logout);
+}
+
+export function homeRouteFor(user: User | null) {
+  return user?.role === "MIDWIFE" ? "/midwife" : "/(tabs)/home";
+}
 
 export function useAuth() {
   // Constants
@@ -36,8 +49,8 @@ export function useAuth() {
         return;
       }
       const userHasMenstrualProfile = !!data?.user.menstrual_profile_created;
-      if (userHasMenstrualProfile) {
-        router.navigate("/(tabs)/home");
+      if (data.user.role === "MIDWIFE" || userHasMenstrualProfile) {
+        router.navigate(homeRouteFor(data.user));
       } else {
         router.navigate("/onboarding/persona");
       }
@@ -95,7 +108,9 @@ export function useAuth() {
       if (token) {
         const userHasMenstrualProfile = !!user?.menstrual_profile_created;
         router.navigate(
-          userHasMenstrualProfile ? "/(tabs)/home" : "/onboarding/persona",
+          user?.role === "MIDWIFE" || userHasMenstrualProfile
+            ? homeRouteFor(user)
+            : "/onboarding/persona",
         );
       } else {
         router.navigate("/signin");
