@@ -51,6 +51,10 @@ const heading =
   (Component: typeof PageTitle): NodeRenderer =>
   (_node, children) => <Component className={"text-mainText mt-4 mb-2"}>{children}</Component>;
 
+// Contentful bodies carry runs of empty paragraphs used as spacing; they would stack as gaps.
+const isBlank = (node: Parameters<NodeRenderer>[0]) =>
+  node.content.every((child) => child.nodeType === "text" && !child.value.trim());
+
 const plainText: NodeRenderer = (_node, children) => <Text>{children}</Text>;
 const nothing: NodeRenderer = () => null;
 
@@ -68,7 +72,8 @@ const cell =
 // to compile instead of rendering a DOM tag, which crashes React Native.
 const renderNode: Record<BLOCKS | INLINES, NodeRenderer> = {
   [BLOCKS.DOCUMENT]: (_node, children) => <View>{children}</View>,
-  [BLOCKS.PARAGRAPH]: (_node, children) => <Paragraph>{children}</Paragraph>,
+  [BLOCKS.PARAGRAPH]: (node, children) =>
+    isBlank(node) ? null : <Paragraph>{children}</Paragraph>,
   [BLOCKS.HEADING_1]: heading(PageTitle),
   [BLOCKS.HEADING_2]: heading(SectionHeading),
   [BLOCKS.HEADING_3]: heading(CardTitle),

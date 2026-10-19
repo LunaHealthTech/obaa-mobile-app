@@ -162,6 +162,7 @@ export function useBookmarks() {
     failure: query.isError && !query.data ? classifyContentError(query.error) : null,
     refresh: () => query.refetch(),
     isRefreshing: query.isRefetching,
+    refreshFailedWithCache: query.isRefetchError,
   };
 }
 
