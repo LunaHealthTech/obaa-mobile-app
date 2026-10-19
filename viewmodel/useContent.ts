@@ -8,6 +8,7 @@ import { router } from "expo-router";
 import { toast } from "sonner-native";
 import { queryClient } from "@/lib/queryClient";
 import { applyBookmark, contentKeys } from "@/lib/content/cache";
+import { playableVideos, toInsights } from "@/lib/content/community";
 import {
   FAILURE_COPY,
   classifyContentError,
@@ -59,7 +60,7 @@ export function reportContentFailure(failure: ContentFailure, email?: string) {
   });
 }
 
-function usePagedList<K extends "articles" | "events">(
+function usePagedList<K extends "articles" | "events" | "questions" | "videos">(
   kind: K,
   queryKey: QueryKey,
   filters: ContentFilters[K],
@@ -110,6 +111,19 @@ export function useEvents(scope: "upcoming" | "past") {
   return { events: items, ...rest };
 }
 
+export function useInsights(filters: ContentFilters["questions"]) {
+  const { items, ...rest } = usePagedList(
+    "questions",
+    contentKeys.questions(filters.tag),
+    filters,
+  );
+  return { insights: toInsights(items), ...rest };
+}
+
+export function useVideos(filters: ContentFilters["videos"]) {
+  const { items, ...rest } = usePagedList("videos", contentKeys.videos(filters.tag), filters);
+  return { videos: playableVideos(items), ...rest };
+}
 export function useTags() {
   const { data } = useQuery({
     queryKey: contentKeys.tags,
