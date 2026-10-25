@@ -24,6 +24,7 @@ export type Article = {
   published_at: string;
   updated_at: string;
   comment_count: number;
+  read_count?: number;
   bookmarked?: boolean;
 };
 export type ArticleDetail = Article & { body: Document | null; questions: string[] };
@@ -36,12 +37,24 @@ export type ContentEvent = {
   flyer: ContentImage | null;
   online_link: string | null;
 };
+export type InsightTopic = { id: string; name: string; icon: ContentImage | null };
 export type PopularQuestion = {
   id: string;
   questions: string[];
-  article: { id: string; slug: string; title: string } | null;
+  topic?: InsightTopic | null;
+  tags?: Tag[];
+  article: { id: string; slug: string; title: string; read_count?: number } | null;
 };
-export type Video = { id: string; reel: ContentImage | null };
+export type Video = {
+  id: string;
+  reel: ContentImage | null;
+  title?: string | null;
+  caption?: string | null;
+  thumbnail?: ContentImage | null;
+  author?: Author | null;
+  tags?: Tag[];
+  published_at?: string;
+};
 export type PrivacyPolicy = { id: string; body: Document | null; updated_at: string };
 export type Bookmark = { article_id: string; created_at: string; article: Article };
 export type CommentAuthor = {
@@ -69,8 +82,8 @@ export type ContentFilters = {
   events: { scope?: "upcoming" | "past" };
   authors: Record<string, never>;
   tags: Record<string, never>;
-  questions: Record<string, never>;
-  videos: Record<string, never>;
+  questions: { tag?: string };
+  videos: { tag?: string };
 };
 export type Page<T> = { count: number; items: T[]; nextPage: number | null };
 
@@ -124,6 +137,10 @@ export async function bookmarkArticle(articleId: string) {
 
 export async function unbookmarkArticle(articleId: string) {
   await request("delete", `/article/bookmark/${articleId}/`);
+}
+
+export async function recordArticleRead(articleId: string) {
+  await request("post", `/article/read/${articleId}/`);
 }
 
 export const getComments = (articleId: string) =>

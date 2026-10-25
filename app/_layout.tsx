@@ -108,6 +108,7 @@ export default function RootLayout() {
               <Stack.Screen name={"articles/index"} options={{ title: "Articles" }} />
               <Stack.Screen name={"articles/[slug]"} options={{ title: "" }} />
               <Stack.Screen name={"events"} options={{ title: "Events" }} />
+              <Stack.Screen name={"insights"} options={{ title: "Insights" }} />
               <Stack.Screen name={"privacy-policy"} options={{ title: "Privacy policy" }} />
             </Stack>
             {signedIn && <CallNavigator />}

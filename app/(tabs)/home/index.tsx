@@ -19,7 +19,7 @@ import PregnancyIcon from "@/assets/icons/pregnancy.svg";
 import { flowers } from "@/constants/assets";
 import { StatusBar } from "expo-status-bar";
 import { MenstrualInfoCard } from "@/components/MenstrualInfoCard";
-import { ShareCard } from "@/components/ShareCard";
+import { CtaBanner } from "@/components/CtaBanner";
 import { useMenstrualProfileViewModel } from "@/viewmodel/useMenstrualProfile";
 import { EmotionCard } from "@/components/EmotionCard";
 import ScrollView = Animated.ScrollView;
@@ -135,7 +135,12 @@ export default function HomePage() {
             </View>
 
             <View className={"mt-5"}>
-              <ShareCard handleClick={handleShareClick} />
+              <CtaBanner
+                eyebrow={"Share the Love"}
+                body={"Know someone who\u2019d love a midwife-in-their-pocket?"}
+                actionLabel={"Share App"}
+                onPress={handleShareClick}
+              />
             </View>
 
             {/*How do you feel today*/}

@@ -4,10 +4,12 @@ import {
   useQuery,
   type QueryKey,
 } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 import { router } from "expo-router";
 import { toast } from "sonner-native";
 import { queryClient } from "@/lib/queryClient";
 import { applyBookmark, contentKeys } from "@/lib/content/cache";
+import { playableVideos, toInsights } from "@/lib/content/community";
 import {
   FAILURE_COPY,
   classifyContentError,
@@ -22,6 +24,7 @@ import {
   getPrivacyPolicy,
   listContent,
   postComment,
+  recordArticleRead,
   unbookmarkArticle,
   type Article,
   type ContentFilters,
@@ -59,7 +62,7 @@ export function reportContentFailure(failure: ContentFailure, email?: string) {
   });
 }
 
-function usePagedList<K extends "articles" | "events">(
+function usePagedList<K extends "articles" | "events" | "questions" | "videos">(
   kind: K,
   queryKey: QueryKey,
   filters: ContentFilters[K],
@@ -110,6 +113,19 @@ export function useEvents(scope: "upcoming" | "past") {
   return { events: items, ...rest };
 }
 
+export function useInsights(filters: ContentFilters["questions"]) {
+  const { items, ...rest } = usePagedList(
+    "questions",
+    contentKeys.questions(filters.tag),
+    filters,
+  );
+  return { insights: toInsights(items), ...rest };
+}
+
+export function useVideos(filters: ContentFilters["videos"]) {
+  const { items, ...rest } = usePagedList("videos", contentKeys.videos(filters.tag), filters);
+  return { videos: playableVideos(items), ...rest };
+}
 export function useTags() {
   const { data } = useQuery({
     queryKey: contentKeys.tags,
@@ -120,12 +136,21 @@ export function useTags() {
 }
 
 export function useArticle(slug: string) {
-  const { viewer } = useContentViewer();
+  const { viewer, signedIn } = useContentViewer();
   const query = useQuery({
     queryKey: contentKeys.article(viewer, slug),
     queryFn: () => getArticleBySlug(slug),
     gcTime: GC_TIME,
   });
+  const articleId = query.data?.id;
+  const recordedId = useRef<string | undefined>(undefined);
+
+  // Analytics only, so a failure is dropped. Once per mount even if the query refetches.
+  useEffect(() => {
+    if (!signedIn || !articleId || recordedId.current === articleId) return;
+    recordedId.current = articleId;
+    recordArticleRead(articleId).catch(() => {});
+  }, [signedIn, articleId]);
   return {
     article: query.data ?? null,
     isLoading: query.isLoading,

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocalSearchParams } from "expo-router";
 import { FlatList, Pressable, ScrollView, TextInput, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { theme } from "@/constants/theme";
@@ -16,7 +17,8 @@ import { useArticleFeed, useTags } from "@/viewmodel/useContent";
 const SEARCH_DEBOUNCE_MS = 300;
 
 export default function ArticlesPage() {
-  const [query, setQuery] = useState("");
+  const { q } = useLocalSearchParams<{ q?: string }>();
+  const [query, setQuery] = useState(q ?? "");
   const [tag, setTag] = useState<string | undefined>();
   const search = useDebouncedValue(query.trim(), SEARCH_DEBOUNCE_MS);
   const tags = useTags();

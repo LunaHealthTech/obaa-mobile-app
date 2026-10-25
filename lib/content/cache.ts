@@ -16,6 +16,8 @@ export const contentKeys = {
     ["content", "articles", viewer, filters] as const,
   article: (viewer: string, slug: string) => ["content", "article", viewer, slug] as const,
   tags: ["content", "tags"] as const,
+  questions: (tag: string | undefined) => ["content", "questions", tag] as const,
+  videos: (tag: string | undefined) => ["content", "videos", tag] as const,
   events: (scope: "upcoming" | "past") => ["content", "events", scope] as const,
   privacyPolicy: ["content", "privacy-policy"] as const,
   bookmarks: (viewer: string) => ["bookmarks", viewer] as const,
