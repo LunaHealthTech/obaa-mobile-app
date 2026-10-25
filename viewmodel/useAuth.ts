@@ -12,6 +12,19 @@ import {
 import { extractErrorMessage } from "@/lib/apiClient";
 import { toast } from "sonner-native";
 import { AxiosError } from "axios";
+import type { User } from "@/types/auth.types";
+
+export function useCurrentUser() {
+  return useAuthStore((s) => s.user);
+}
+
+export function useSignOut() {
+  return useAuthStore((s) => s.logout);
+}
+
+export function homeRouteFor(user: User | null) {
+  return user?.role === "MIDWIFE" ? "/midwife" : "/(tabs)/home";
+}
 
 export function useAuth() {
   // Constants
@@ -36,19 +49,24 @@ export function useAuth() {
         return;
       }
       const userHasMenstrualProfile = !!data?.user.menstrual_profile_created;
-      if (userHasMenstrualProfile) {
-        router.navigate("/(tabs)");
+      if (data.user.role === "MIDWIFE" || userHasMenstrualProfile) {
+        router.navigate(homeRouteFor(data.user));
       } else {
         router.navigate("/onboarding/persona");
       }
     },
-    onError: (err: AxiosError<{ detail?: string }>) => {
+    onError: (err: AxiosError<{ code?: string }>, variables) => {
       // TODO: log this error with a logger
       console.log({ err: err.message, data: err.response?.data });
       toast.error(
-        err.response?.data?.detail ??
-          "Something went wrong, please try again",
+        extractErrorMessage(err, "Something went wrong, please try again"),
       );
+      if (err.response?.data?.code === "auth/email-not-verified") {
+        router.navigate({
+          pathname: "/verify-email",
+          params: { email: variables.email },
+        });
+      }
     },
   });
 
@@ -90,7 +108,9 @@ export function useAuth() {
       if (token) {
         const userHasMenstrualProfile = !!user?.menstrual_profile_created;
         router.navigate(
-          userHasMenstrualProfile ? "/(tabs)" : "/onboarding/persona",
+          user?.role === "MIDWIFE" || userHasMenstrualProfile
+            ? homeRouteFor(user)
+            : "/onboarding/persona",
         );
       } else {
         router.navigate("/signin");

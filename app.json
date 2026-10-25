@@ -43,6 +43,13 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "@config-plugins/react-native-webrtc",
+        {
+          "cameraPermission": "Obaa uses your camera for video consultations with your midwife.",
+          "microphonePermission": "Obaa uses your microphone for audio and video consultations with your midwife."
+        }
       ]
     ]
   }

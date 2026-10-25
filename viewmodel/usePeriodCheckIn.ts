@@ -7,11 +7,15 @@ import { createLog, updateLog } from "@/services/logService";
 import { useCycleFlowStore } from "@/repositories/useCycleFlowStore";
 import { useConfirmedCycleStore } from "@/repositories/useConfirmedCycleStore";
 import { useDayLog } from "@/viewmodel/useDayLog";
+import { refetchNotifications } from "@/viewmodel/useNotifications";
 
-function invalidateCycleQueries() {
+// The backend re-checks the cycle for abnormalities after every cycle write,
+// so notifications are refetched alongside the cycle data.
+export function invalidateCycleQueries() {
   return Promise.all([
     queryClient.invalidateQueries({ queryKey: ["/menstrual/cycles"] }),
     queryClient.invalidateQueries({ queryKey: ["/menstrual/profile/"] }),
+    refetchNotifications(),
   ]);
 }
 
@@ -21,18 +25,10 @@ function useCurrentCycleFlow() {
 
 export function useSaveCycleDate() {
   const flow = useCurrentCycleFlow();
-  const cycleId = flow?.cycleId ?? null;
   const assumedBleedEndDate = flow?.assumedBleedEndDate ?? null;
 
   const saveMutation = useMutation({
-    mutationFn: async (date: string) => {
-      if (cycleId) {
-        await endPeriod({ end_date: date });
-        return null;
-      }
-      const started = await startCycle({ start_date: date });
-      return started;
-    },
+    mutationFn: async (date: string) => startCycle({ start_date: date }),
     onSuccess: async (started, date) => {
       await invalidateCycleQueries();
       if (started?.id && assumedBleedEndDate) {

@@ -38,7 +38,11 @@ export function LogAndCheckInStep() {
     date >= assumedRange.startDate &&
     date <= assumedRange.bleedEndDate;
   const isConfirmedBleedDay =
-    (!!cycle && !!date && date >= cycle.start_date && date <= cycle.bleed_end_date) ||
+    (!!cycle &&
+      !!date &&
+      !!cycle.bleed_end_date &&
+      date >= cycle.start_date &&
+      date <= cycle.bleed_end_date) ||
     isWithinActiveAssumedRange;
 
   const displayDate = date

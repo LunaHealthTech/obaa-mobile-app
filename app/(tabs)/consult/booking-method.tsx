@@ -1,14 +1,15 @@
 import { View, Pressable, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import {
   Body,
   ButtonText,
   Caption,
-  PageTitle,
   SectionHeading,
 } from "@/components/Typography";
+import { ScreenHeader } from "@/components/ScreenHeader";
+import { Icon } from "@/components/icons/Icon";
+import { IconBadge } from "@/components/icons/IconBadge";
+import { theme } from "@/constants/theme";
 
 const matchBenefits = ["Faster booking", "Less searching", "Best available match"];
 
@@ -25,42 +26,16 @@ export default function BookingMethodPage() {
 
   return (
     <ScrollView className={"bg-white flex-1"}>
-      <View className={"flex-row items-start gap-3 px-4 pt-4"}>
-        <Pressable
-          onPress={() => router.back()}
-          className={
-            "w-10 h-10 rounded-full border border-borderGreyColor items-center justify-center"
-          }
-        >
-          <Ionicons name={"chevron-back"} size={20} color={"#17252A"} />
-        </Pressable>
-        <View className={"flex-1 mt-1"}>
-          <PageTitle className={"text-mainText"}>
-            How would you like to book?
-          </PageTitle>
-          <Body className={"text-greyColor mt-1"}>
-            Choose how you&apos;d prefer to connect with your midwife
-          </Body>
-        </View>
-      </View>
+      <ScreenHeader
+        title={"How would you like to book?"}
+        subtitle={"Choose how you'd prefer to connect with your midwife"}
+      />
 
-      <View
-        className={
-          "mx-4 mt-6 rounded-2xl border-2 border-primaryColor p-4"
-        }
-      >
+      <View className={"mx-4 mt-2 rounded-2xl border-2 border-primaryColor p-4"}>
         <View className={"flex-row items-start justify-between"}>
-          <View
-            className={
-              "bg-[#0F969C1A] rounded-xl w-12 h-12 items-center justify-center"
-            }
-          >
-            <FontAwesome name={"random"} size={20} color={"#0F969C"} />
-          </View>
+          <IconBadge name={"sparkles"} shape={"rounded"} />
           <View className={"bg-primaryColor rounded-full px-3 py-1"}>
-            <Caption className={"text-white"}>
-              Recommended
-            </Caption>
+            <Caption className={"text-white"}>Recommended</Caption>
           </View>
         </View>
         <SectionHeading className={"text-mainText mt-3"}>
@@ -73,33 +48,25 @@ export default function BookingMethodPage() {
         <View className={"mt-3 gap-2"}>
           {matchBenefits.map((benefit) => (
             <View key={benefit} className={"flex-row items-center gap-2"}>
-              <FontAwesome name={"check-circle"} size={16} color={"#0F969C"} />
+              <Icon name={"check-circle"} size={18} color={theme.primaryColor} />
               <Body className={"text-mainText"}>{benefit}</Body>
             </View>
           ))}
         </View>
         <Pressable
           onPress={handleMatchMe}
+          accessibilityRole={"button"}
           className={
-            "bg-primaryColor rounded-full py-4 items-center justify-center mt-4 active:opacity-80"
+            "bg-primaryColor rounded-full py-4 flex-row items-center justify-center gap-2 mt-4 active:opacity-80"
           }
         >
           <ButtonText className={"text-white"}>Continue</ButtonText>
+          <Icon name={"arrow-right"} size={18} color={"#FFFFFF"} />
         </Pressable>
       </View>
 
-      <View
-        className={
-          "mx-4 mt-4 rounded-2xl border border-borderGreyColor p-4"
-        }
-      >
-        <View
-          className={
-            "bg-[#F5F7F8] rounded-xl w-12 h-12 items-center justify-center"
-          }
-        >
-          <FontAwesome name={"id-card-o"} size={20} color={"#455A64"} />
-        </View>
+      <View className={"mx-4 mt-4 rounded-2xl border border-borderGreyColor p-4"}>
+        <IconBadge name={"user"} tone={"neutral"} shape={"rounded"} />
         <SectionHeading className={"text-mainText mt-3"}>
           Choose a Midwife Yourself
         </SectionHeading>
@@ -109,11 +76,13 @@ export default function BookingMethodPage() {
         </Body>
         <Pressable
           onPress={handleChooseMidwife}
+          accessibilityRole={"button"}
           className={
-            "bg-white border-2 border-primaryColor rounded-full py-4 items-center justify-center mt-4 active:opacity-80"
+            "bg-white border-2 border-primaryColor rounded-full py-4 flex-row items-center justify-center gap-2 mt-4 active:opacity-80"
           }
         >
-          <ButtonText className={"text-primaryColor"}>Continue</ButtonText>
+          <ButtonText className={"text-primaryColor"}>Browse midwives</ButtonText>
+          <Icon name={"arrow-right"} size={18} color={theme.primaryColor} />
         </Pressable>
       </View>
 

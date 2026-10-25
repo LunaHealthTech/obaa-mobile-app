@@ -18,6 +18,8 @@ module.exports = {
         darkPrimaryColor: "#015364",
         borderGreyColor: "#DADADA",
         greyColor: "#72777A",
+        warningColor: "#B26B00",
+        urgentColor: "#D32F2F",
       },
       // NOTE: these keys must exactly match the font names registered via
       // useFonts() in app/_layout.tsx, or NativeWind will silently fall back

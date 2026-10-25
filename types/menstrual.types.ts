@@ -56,13 +56,17 @@ export interface GenerateDaysProps {
 export type UserCycleData = {
   id: null | number;
   start_date: string;
-  bleed_end_date: string;
+  // The in-progress cycle may not have these confirmed yet — see
+  // lib/CalendarHelpers.ts's extractDates/generateDays guards.
+  bleed_end_date: string | null;
   end_date: string;
-  safe_days: {
-    start_date: string;
-    end_date: string;
-  }[];
-  ovulation_day: string;
+  safe_days:
+    | {
+        start_date: string;
+        end_date: string;
+      }[]
+    | null;
+  ovulation_day: string | null;
   cycle_length: number;
   predicted: boolean;
 };
@@ -76,7 +80,7 @@ export interface DayMarking {
   cycleDay?: number;
   phase?: CyclePhase;
   customStyles?: { container: object; text: object };
-  cycleBleedEndDate?: string;
+  cycleBleedEndDate?: string | null;
 }
 
 export interface LogEntry {

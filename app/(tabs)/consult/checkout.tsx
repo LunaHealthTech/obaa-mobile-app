@@ -1,156 +1,104 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { View, Pressable, ScrollView, ActivityIndicator } from "react-native";
-import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { format, parseISO } from "date-fns";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { midwives } from "@/constants/midwives";
 import {
-  Body,
   ButtonText,
   CardTitle,
   Caption,
   Label,
-  PageTitle,
   SectionHeading,
 } from "@/components/Typography";
+import { ScreenHeader } from "@/components/ScreenHeader";
+import type { IconName } from "@/components/icons/Icon";
+import { IconBadge } from "@/components/icons/IconBadge";
+import { MidwifeHeader } from "@/components/AppointmentSummary";
+import { HoldCountdown } from "@/components/HoldCountdown";
+import { concernLabel } from "@/lib/appointments/concerns";
+import { formatFee, longDate, timeRange } from "@/lib/appointments/format";
+import { holdSecondsLeft } from "@/lib/appointments/status";
+import { useNow } from "@/lib/useNow";
+import {
+  reactToBookingError,
+  useAppointment,
+  useConfirmAppointment,
+} from "@/viewmodel/useAppointments";
+import type { PaymentMethod } from "@/types/appointment.types";
 
-const CONSULTATION_TYPE_LABELS: Record<string, string> = {
-  chat: "Chat Consultation",
-  audio: "Audio Call",
-  video: "Video Call",
-};
-
-// Placeholder flat fee — replace once a real PSP and pricing model are integrated.
-const CONSULTATION_FEE = "GHS 150.00";
-
-const paymentMethods = [
-  { key: "momo", label: "Mobile Money", icon: "phone" as const },
-  { key: "card", label: "Debit / Credit Card", icon: "credit-card" as const },
+const paymentMethods: { key: PaymentMethod; label: string; hint: string; icon: IconName }[] = [
+  { key: "MOMO", label: "Mobile Money", hint: "Pay from your mobile wallet", icon: "smartphone" },
+  { key: "CARD", label: "Debit / Credit Card", hint: "Pay with your bank card", icon: "credit-card" },
 ];
+
+function SummaryRow({ label, value }: { label: string; value: string }) {
+  return (
+    <View className={"flex-row items-center justify-between"}>
+      <Caption className={"text-subText"}>{label}</Caption>
+      <Label className={"text-mainText"}>{value}</Label>
+    </View>
+  );
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { topic, consultationType, date, time, midwifeId } =
-    useLocalSearchParams<{
-      topic: string;
-      consultationType: string;
-      date: string;
-      time: string;
-      midwifeId: string;
-    }>();
+  const { appointmentId } = useLocalSearchParams<{ appointmentId: string }>();
+  const id = Number(appointmentId);
+  const { data: appointment } = useAppointment(id);
+  const confirm = useConfirmAppointment(id);
+  const now = useNow();
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>("MOMO");
 
-  const midwife = midwives.find((item) => item.id === midwifeId) ?? midwives[0];
-  const avatarUri = `https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=${midwife.name}&size=48&backgroundColor=d1d4f9`;
-  const typeLabel = CONSULTATION_TYPE_LABELS[consultationType] ?? "Consultation";
-  const formattedDate = date ? format(parseISO(date), "EEEE, d MMMM yyyy") : "";
+  if (!appointment?.midwife) {
+    return (
+      <View className={"bg-white flex-1 items-center justify-center"}>
+        <ActivityIndicator color={"#0F969C"} />
+      </View>
+    );
+  }
 
-  const [selectedMethod, setSelectedMethod] = useState(paymentMethods[0].key);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const holdActive = holdSecondsLeft(appointment, now) > 0;
+  const canPay = holdActive && !confirm.isPending;
+  const fee = formatFee(appointment.fee);
 
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, []);
+  const pickAnotherTime = () =>
+    router.replace({
+      pathname: "/consult/match-preferences",
+      params: { concern: appointment.concern },
+    });
 
   const handlePayNow = () => {
-    setIsProcessing(true);
-    // Simulated payment call — replace with the real PSP charge once integrated.
-    timeoutRef.current = setTimeout(() => {
-      router.replace({
-        pathname: "/consult/booking-confirmation",
-        params: { topic, consultationType, date, time, midwifeId },
-      });
-    }, 1200);
+    confirm.mutate(selectedMethod, {
+      onSuccess: (confirmed) =>
+        router.replace({
+          pathname: "/consult/booking-confirmation",
+          params: { appointmentId: String(confirmed.id) },
+        }),
+      onError: (error) => reactToBookingError(error, "Payment didn't go through"),
+    });
   };
 
   return (
     <View className={"bg-white flex-1"}>
-      <View
-        className={
-          "flex-row items-center gap-3 px-4 pt-4 pb-4 border-b border-borderGreyColor"
-        }
-      >
-        <Pressable
-          onPress={() => router.back()}
-          disabled={isProcessing}
-          className={
-            "w-10 h-10 rounded-full border border-borderGreyColor items-center justify-center"
-          }
-        >
-          <Ionicons name={"chevron-back"} size={20} color={"#17252A"} />
-        </Pressable>
-        <PageTitle className={"text-mainText"}>Checkout</PageTitle>
-      </View>
+      <ScreenHeader title={"Checkout"} backDisabled={confirm.isPending} bordered={true} />
 
       <ScrollView className={"flex-1"}>
+        <View className={"px-4 mt-4"}>
+          <HoldCountdown appointment={appointment} />
+        </View>
+
         <View className={"px-4 mt-6"}>
           <SectionHeading className={"text-mainText mb-3"}>
             Appointment Summary
           </SectionHeading>
-          <View
-            className={
-              "bg-white rounded-xl border border-borderGreyColor p-4"
-            }
-          >
-            <View className={"flex-row items-center gap-3"}>
-              <View
-                className={
-                  "rounded-full overflow-hidden w-12 h-12 bg-[#0F969C1A]"
-                }
-              >
-                <Image
-                  source={{ uri: avatarUri }}
-                  style={{ width: 48, height: 48 }}
-                />
-              </View>
-              <View>
-                <View className={"flex-row items-center gap-1.5"}>
-                  <CardTitle className={"text-mainText"}>
-                    {midwife.name}
-                  </CardTitle>
-                  <Ionicons
-                    name={"checkmark-circle"}
-                    size={16}
-                    color={"#0F969C"}
-                  />
-                </View>
-                <Caption className={"text-greyColor mt-0.5"}>
-                  {midwife.role}
-                </Caption>
-              </View>
-            </View>
-
+          <View className={"bg-white rounded-xl border border-borderGreyColor p-4"}>
+            <MidwifeHeader midwife={appointment.midwife} />
             <View className={"mt-4 pt-4 border-t border-borderGreyColor gap-3"}>
-              <View className={"flex-row items-center justify-between"}>
-                <Body className={"text-greyColor"}>Date</Body>
-                <Label className={"text-mainText"}>
-                  {formattedDate}
-                </Label>
-              </View>
-              <View className={"flex-row items-center justify-between"}>
-                <Body className={"text-greyColor"}>Time</Body>
-                <Label className={"text-mainText"}>
-                  {time}
-                </Label>
-              </View>
-              <View className={"flex-row items-center justify-between"}>
-                <Body className={"text-greyColor"}>Type</Body>
-                <Label className={"text-mainText"}>
-                  {typeLabel}
-                </Label>
-              </View>
-              {!!topic && (
-                <View className={"flex-row items-center justify-between"}>
-                  <Body className={"text-greyColor"}>Support Topic</Body>
-                  <Label className={"text-mainText"}>
-                    {topic}
-                  </Label>
-                </View>
-              )}
+              <SummaryRow label={"Date"} value={longDate(appointment.scheduled_start)} />
+              <SummaryRow
+                label={"Time"}
+                value={timeRange(appointment.scheduled_start, appointment.scheduled_end)}
+              />
+              <SummaryRow label={"Type"} value={appointment.consultation_type_label} />
+              <SummaryRow label={"Support Topic"} value={concernLabel(appointment.concern)} />
             </View>
           </View>
         </View>
@@ -166,29 +114,32 @@ export default function CheckoutPage() {
                 <Pressable
                   key={method.key}
                   onPress={() => setSelectedMethod(method.key)}
+                  accessibilityRole={"radio"}
+                  accessibilityState={{ checked: isSelected }}
                   className={
                     isSelected
                       ? "flex-row items-center gap-3 bg-[#0F969C1A] border-2 border-primaryColor rounded-xl px-4 py-4"
                       : "flex-row items-center gap-3 bg-white border border-borderGreyColor rounded-xl px-4 py-4"
                   }
                 >
-                  <FontAwesome
+                  <IconBadge
                     name={method.icon}
-                    size={18}
-                    color={isSelected ? "#0F969C" : "#72777A"}
+                    size={"sm"}
+                    tone={isSelected ? "primary" : "neutral"}
                   />
-                  <Label
-                    className={
-                      isSelected ? "flex-1 text-primaryColor" : "flex-1 text-mainText"
-                    }
+                  <View className={"flex-1"}>
+                    <Label className={isSelected ? "text-primaryColor" : "text-mainText"}>
+                      {method.label}
+                    </Label>
+                    <Caption className={"text-greyColor mt-0.5"}>{method.hint}</Caption>
+                  </View>
+                  <View
+                    className={`w-5 h-5 rounded-full items-center justify-center border-2 ${
+                      isSelected ? "border-primaryColor" : "border-borderGreyColor"
+                    }`}
                   >
-                    {method.label}
-                  </Label>
-                  <Ionicons
-                    name={isSelected ? "radio-button-on" : "radio-button-off"}
-                    size={20}
-                    color={isSelected ? "#0F969C" : "#DADADA"}
-                  />
+                    {isSelected && <View className={"w-2.5 h-2.5 rounded-full bg-primaryColor"} />}
+                  </View>
                 </Pressable>
               );
             })}
@@ -198,15 +149,11 @@ export default function CheckoutPage() {
         <View className={"px-4 mt-6"}>
           <View
             className={
-              "flex-row items-center justify-between bg-[#F5F7F8] rounded-xl px-4 py-4"
+              "flex-row items-center justify-between bg-white border border-borderGreyColor rounded-xl px-4 py-4"
             }
           >
-            <Label className={"text-mainText"}>
-              Consultation Fee
-            </Label>
-            <CardTitle className={"text-mainText"}>
-              {CONSULTATION_FEE}
-            </CardTitle>
+            <Label className={"text-mainText"}>Consultation Fee</Label>
+            <CardTitle className={"text-mainText"}>{fee}</CardTitle>
           </View>
         </View>
 
@@ -214,19 +161,32 @@ export default function CheckoutPage() {
       </ScrollView>
 
       <View className={"px-4 py-4 border-t border-borderGreyColor"}>
-        <Pressable
-          onPress={handlePayNow}
-          disabled={isProcessing}
-          className={
-            "bg-primaryColor rounded-full py-4 flex-row items-center justify-center gap-2 active:opacity-80"
-          }
-          style={isProcessing ? { opacity: 0.7 } : undefined}
-        >
-          {isProcessing && <ActivityIndicator color={"#fff"} size={"small"} />}
-          <ButtonText className={"text-white"}>
-            {isProcessing ? "Processing..." : `Pay ${CONSULTATION_FEE}`}
-          </ButtonText>
-        </Pressable>
+        {holdActive ? (
+          <Pressable
+            onPress={handlePayNow}
+            disabled={!canPay}
+            accessibilityRole={"button"}
+            accessibilityState={{ disabled: !canPay, busy: confirm.isPending }}
+            className={`rounded-full py-4 flex-row items-center justify-center gap-2 active:opacity-80 ${
+              canPay ? "bg-primaryColor" : "bg-borderGreyColor"
+            }`}
+          >
+            {confirm.isPending && <ActivityIndicator color={"#fff"} size={"small"} />}
+            <ButtonText className={"text-white"}>
+              {confirm.isPending ? "Processing..." : `Pay ${fee}`}
+            </ButtonText>
+          </Pressable>
+        ) : (
+          <Pressable
+            onPress={pickAnotherTime}
+            accessibilityRole={"button"}
+            className={
+              "bg-white border-2 border-primaryColor rounded-full py-4 items-center justify-center active:opacity-80"
+            }
+          >
+            <ButtonText className={"text-primaryColor"}>Pick another time</ButtonText>
+          </Pressable>
+        )}
       </View>
     </View>
   );

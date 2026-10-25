@@ -1,12 +1,13 @@
 import { View, ScrollView, Pressable } from "react-native";
 import { useEffect } from "react";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { AppHeader } from "@/components/AppHeader";
 import { Calendar } from "@/components/Calendar";
 import { CircularProgress } from "@/components/CircularProgress";
 import { CycleFlowSheet } from "@/components/cycle-flow/CycleFlowSheet";
 import { useMenstrualProfileViewModel } from "@/viewmodel/useMenstrualProfile";
-import { useCycleList } from "@/viewmodel/useCycles";
+import { useCycleForecast, useCycleList } from "@/viewmodel/useCycles";
+import { ovulationLabel } from "@/lib/cycleForecast";
 import { useCycleFlowStore } from "@/repositories/useCycleFlowStore";
 import { findNextCycle, findOwningCycle } from "@/lib/CalendarHelpers";
 import BlueOvulation from "@/assets/ovulation_blue.svg";
@@ -21,6 +22,7 @@ export default function CalendarPage() {
     refetch: refetchProfile,
   } = useMenstrualProfileViewModel();
   const { sortedCycles, isCyclesError, refetchCycles } = useCycleList();
+  const { ring, nextOvulation, pregnancyChance } = useCycleForecast();
   const flowMode = useCycleFlowStore((s) => s.state.mode);
   const openForOldCycle = useCycleFlowStore((s) => s.openForOldCycle);
   const openForCurrentCycle = useCycleFlowStore((s) => s.openForCurrentCycle);
@@ -71,6 +73,20 @@ export default function CalendarPage() {
 
     if (owner.id == null) {
       // virtual predicted continuation of the still-open cycle — no real id to updateCycle
+      openForStaleFix({
+        cycleId: data?.currentCycleId ?? null,
+        cycleLength: data?.general.cycleLength ?? null,
+      });
+      return;
+    }
+
+    if (owner.bleed_end_date == null) {
+      // a closed cycle should always have this confirmed — if it doesn't,
+      // treat it like the stale-current case rather than seeding the
+      // correction flow with a missing date.
+      console.warn(
+        `[calendar] closed cycle ${owner.id} is missing bleed_end_date`,
+      );
       openForStaleFix({
         cycleId: data?.currentCycleId ?? null,
         cycleLength: data?.general.cycleLength ?? null,
@@ -144,7 +160,7 @@ export default function CalendarPage() {
             <Caption>Fertile Window</Caption>
           </View>
           <View className={`flex-row gap-2 items-center `}>
-            <View className={"w-4 h-4 bg-[#07226B] rounded-full"}> </View>
+            <View className={"w-4 h-4 bg-[#07226B] rounded-full"} />
             <Caption>Ovulation day</Caption>
           </View>
           <View className={`flex-row gap-2 items-center `}>
@@ -164,20 +180,14 @@ export default function CalendarPage() {
           }
         }}
       >
-        <CircularProgress
-          phase={data?.calendarPage.phase}
-          day={data?.calendarPage.numberOfDaysIn}
-          totalDays={data?.calendarPage.totalDays}
-        />
+        {ring && (
+          <CircularProgress phase={ring.phase} day={ring.day} totalDays={ring.totalDays} />
+        )}
       </Pressable>
-      <View
-        className={"flex-1 flex-row items-start justify-between mt-10 px-4"}
-      >
-        <View
-          className={
-            "border-2 border-[#07226B] flex-row rounded-xl p-4 w-[188px] items-center gap-5"
-          }
-        >
+      {/* items-stretch + flex-1 keeps both cards the same height and width
+          whatever their text. */}
+      <View className={"flex-row items-stretch gap-3 mt-10 mb-8 px-4"}>
+        <View className={"flex-1 border-2 border-[#07226B] rounded-xl p-4 gap-3"}>
           <View
             className={
               "bg-[#07226B30] rounded-full w-[50px] h-[50px] items-center justify-center"
@@ -187,22 +197,24 @@ export default function CalendarPage() {
           </View>
           <View>
             <Caption className={"text-greyColor"}>Next Ovulation</Caption>
-            <PageTitle>15 Days</PageTitle>
+            <PageTitle className={"text-mainText"} numberOfLines={1} adjustsFontSizeToFit={true}>
+              {nextOvulation ? ovulationLabel(nextOvulation.daysAway) : "—"}
+            </PageTitle>
+            <Caption className={"text-greyColor"}>
+              {nextOvulation ? format(parseISO(nextOvulation.date), "EEE, d MMM") : " "}
+            </Caption>
           </View>
         </View>
-        <View
-          className={
-            "border-2 border-[#AF52DE] flex-row items-center rounded-xl p-4 gap-4"
-          }
-        >
+        <View className={"flex-1 border-2 border-[#AF52DE] rounded-xl p-4 gap-3"}>
           <View className={"bg-[#AF52DE] w-[50px] h-[50px] p-2 rounded-full"}>
             <PregnancyWhite />
           </View>
           <View>
             <Caption className={"text-greyColor"}>Pregnancy</Caption>
-            <PageTitle className={"text-mainText"}>
-              {data?.calendarPage?.pregnancyProbability}
+            <PageTitle className={"text-mainText"} numberOfLines={1} adjustsFontSizeToFit={true}>
+              {pregnancyChance ?? "—"}
             </PageTitle>
+            <Caption className={"text-greyColor"}>Chance today</Caption>
           </View>
         </View>
       </View>

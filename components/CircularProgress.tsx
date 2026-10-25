@@ -1,35 +1,44 @@
 import Svg, { Circle, G } from "react-native-svg";
-import { View, Text } from "react-native";
+import { Text, View } from "react-native";
 import FollicularPhase from "@/assets/follicular.svg";
 import LutealPhase from "@/assets/luteal.svg";
 import OvulationPhase from "@/assets/ovulation.svg";
 import PeriodPhase from "@/assets/period_phase.svg";
 import { CardTitle, Caption } from "@/components/Typography";
+import type { RingPhase } from "@/lib/cycleForecast";
+import type { ReactNode } from "react";
 
 const SIZE = 300;
 const STROKE_WIDTH = 24;
 const RADIUS = (SIZE - STROKE_WIDTH) / 2;
 const GAP = 0;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-const PhaseImagePair = {
+const PhaseImagePair: Record<RingPhase, ReactNode> = {
   MENSTRUATING: <PeriodPhase />,
   OVULATING: <OvulationPhase />,
   LUTEAL: <LutealPhase />,
   FOLLICULAR: <FollicularPhase />,
+  MISSED: null,
 };
 
-const PhaseWordPair = {
-  MENSTRUATING: "Menstrual",
-  OVULATING: "Ovulation",
-  LUTEAL: "Luteal",
-  FOLLICULAR: "Follicular",
+const PhaseWordPair: Record<RingPhase, string> = {
+  MENSTRUATING: "Menstrual Phase",
+  OVULATING: "Ovulation Phase",
+  LUTEAL: "Luteal Phase",
+  FOLLICULAR: "Follicular Phase",
+  MISSED: "Missed",
 };
 export function CircularProgress({
-  day = 2,
-  totalDays = 25,
-  phase = "FOLLICULAR",
+  day,
+  totalDays,
+  phase,
+}: {
+  day: number;
+  totalDays: number;
+  phase: RingPhase;
 }) {
-  const progress = day / totalDays;
+  // A late period keeps counting days past the cycle length; the arc stays full.
+  const progress = Math.min(day / totalDays, 1);
   const trackLength = CIRCUMFERENCE * (1 - GAP);
   const progressLength = trackLength * progress;
   const startAngle = -90 + (GAP / 2) * 360;
@@ -77,11 +86,12 @@ export function CircularProgress({
       </Svg>
       <>
         <View className="items-center relative">
-          <Caption className="text-gray-400">Cycle</Caption>
-          <Text className="text-5xl font-display-bold text-gray-900">Day {day}</Text>
-          <CardTitle className="text-gray-900">
-            {PhaseWordPair[phase]} Phase
-          </CardTitle>
+          <Caption className="text-greyColor">Cycle</Caption>
+          <Text className="text-5xl font-display-bold text-mainText">Day {day}</Text>
+          <CardTitle className="text-mainText">{PhaseWordPair[phase]}</CardTitle>
+          {phase === "MISSED" && (
+            <Caption className="text-greyColor">Tap to update</Caption>
+          )}
         </View>
         {/*  background image */}
         <View

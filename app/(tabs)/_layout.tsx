@@ -31,6 +31,10 @@ export default function HomeLayout() {
         options={{
           title: "logs",
           headerShown: false,
+          // Stops this tab's <Calendar> (and its query observer) from
+          // continuing to render/recompute while another tab is active,
+          // without paying a full unmount/remount cost on return.
+          freezeOnBlur: true,
           tabBarIcon: ({ size, color }) => (
             <LogIcon width={size} color={color} />
           ),

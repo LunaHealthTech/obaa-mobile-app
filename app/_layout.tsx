@@ -20,6 +20,8 @@ import { AppProviders } from "@/providers/AppProviders";
 import { Toaster } from "sonner-native";
 import { useAuthStore } from "@/repositories/useAuthStore";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { CallNavigator } from "@/components/CallNavigator";
 export const unstable_settings = {
   initialRouteName: "intro",
 };
@@ -38,6 +40,8 @@ export default function RootLayout() {
     Inter_700Bold,
   });
   const isAuthenticated = useAuthStore((s) => s.status);
+  const isMidwife = useAuthStore((s) => s.user?.role === "MIDWIFE");
+  const signedIn = isAuthenticated === "authenticated";
   useEffect(() => {
     if (loaded || error) SplashScreen.hideAsync();
   }, [loaded, error]);
@@ -48,41 +52,61 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <AppProviders>
-          <Stack>
-            <Stack.Protected guard={isAuthenticated === "authenticated"}>
-              <Stack.Screen
-                name={"(tabs)"}
-                options={{ title: "Home", headerShown: false }}
-              />
-              <Stack.Screen
-                name={"onboarding"}
-                options={{ title: "onboarding", headerShown: false }}
-              />
-            </Stack.Protected>
-            <Stack.Protected guard={!(isAuthenticated === "authenticated")}>
-              <Stack.Screen
-                name={"intro"}
-                options={{ title: "Welcome", headerShown: false }}
-              />
-              <Stack.Screen
-                name={"signin"}
-                options={{ title: "Log in joor" }}
-              />
-              <Stack.Screen
-                name={"signup"}
-                options={{ title: "Sign up joor" }}
-              />
-              <Stack.Screen
-                name={"forgot-password"}
-                options={{ title: "" }}
-              />
-              <Stack.Screen
-                name={"reset-password"}
-                options={{ title: "" }}
-              />
-            </Stack.Protected>
-            <Stack.Screen name={"verify-email"} options={{ title: "" }} />
-          </Stack>
+          <ErrorBoundary>
+            <Stack>
+              <Stack.Protected guard={signedIn && !isMidwife}>
+                <Stack.Screen
+                  name={"(tabs)"}
+                  options={{ title: "Home", headerShown: false }}
+                />
+                <Stack.Screen
+                  name={"onboarding"}
+                  options={{ title: "onboarding", headerShown: false }}
+                />
+              </Stack.Protected>
+              <Stack.Protected guard={signedIn && isMidwife}>
+                <Stack.Screen name={"midwife"} options={{ headerShown: false }} />
+              </Stack.Protected>
+              <Stack.Protected guard={signedIn}>
+                <Stack.Screen
+                  name={"notifications"}
+                  options={{ title: "Notifications" }}
+                />
+                <Stack.Screen
+                  name={"call"}
+                  options={{
+                    headerShown: false,
+                    presentation: "fullScreenModal",
+                    gestureEnabled: false,
+                  }}
+                />
+              </Stack.Protected>
+              <Stack.Protected guard={!(isAuthenticated === "authenticated")}>
+                <Stack.Screen
+                  name={"intro"}
+                  options={{ title: "Welcome", headerShown: false }}
+                />
+                <Stack.Screen
+                  name={"signin"}
+                  options={{ title: "Log in joor" }}
+                />
+                <Stack.Screen
+                  name={"signup"}
+                  options={{ title: "Sign up joor" }}
+                />
+                <Stack.Screen
+                  name={"forgot-password"}
+                  options={{ title: "" }}
+                />
+                <Stack.Screen
+                  name={"reset-password"}
+                  options={{ title: "" }}
+                />
+              </Stack.Protected>
+              <Stack.Screen name={"verify-email"} options={{ title: "" }} />
+            </Stack>
+            {signedIn && <CallNavigator />}
+          </ErrorBoundary>
           <Toaster position={"top-center"} />
         </AppProviders>
       </GestureHandlerRootView>

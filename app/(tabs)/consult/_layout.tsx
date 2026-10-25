@@ -40,6 +40,14 @@ export default function ConsultLayout() {
         name={"midwife-profile"}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name={"book-midwife"}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name={"consultations"}
+        options={{ headerShown: false }}
+      />
     </Stack>
   );
 }
