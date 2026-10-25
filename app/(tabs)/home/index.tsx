@@ -31,6 +31,11 @@ import { AppHeader } from "@/components/AppHeader";
 import { Body, CardTitle, Label, SectionHeading } from "@/components/Typography";
 import { NotificationCard } from "@/components/NotificationCard";
 import { useNotifications } from "@/viewmodel/useNotifications";
+import { useArticleFeed } from "@/viewmodel/useContent";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { theme } from "@/constants/theme";
+
+const HOME_ARTICLE_COUNT = 6;
 
 const emoticonData: EmoticonData[] = [
   { emoji: "😊", name: "happy" },
@@ -49,6 +54,7 @@ export default function HomePage() {
   const { data, isLoading, error, isError } = useMenstrualProfileViewModel();
   const { newestUnreadUrgent, readNotification, openNotificationCta } =
     useNotifications();
+  const articles = useArticleFeed({}).articles.slice(0, HOME_ARTICLE_COUNT);
   console.log({ data, isLoading, error, isError });
 
   const handleShareClick = () => {
@@ -157,21 +163,49 @@ export default function HomePage() {
               </View>
             </View>
 
-            {/* Article */}
-            <View className={"mt-5"}>
-              <SectionHeading className={"mb-3"}>How do you feel today?</SectionHeading>
-              <View className={"flex flex-1"}>
-                <FlatList
-                  horizontal={true}
-                  contentContainerStyle={{
-                    gap: 10,
-                  }}
-                  data={["som", "an", "tow", "son"]}
-                  keyExtractor={(item) => item}
-                  renderItem={(article) => <ArticleCardSM />}
-                />
+            {articles.length > 0 && (
+              <View className={"mt-5"}>
+                <View className={"flex flex-row justify-between items-center mb-3"}>
+                  <SectionHeading>Articles</SectionHeading>
+                  <Link href={"/articles"}>
+                    <Label className={"text-primaryColor"}>See all</Label>
+                  </Link>
+                </View>
+                <View className={"flex flex-1"}>
+                  <FlatList
+                    horizontal={true}
+                    contentContainerStyle={{
+                      gap: 10,
+                    }}
+                    data={articles}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => <ArticleCardSM article={item} />}
+                  />
+                </View>
               </View>
-            </View>
+            )}
+
+            <Link href={"/events"} asChild>
+              <Pressable
+                accessibilityRole={"link"}
+                className={
+                  "mt-5 flex flex-row items-center gap-3 bg-white rounded-xl border border-borderGreyColor p-3 active:opacity-80"
+                }
+              >
+                <View
+                  className={
+                    "bg-[#0F969C1A] w-10 h-10 rounded-full items-center justify-center"
+                  }
+                >
+                  <Ionicons name={"calendar-outline"} size={20} color={theme.primaryColor} />
+                </View>
+                <View className={"flex-1"}>
+                  <CardTitle className={"text-mainText"}>Events</CardTitle>
+                  <Body className={"text-greyColor"}>Midwife-led sessions and talks</Body>
+                </View>
+                <Ionicons name={"chevron-forward"} size={18} color={theme.greyColor} />
+              </Pressable>
+            </Link>
             <Pressable onPress={() => logout()}>
               <Label>Logout</Label>
             </Pressable>

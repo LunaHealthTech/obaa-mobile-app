@@ -34,6 +34,7 @@ export function useAuth() {
   const login = useAuthStore((s) => s.login);
   const token = useAuthStore((s) => s.token);
   const user = useAuthStore((s) => s.user);
+  const markEmailVerified = useAuthStore((s) => s.markEmailVerified);
 
   // Mutations
   const loginMutation = useMutation({
@@ -102,10 +103,11 @@ export function useAuth() {
 
   const verifyEmailMutation = useMutation({
     mutationFn: verifyEmail,
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.dismiss();
       toast.success("Email verified successfully");
       if (token) {
+        await markEmailVerified();
         const userHasMenstrualProfile = !!user?.menstrual_profile_created;
         router.navigate(
           user?.role === "MIDWIFE" || userHasMenstrualProfile

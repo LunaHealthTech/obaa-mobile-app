@@ -72,6 +72,7 @@ export default function RootLayout() {
                   name={"notifications"}
                   options={{ title: "Notifications" }}
                 />
+                <Stack.Screen name={"bookmarks"} options={{ title: "Bookmarks" }} />
                 <Stack.Screen
                   name={"call"}
                   options={{
@@ -104,6 +105,10 @@ export default function RootLayout() {
                 />
               </Stack.Protected>
               <Stack.Screen name={"verify-email"} options={{ title: "" }} />
+              <Stack.Screen name={"articles/index"} options={{ title: "Articles" }} />
+              <Stack.Screen name={"articles/[slug]"} options={{ title: "" }} />
+              <Stack.Screen name={"events"} options={{ title: "Events" }} />
+              <Stack.Screen name={"privacy-policy"} options={{ title: "Privacy policy" }} />
             </Stack>
             {signedIn && <CallNavigator />}
           </ErrorBoundary>

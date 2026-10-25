@@ -22,6 +22,7 @@ export interface AuthState {
   login: (user: User, access: string, refresh: string) => Promise<void>;
   logout: () => Promise<void>;
   setToken: (token: string) => void;
+  markEmailVerified: () => Promise<void>;
   rehydrate: () => Promise<void>;
   signUpItems?: {
     first_name: string;
